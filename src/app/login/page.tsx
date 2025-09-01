@@ -1,7 +1,24 @@
+"use client"; // if you’re in Next 13+ with App Router
+
+import { supabase } from "@/lib/supabaseClient";
+
 export default function LoginPage() {
+  const handleGoogleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      console.error("Google login error:", error.message);
+    }
+  };
+
   return (
     <div className="bg-[#111418] font-sans min-h-screen w-full flex flex-col md:flex-row">
-      {/* Left Section (hidden on mobile) */}
+      {/* Left Section */}
       <div className="hidden md:flex w-1/2 bg-slate-900 text-white p-12 flex-col justify-between">
         <div>
           <h1 className="text-4xl font-bold mb-6">
@@ -9,9 +26,7 @@ export default function LoginPage() {
           </h1>
           <p className="text-slate-300 text-lg leading-relaxed">
             Gain access to comprehensive investor data to make informed
-            decisions and stay ahead in the market. Our platform provides
-            real-time insights and analytics to help you achieve your
-            investment goals.
+            decisions and stay ahead in the market.
           </p>
         </div>
 
@@ -24,7 +39,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right Section (always visible) */}
+      {/* Right Section */}
       <div className="w-full md:w-1/2 bg-[#111418] p-12 flex flex-col justify-center">
         <div className="max-w-md mx-auto w-full">
           <h2 className="text-3xl font-bold text-white mb-8 text-center">
@@ -35,7 +50,8 @@ export default function LoginPage() {
           <div className="mt-6">
             <button
               type="button"
-              className="w-full flex items-center justify-center py-3 px-4 border border-slate-700 rounded-md shadow-sm text-sm font-medium text-white bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 focus:ring-offset-slate-900"
+              onClick={handleGoogleLogin}
+              className="w-full flex items-center justify-center py-3 px-4 border border-slate-700 rounded-md shadow-sm text-sm font-medium text-white bg-slate-800 hover:bg-slate-700"
             >
               <svg
                 className="h-5 w-5 mr-3"
@@ -65,10 +81,7 @@ export default function LoginPage() {
 
           <p className="mt-8 text-center text-sm text-slate-400">
             By signing in, you agree to our{" "}
-            <a
-              href="#"
-              className="font-medium text-blue-500 hover:text-blue-400"
-            >
+            <a href="#" className="font-medium text-blue-500 hover:text-blue-400">
               Terms of Service
             </a>
             .

@@ -12,7 +12,7 @@ export default function Home() {
         transition={{ duration: 0.6 }}
         className="flex justify-between items-center px-8 py-4 bg-gray-800 shadow"
       >
-        <div className="text-xl font-bold">Investor Insights</div>
+        <div className="text-xl font-bold">MyStartupInvestors</div>
         <ul className="hidden md:flex gap-6 text-gray-300">
           <li><a href="#features" className="hover:text-white">Features</a></li>
           <li><a href="#pricing" className="hover:text-white">Pricing</a></li>
@@ -266,7 +266,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="bg-gray-900 py-6 px-6 md:px-16 text-gray-400 text-sm flex justify-between">
-        <div>© 2024 Investor Insights. All rights reserved.</div>
+        <div>© 2024 MyStartupInvestors. All rights reserved.</div>
         <div className="flex gap-4">
           <a href="#">Terms of Service</a>
           <a href="#">Privacy Policy</a>
