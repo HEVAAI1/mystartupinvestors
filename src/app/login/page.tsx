@@ -1,6 +1,5 @@
-"use client"; // if you’re in Next 13+ with App Router
+"use client"; // Next.js App Router
 
-import { useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
 export default function LoginPage() {
@@ -9,7 +8,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback`, // callback page
       },
     });
 
@@ -17,38 +16,6 @@ export default function LoginPage() {
       console.error("Google login error:", error.message);
     }
   };
-
-  // After redirect callback, create user record
-  useEffect(() => {
-    const createUserRecord = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) return;
-
-      try {
-        // Upsert user into the "users" table
-        const { error: upsertError } = await supabase.from("users").upsert({
-          id: user.id,
-          name: user.user_metadata.full_name || "",
-          email: user.email || "",
-          plan: "free",
-          credits_allocated: 5,
-          credits_used: 0,
-          last_login: new Date().toISOString(),
-          role: "user",
-          profile_picture: user.user_metadata.avatar_url || null,
-        });
-
-        if (upsertError) console.error("Failed to create user record:", upsertError);
-      } catch (err) {
-        console.error("Error creating user record:", err);
-      }
-    };
-
-    createUserRecord();
-  }, []);
 
   return (
     <div className="bg-[#111418] font-sans min-h-screen w-full flex flex-col md:flex-row">

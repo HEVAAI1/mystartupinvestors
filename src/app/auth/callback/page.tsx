@@ -8,22 +8,40 @@ export default function AuthCallbackPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Check if the user is logged in
-    supabase.auth.getSession().then(({ data, error }) => {
-      if (error) {
-        console.error("Session error:", error.message);
+    const handleAuth = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+
+      if (error || !session) {
+        console.error("No session:", error?.message);
         router.replace("/login");
         return;
       }
 
-      if (data.session) {
-        // ✅ User is logged in
-        router.replace("/dashboard"); // or wherever you want to send them
+      const user = session.user;
+
+      // 📝 Upsert into custom users table
+      const { error: upsertError } = await supabase.from("users").upsert({
+        id: user.id,
+        name: user.user_metadata.full_name || "",
+        email: user.email || "",
+        plan: "free",
+        credits_allocated: 5,
+        credits_used: 0,
+        last_login: new Date().toISOString(),
+        role: "user",
+        profile_picture: user.user_metadata.avatar_url || null,
+      });
+
+      if (upsertError) {
+        console.error("Failed to update users table:", upsertError.message);
       } else {
-        // ❌ No session
-        router.replace("/login");
+        console.log("✅ User record updated");
       }
-    });
+
+      router.replace("/dashboard");
+    };
+
+    handleAuth();
   }, [router]);
 
   return (
