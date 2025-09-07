@@ -86,7 +86,10 @@ export default function Navbar({ credits = 5 }: { credits?: number }) {
         </div>
 
         {/* Upload Button */}
-        <button className="p-2 bg-gray-700 rounded-lg hover:bg-gray-600">
+        <button
+          onClick={() => router.push("/startup-details")}
+          className="p-2 bg-gray-700 rounded-lg hover:bg-gray-600"
+        >
           <FiUpload size={20} className="text-gray-200" />
         </button>
       </div>

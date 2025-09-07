@@ -13,14 +13,13 @@ interface User {
   last_login: string;
   role: string;
   profile_picture?: string | null;
-  location?: string | null;
+  startup_form_submitted: boolean;
 }
 
 export default function UserListPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterPlan, setFilterPlan] = useState<string>("All");
-  const [filterLocation, setFilterLocation] = useState<string>("All");
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -42,12 +41,7 @@ export default function UserListPage() {
     const matchesPlan =
       filterPlan === "All" ? true : user.plan.toLowerCase() === filterPlan.toLowerCase();
 
-    const matchesLocation =
-      filterLocation === "All"
-        ? true
-        : (user.location || "").toLowerCase() === filterLocation.toLowerCase();
-
-    return matchesSearch && matchesPlan && matchesLocation;
+    return matchesSearch && matchesPlan;
   });
 
   return (
@@ -76,19 +70,6 @@ export default function UserListPage() {
           <option value="pro">Pro</option>
           <option value="pro+">Pro+</option>
         </select>
-
-        {/* Filter by Location */}
-        <select
-          value={filterLocation}
-          onChange={(e) => setFilterLocation(e.target.value)}
-          className="border rounded-md px-4 py-2"
-        >
-          <option value="All">All Locations</option>
-          <option value="usa">USA</option>
-          <option value="india">India</option>
-          <option value="europe">Europe</option>
-          {/* Add more locations as needed */}
-        </select>
       </div>
 
       {/* Table */}
@@ -101,7 +82,7 @@ export default function UserListPage() {
               <th className="p-3">Email</th>
               <th className="p-3">Plan</th>
               <th className="p-3">Credits</th>
-              <th className="p-3">Location</th>
+              <th className="p-3">Startup Form</th>
               <th className="p-3">Last Login</th>
             </tr>
           </thead>
@@ -128,9 +109,13 @@ export default function UserListPage() {
                   <td className="p-3">
                     {user.credits_used}/{user.credits_allocated}
                   </td>
-                  <td className="p-3">{user.location || "—"}</td>
                   <td className="p-3">
-                    {new Date(user.last_login).toLocaleString()}
+                    {user.startup_form_submitted ? "✅ Yes" : "❌ No"}
+                  </td>
+                  <td className="p-3">
+                    {user.last_login
+                      ? new Date(user.last_login).toLocaleString()
+                      : "—"}
                   </td>
                 </tr>
               ))
