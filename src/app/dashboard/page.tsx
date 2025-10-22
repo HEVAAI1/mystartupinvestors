@@ -5,6 +5,7 @@ import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
 import Navbar from "@/components/Navbar";
 import UpgradeModal from "@/components/UpgradeModal";
+import { set } from "zod";
 
 interface Investor {
   id: number;
@@ -22,12 +23,26 @@ const Dashboard = () => {
 
   const [investors, setInvestors] = useState<Investor[]>([]);
   const [filteredInvestors, setFilteredInvestors] = useState<Investor[]>([]);
+  const [locations, setLocations] = useState<string[]>
+  ([]);
+  const [industries, setIndustries] = useState<string[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState("All");
+  const [selectedIndustry, setSelectedIndustry] = useState("All");
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [showViewed, setShowViewed] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  
+  const handleCountryChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedLocation(e.target.value);
+  };
+
+  const handleIndustryChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedIndustry(e.target.value);
+  };
+
   const fetchInvestors = async () => {
     try {
       let { data, error } = await supabase.from("investors").select("*") as {
@@ -38,6 +53,15 @@ const Dashboard = () => {
       if (data) {
         setInvestors(data);
         setFilteredInvestors(data);
+
+        const uniqueLocation = Array.from(
+          new Set(data.map((item) => item.country).filter(Boolean))
+        );
+        const uniqueIndustry = Array.from(
+           new Set(data.map((item) => item.preference_sector).filter(Boolean))
+        );
+        setIndustries(uniqueIndustry.sort());
+        setLocations(uniqueLocation.sort());
       }
     } catch (err) {
       console.error(err);
@@ -52,20 +76,24 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    if (!searchTerm.trim()) {
-      setFilteredInvestors(investors);
-    } else {
+    let filtered = investors;
+    if (searchTerm.trim()) {
       const lowerSearch = searchTerm.toLowerCase();
-
-      const filtered = investors.filter((inv) =>
-        inv.firm_name.toLowerCase().includes(lowerSearch) ||
-        inv.preference_sector.toLowerCase().includes(lowerSearch) ||
-        inv.country.toLowerCase().includes(lowerSearch)
+      filtered = filtered.filter(
+        (inv) =>
+          inv.firm_name.toLowerCase().includes(lowerSearch) ||
+          inv.preference_sector.toLowerCase().includes(lowerSearch) ||
+          inv.country.toLowerCase().includes(lowerSearch)
       );
-
-      setFilteredInvestors(filtered);
     }
-  }, [searchTerm, investors]);
+    if (selectedLocation !== "All") {
+      filtered = filtered.filter((inv) => inv.country === selectedLocation);
+    }
+    if (selectedIndustry !== "All") {
+      filtered = filtered.filter((inv) => inv.preference_sector === selectedIndustry);
+    }
+    setFilteredInvestors(filtered);
+  }, [searchTerm, investors, selectedLocation, selectedIndustry]);
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -143,11 +171,24 @@ const Dashboard = () => {
             className="absolute left-3 top-2.5 opacity-70"
           />
         </div>
-        <select className="bg-white border border-[#31372B1F] rounded-md px-3 py-2 text-sm text-[#31372B] w-44">
-          <option>All Locations</option>
+        <select value={selectedLocation}
+          onChange={handleCountryChange}
+          className="bg-white border border-[#31372B1F] rounded-md px-3 py-2 text-sm text-[#31372B] w-44">
+          <option value="All">All Locations</option>
+          {locations.map((location) => (
+            <option key={location} value={location}>
+              {location}
+            </option>
+          ))}
         </select>
-        <select className="bg-white border border-[#31372B1F] rounded-md px-3 py-2 text-sm text-[#31372B] w-44">
-          <option>All Industries</option>
+        <select value={selectedIndustry}
+          onChange={handleIndustryChange} className="bg-white border border-[#31372B1F] rounded-md px-3 py-2 text-sm text-[#31372B] w-44">
+          <option value="All">All Industries</option>
+          {industries.map((industry) => (
+            <option key={industry} value={industry}>
+              {industry}
+            </option>
+          ))}
         </select>
         <div
           className="flex items-center bg-white border border-[#31372B1F] rounded-md px-3 py-2 text-sm gap-3 cursor-pointer select-none"
