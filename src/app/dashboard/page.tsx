@@ -4,6 +4,7 @@ import { useState, useEffect, ChangeEvent } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
 import Navbar from "@/components/Navbar";
+import UpgradeModal from "@/components/UpgradeModal";
 
 interface Investor {
   id: number;
@@ -18,6 +19,7 @@ interface Investor {
 }
 
 const Dashboard = () => {
+
   const [investors, setInvestors] = useState<Investor[]>([]);
   const [filteredInvestors, setFilteredInvestors] = useState<Investor[]>([]);
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
@@ -25,7 +27,7 @@ const Dashboard = () => {
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [showViewed, setShowViewed] = useState(false);
-
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const fetchInvestors = async () => {
     try {
       let { data, error } = await supabase.from("investors").select("*") as {
@@ -50,20 +52,20 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-  if (!searchTerm.trim()) {
-    setFilteredInvestors(investors);
-  } else {
-    const lowerSearch = searchTerm.toLowerCase();
+    if (!searchTerm.trim()) {
+      setFilteredInvestors(investors);
+    } else {
+      const lowerSearch = searchTerm.toLowerCase();
 
-    const filtered = investors.filter((inv) =>
-      inv.firm_name.toLowerCase().includes(lowerSearch) ||
-      inv.preference_sector.toLowerCase().includes(lowerSearch) ||
-      inv.country.toLowerCase().includes(lowerSearch)
-    );
+      const filtered = investors.filter((inv) =>
+        inv.firm_name.toLowerCase().includes(lowerSearch) ||
+        inv.preference_sector.toLowerCase().includes(lowerSearch) ||
+        inv.country.toLowerCase().includes(lowerSearch)
+      );
 
-    setFilteredInvestors(filtered);
-  }
-}, [searchTerm, investors]);
+      setFilteredInvestors(filtered);
+    }
+  }, [searchTerm, investors]);
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -107,8 +109,18 @@ const Dashboard = () => {
             <div className="w-2 h-2 bg-[#F0B100] rounded-full"></div>
             <span className="text-sm font-bold text-[#31372B]">Credits: 0/0</span>
           </div>
-          <button className="flex items-center gap-2 bg-[#31372B] text-[#FAF7EE] rounded-md px-4 py-2 text-sm font-medium hover:opacity-90 cursor-pointer">
-            <span className="text-white font-semibold text-sm">+</span> Get credits
+          <button
+            onClick={() => setShowUpgradeModal(true)}
+            className="flex items-center gap-2 bg-[#31372B] text-[#FAF7EE] rounded-md px-4 py-2 text-sm font-medium hover:opacity-90 cursor-pointer"
+          >
+            <Image
+              src="/GetCreditsLogoLight.svg"
+              alt="Get Credits Icon"
+              width={16}
+              height={16}
+              className="opacity-90"
+            />
+            Get credits
           </button>
         </div>
       </div>
@@ -143,14 +155,12 @@ const Dashboard = () => {
         >
           <span>Show Viewed</span>
           <div
-            className={`w-8 h-4 rounded-full flex items-center p-0.5 transition-all duration-300 ${
-              showViewed ? "bg-[#31372B]" : "bg-[#CBCED4]"
-            }`}
+            className={`w-8 h-4 rounded-full flex items-center p-0.5 transition-all duration-300 ${showViewed ? "bg-[#31372B]" : "bg-[#CBCED4]"
+              }`}
           >
             <div
-              className={`w-3.5 h-3.5 bg-white rounded-full transform transition-transform duration-300 ${
-                showViewed ? "translate-x-4" : "translate-x-0"
-              }`}
+              className={`w-3.5 h-3.5 bg-white rounded-full transform transition-transform duration-300 ${showViewed ? "translate-x-4" : "translate-x-0"
+                }`}
             ></div>
           </div>
         </div>
@@ -215,7 +225,16 @@ const Dashboard = () => {
           })
         )}
       </div>
+      <UpgradeModal
+        open={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        onViewPlans={() => {
+          setShowUpgradeModal(false);
+          console.log("Navigating to /pricing"); // or router.push("/pricing")
+        }}
+      />
     </div>
+
   );
 };
 

@@ -16,12 +16,21 @@ export default function AuthenticatedNavbar({ credits = 0 }: { credits?: number 
         className="flex justify-between items-center mx-auto"
         style={{ maxWidth: "1472.8px", height: "36px" }}
       >
-        {/* Logo */}
+        {/* Logo Image */}
         <div
-          className="font-bold text-[18px] leading-[27px] tracking-[-0.18px] text-[#31372B]"
-          style={{ fontFamily: "Arial" }}
+          className="flex items-center cursor-pointer select-none"
+          onClick={() => router.push("/dashboard")}
         >
-          MyFundingList
+          <Image
+            src="/Logo.svg"
+            alt="MyFundingList Logo"
+            width={60} // adjust width based on actual logo dimensions
+            height={60}
+            style={{
+              objectFit: "contain",
+              display: "block",
+            }}
+          />
         </div>
 
         {/* Right Controls */}
@@ -49,7 +58,7 @@ export default function AuthenticatedNavbar({ credits = 0 }: { credits?: number 
             className="relative flex items-center justify-center bg-[#F5F5F5] border border-[rgba(49,55,43,0.12)] rounded-md cursor-default"
             style={{ width: "54.26px", height: "29.59px" }}
           >
-            {/* Credit Icon (replacing FiPlus) */}
+            {/* Credit Icon */}
             <Image
               src="/CreditIcon.png"
               alt="Credits Icon"
