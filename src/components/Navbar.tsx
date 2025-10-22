@@ -1,97 +1,81 @@
-import { useState, useEffect, useRef } from "react";
-import { FiUpload, FiUser, FiChevronDown } from "react-icons/fi";
+"use client";
+
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { FiUser } from "react-icons/fi";
 
-export default function Navbar({ credits = 5 }: { credits?: number }) {
+export default function AuthenticatedNavbar({ credits = 0 }: { credits?: number }) {
   const router = useRouter();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/"); // redirect to homepage
-  };
-
-  const handleProfile = () => {
-    router.push("/profile"); // adjust to your profile page route
-  };
-
-  // Close dropdown if clicked outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   return (
-    <nav className="flex items-center justify-between bg-gray-800 px-8 py-4 shadow-md relative">
-      {/* Logo */}
-      <div className="text-2xl font-bold text-white">MyStartupInvestors</div>
+    <nav
+      className="fixed top-0 left-0 w-full z-50 bg-[rgba(255,255,255,0.95)] border-b border-[rgba(49,55,43,0.12)] backdrop-blur-md"
+      style={{ height: "68.8px", padding: "16px 24px 0.8px" }}
+    >
+      <div
+        className="flex justify-between items-center mx-auto"
+        style={{ maxWidth: "1472.8px", height: "36px" }}
+      >
+        {/* Logo */}
+        <div
+          className="font-bold text-[18px] leading-[27px] tracking-[-0.18px] text-[#31372B]"
+          style={{ fontFamily: "Arial" }}
+        >
+          MyFundingList
+        </div>
 
-      {/* Right Side (credits, profile, upload) */}
-      <div className="flex items-center gap-6">
-        {/* Credits + Button */}
-        <div className="flex items-center gap-3">
-          <div className="w-7 h-7 flex items-center justify-center rounded-full bg-blue-500 text-white font-bold text-sm">
-            {credits}
-          </div>
-          <span className="text-white text-xs">credits left</span>
+        {/* Right Controls */}
+        <div className="flex items-center gap-[12px]" style={{ height: "36px" }}>
+          {/* Add My Startup */}
+          <button
+            onClick={() => router.push("/startup-details")}
+            className="flex justify-center items-center px-4 py-2 rounded-md hover:bg-[#F5F5F5] text-[#31372B] font-[Arial] text-[14px] leading-[20px] cursor-pointer whitespace-nowrap"
+            style={{ width: "132.86px", height: "36px" }}
+          >
+            Add My Startup
+          </button>
+
+          {/* Get More Credits */}
           <button
             onClick={() => router.push("/pricing")}
-            className="px-3 py-1 bg-green-600 text-white rounded-md text-sm hover:bg-green-500"
+            className="flex justify-center items-center px-4 py-2 rounded-md hover:bg-[#F5F5F5] text-[#31372B] font-[Arial] text-[14px] leading-[20px] cursor-pointer whitespace-nowrap"
+            style={{ width: "140.14px", height: "36px" }}
           >
             Get More Credits
           </button>
-        </div>
 
-        {/* Profile Dropdown */}
-        <div className="relative" ref={dropdownRef}>
-          <button
-            className="flex items-center gap-2 p-2 bg-gray-700 rounded-lg hover:bg-gray-600"
-            onClick={() => setDropdownOpen((prev) => !prev)}
+          {/* Credits Badge */}
+          <div
+            className="relative flex items-center justify-center bg-[#F5F5F5] border border-[rgba(49,55,43,0.12)] rounded-md cursor-default"
+            style={{ width: "54.26px", height: "29.59px" }}
           >
-            <FiUser size={20} className="text-gray-200" />
-            <FiChevronDown size={16} className="text-gray-200" />
+            {/* Credit Icon (replacing FiPlus) */}
+            <Image
+              src="/CreditIcon.png"
+              alt="Credits Icon"
+              width={12}
+              height={12}
+              className="absolute left-[12.8px] top-[8.79px]"
+            />
+
+            {/* Credit Count */}
+            <span
+              className="absolute font-[Arial] text-[12px] leading-[16px] text-[#31372B]"
+              style={{ left: "34.8px", top: "5.8px" }}
+            >
+              {credits}
+            </span>
+          </div>
+
+          {/* Profile Icon */}
+          <button
+            onClick={() => router.push("/profile")}
+            className="flex justify-center items-center rounded-md hover:bg-[#F5F5F5] cursor-pointer"
+            style={{ width: "36px", height: "36px" }}
+          >
+            <FiUser size={20} color="#31372B" />
           </button>
-
-          {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-44 bg-gray-700 text-white rounded shadow-lg z-50">
-              <button
-                onClick={handleProfile}
-                className="w-full text-left px-4 py-2 hover:bg-gray-600"
-              >
-                My Profile
-              </button>
-              <button
-                onClick={handleProfile}
-                className="w-full text-left px-4 py-2 hover:bg-gray-600"
-              >
-                Contact Us
-              </button>
-              <button
-                onClick={handleLogout}
-                className="w-full text-left px-4 py-2 hover:bg-gray-600"
-              >
-                Logout
-              </button>
-            </div>
-          )}
         </div>
-
-        {/* Upload Button */}
-        <button
-          onClick={() => router.push("/startup-details")}
-          className="p-2 bg-gray-700 rounded-lg hover:bg-gray-600"
-        >
-          <FiUpload size={20} className="text-gray-200" />
-        </button>
       </div>
     </nav>
   );

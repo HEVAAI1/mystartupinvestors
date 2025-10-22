@@ -4,11 +4,22 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Search, Dot, ArrowRight, Download, Filter, Zap, Users, Mail, MapPin, Briefcase, MailIcon } from "lucide-react";
 import { useState } from "react";
-
+import { supabase } from "@/lib/supabaseClient";
 
 
 export default function Home() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  const handleGoogleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) console.error("Google login error:", error.message);
+  };
   return (
     <main className="min-h-screen bg-[#FAF7EE] font-[Arial] text-[#31372B] relative overflow-hidden">
       {/* Navbar */}
@@ -28,12 +39,20 @@ export default function Home() {
           />
         </div>
 
-        <a
-          href="/login"
-          className="bg-[#31372B] text-[#FAF7EE] px-6 py-2 rounded-lg font-bold shadow hover:opacity-90 transition"
+        <button
+          onClick={async () => {
+            const { error } = await supabase.auth.signInWithOAuth({
+              provider: "google",
+              options: {
+                redirectTo: `${window.location.origin}/auth/callback`,
+              },
+            });
+            if (error) console.error("Google login error:", error.message);
+          }}
+          className="bg-[#31372B] text-[#FAF7EE] px-6 py-2 rounded-lg font-bold shadow hover:opacity-90 transition cursor-pointer"
         >
           Sign In
-        </a>
+        </button>
       </motion.nav>
 
       {/* Hero Section */}
@@ -572,722 +591,722 @@ export default function Home() {
         </div>
       </section>
 
-{/* Why Choose MyFundingList Section */}
-<section className="relative bg-[#31372B] text-white py-24 overflow-hidden">
-  <div className="relative z-10 text-center mb-20">
-    <h2 className="text-[50px] font-bold leading-[76px] tracking-[-1px]">
-      Why Choose MyFundingList?
-    </h2>
-    <p className="text-[20px] text-white/90 mt-2">
-      Because finding the right investor shouldn’t feel like guesswork.
-    </p>
-  </div>
+      {/* Why Choose MyFundingList Section */}
+      <section className="relative bg-[#31372B] text-white py-24 overflow-hidden">
+        <div className="relative z-10 text-center mb-20">
+          <h2 className="text-[50px] font-bold leading-[76px] tracking-[-1px]">
+            Why Choose MyFundingList?
+          </h2>
+          <p className="text-[20px] text-white/90 mt-2">
+            Because finding the right investor shouldn’t feel like guesswork.
+          </p>
+        </div>
 
-  {/* Cards Container */}
-  <div className="max-w-[1350px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
-    {/* Card 1 */}
-    <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, delay: 0.1 }}
-      viewport={{ once: true }}
-      className="relative bg-white/10 border border-white/20 rounded-[19px] p-10 flex flex-col items-center text-center shadow-[0_11px_17px_-3px_rgba(0,0,0,0.1)] backdrop-blur-sm hover:bg-white/15 transition-all"
-    >
-      <div className="relative w-[150px] h-[150px] opacity-40 mb-6">
-        <div className="absolute inset-0 rounded-full border-[3px] border-white/20"></div>
-        <div className="absolute inset-[10%] rounded-full border-[3px] border-white/30"></div>
-        <div className="absolute inset-[20%] rounded-full border-[3px] border-white/40"></div>
-        <div className="absolute inset-[30%] rounded-full border-[3px] border-white/50 flex items-center justify-center">
-          <div className="w-[35px] h-[35px] rounded-full border-[6px] border-white/90 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="white" className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
+        {/* Cards Container */}
+        <div className="max-w-[1350px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
+          {/* Card 1 */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            viewport={{ once: true }}
+            className="relative bg-white/10 border border-white/20 rounded-[19px] p-10 flex flex-col items-center text-center shadow-[0_11px_17px_-3px_rgba(0,0,0,0.1)] backdrop-blur-sm hover:bg-white/15 transition-all"
+          >
+            <div className="relative w-[150px] h-[150px] opacity-40 mb-6">
+              <div className="absolute inset-0 rounded-full border-[3px] border-white/20"></div>
+              <div className="absolute inset-[10%] rounded-full border-[3px] border-white/30"></div>
+              <div className="absolute inset-[20%] rounded-full border-[3px] border-white/40"></div>
+              <div className="absolute inset-[30%] rounded-full border-[3px] border-white/50 flex items-center justify-center">
+                <div className="w-[35px] h-[35px] rounded-full border-[6px] border-white/90 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="white" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <h3 className="text-[23px] font-bold mb-3">Verified Data</h3>
+            <p className="text-[18px] text-white/80 leading-[30px]">
+              Investor profiles curated and updated regularly so you never chase dead leads.
+            </p>
+          </motion.div>
+
+          {/* Card 2 */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            viewport={{ once: true }}
+            className="relative bg-white/10 border border-white/20 rounded-[19px] p-10 flex flex-col items-center text-center shadow-[0_11px_17px_-3px_rgba(0,0,0,0.1)] backdrop-blur-sm hover:bg-white/15 transition-all"
+          >
+            <div className="relative w-[150px] h-[150px] opacity-40 mb-6">
+              <div className="absolute inset-[15%] rounded-full border-[3px] border-white/30"></div>
+              <div className="absolute inset-[25%] rounded-full border-[3px] border-white/40"></div>
+              <div className="absolute inset-[35%] rounded-full border-[3px] border-white/50 flex items-center justify-center">
+                <div className="absolute inset-0 rounded-full border-[3px] border-white/50"></div>
+                <div className="absolute left-1/2 top-0 w-[2px] h-[30px] bg-white"></div>
+                <div className="absolute right-0 top-1/2 w-[30px] h-[2px] bg-white"></div>
+                <div className="absolute bottom-0 left-1/2 w-[2px] h-[30px] bg-white"></div>
+                <div className="absolute left-0 top-1/2 w-[30px] h-[2px] bg-white"></div>
+              </div>
+            </div>
+            <h3 className="text-[23px] font-bold mb-3">Smarter Targeting</h3>
+            <p className="text-[18px] text-white/80 leading-[30px]">
+              Filter by sector, stage, and location to find the best match for your startup.
+            </p>
+          </motion.div>
+
+          {/* Card 3 */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            viewport={{ once: true }}
+            className="relative bg-white/10 border border-white/20 rounded-[19px] p-10 flex flex-col items-center text-center shadow-[0_11px_17px_-3px_rgba(0,0,0,0.1)] backdrop-blur-sm hover:bg-white/15 transition-all"
+          >
+            <div className="relative w-[150px] h-[150px] opacity-40 mb-6 flex items-center justify-center">
+              <div className="absolute inset-[20%] border-[3px] border-dashed border-white/30 rounded-full"></div>
+              <div className="absolute inset-[30%] border-[3px] border-dashed border-white/30 rounded-full"></div>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" strokeWidth="1.5" stroke="white" className="w-[40px] h-[40px]">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" />
+              </svg>
+            </div>
+            <h3 className="text-[23px] font-bold mb-3">Faster Funding</h3>
+            <p className="text-[18px] text-white/80 leading-[30px]">
+              Save months of research and pitch with confidence, backed by real data.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+      {/* Pricing Section */}
+      <section className="relative bg-[#FAF7EE] py-28 text-[#31372B] overflow-hidden">
+        <div className="text-center mb-20">
+          <h2 className="text-[46px] font-bold leading-[68px] tracking-[-0.5px]">Simple, Transparent Pricing</h2>
+          <p className="text-[18px] text-[#717182] mt-2">
+            Choose the plan that fits your fundraising needs
+          </p>
+        </div>
+
+        {/* Pricing Grid */}
+        <div className="max-w-[1300px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-4">
+          {/* Starter */}
+          <div className="bg-white border border-[#D8D8D8]/60 rounded-[20px] p-10 text-center shadow-[0_10px_15px_-5px_rgba(0,0,0,0.05)] hover:-translate-y-2 transition-transform duration-300">
+            <h3 className="text-[20px] font-bold mb-3">Starter</h3>
+            <h4 className="text-[48px] font-bold mb-1">Free</h4>
+            <p className="text-[16px] text-[#717182] mb-6 leading-[24px]">
+              Get started with basics<br />Perfect for exploring our investor database
+            </p>
+            <ul className="text-left text-[16px] text-[#31372B]/90 mb-10 space-y-2">
+              {[
+                "Access to 100 investors",
+                "Basic search filters",
+                "View investor profiles",
+                "Limited to 5 searches/day",
+                "Email support",
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" strokeWidth="2.5" stroke="#C6FF55" fill="none">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <button className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-[#C6FF55] transition-colors">
+              Get started
+            </button>
+          </div>
+
+          {/* Professional */}
+          <div className="relative bg-white border border-[#31372B]/20 rounded-[20px] p-10 text-center shadow-[0_10px_15px_-5px_rgba(0,0,0,0.1)] hover:-translate-y-2 transition-transform duration-300">
+            {/* Tag */}
+            <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#C6FF55] text-[#31372B] text-xs font-bold px-5 py-1.5 rounded-full border border-[#31372B]/20 shadow-md">
+              MOST POPULAR
+            </div>
+            <h3 className="text-[20px] font-bold mb-3">Professional</h3>
+            <div className="flex justify-center items-end gap-1 mb-1">
+              <h4 className="text-[48px] font-bold leading-[1]">$15</h4>
+              <span className="text-[16px] text-[#717182] mb-1">/month</span>
+            </div>
+            <p className="text-[16px] text-[#717182] mb-6">60 credits<br />Unlock verified investor contacts</p>
+            <ul className="text-left text-[16px] text-[#31372B]/90 mb-10 space-y-2">
+              {[
+                "Everything in Starter",
+                "60 investor contact unlocks",
+                "Verified email addresses",
+                "Advanced search filters",
+                "Export to CSV",
+                "Priority email support",
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" strokeWidth="2.5" stroke="#C6FF55" fill="none">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <button className="w-full bg-[#C6FF55] text-[#31372B] font-bold rounded-[10px] py-3 hover:brightness-110 transition-all">
+              Get started
+            </button>
+          </div>
+
+          {/* Growth */}
+          <div className="bg-white border border-[#D8D8D8]/60 rounded-[20px] p-10 text-center shadow-[0_10px_15px_-5px_rgba(0,0,0,0.05)] hover:-translate-y-2 transition-transform duration-300">
+            <h3 className="text-[20px] font-bold mb-3">Growth</h3>
+            <div className="flex justify-center items-end gap-1 mb-1">
+              <h4 className="text-[48px] font-bold leading-[1]">$49</h4>
+              <span className="text-[16px] text-[#717182] mb-1">/month</span>
+            </div>
+            <p className="text-[16px] text-[#717182] mb-6">300 credits<br />Scale your fundraising outreach</p>
+            <ul className="text-left text-[16px] text-[#31372B]/90 mb-10 space-y-2">
+              {[
+                "Everything in Professional",
+                "300 investor contact unlocks",
+                "Unlimited searches",
+                "Save investor lists",
+                "Track outreach activity",
+                "Dedicated account manager",
+                "API access",
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" strokeWidth="2.5" stroke="#C6FF55" fill="none">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <button className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-[#C6FF55] transition-colors">
+              Get started
+            </button>
+          </div>
+
+          {/* Enterprise */}
+          <div className="bg-white border border-[#D8D8D8]/60 rounded-[20px] p-10 text-center shadow-[0_10px_15px_-5px_rgba(0,0,0,0.05)] hover:-translate-y-2 transition-transform duration-300">
+            <h3 className="text-[20px] font-bold mb-3">Enterprise</h3>
+            <h4 className="text-[48px] font-bold mb-1 leading-[1.2]">Contact<br />us</h4>
+            <p className="text-[16px] text-[#717182] mb-6 leading-[24px]">
+              Custom solution<br />For teams and organizations
+            </p>
+            <ul className="text-left text-[16px] text-[#31372B]/90 mb-10 space-y-2">
+              {[
+                "Everything in Growth",
+                "Unlimited contact unlocks",
+                "Multi-user accounts",
+                "Custom integrations",
+                "White-label options",
+                "Dedicated support team",
+                "Custom contract terms",
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" strokeWidth="2.5" stroke="#C6FF55" fill="none">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <button className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-[#C6FF55] transition-colors">
+              Talk to sales
+            </button>
           </div>
         </div>
-      </div>
-      <h3 className="text-[23px] font-bold mb-3">Verified Data</h3>
-      <p className="text-[18px] text-white/80 leading-[30px]">
-        Investor profiles curated and updated regularly so you never chase dead leads.
-      </p>
-    </motion.div>
 
-    {/* Card 2 */}
-    <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, delay: 0.3 }}
-      viewport={{ once: true }}
-      className="relative bg-white/10 border border-white/20 rounded-[19px] p-10 flex flex-col items-center text-center shadow-[0_11px_17px_-3px_rgba(0,0,0,0.1)] backdrop-blur-sm hover:bg-white/15 transition-all"
-    >
-      <div className="relative w-[150px] h-[150px] opacity-40 mb-6">
-        <div className="absolute inset-[15%] rounded-full border-[3px] border-white/30"></div>
-        <div className="absolute inset-[25%] rounded-full border-[3px] border-white/40"></div>
-        <div className="absolute inset-[35%] rounded-full border-[3px] border-white/50 flex items-center justify-center">
-          <div className="absolute inset-0 rounded-full border-[3px] border-white/50"></div>
-          <div className="absolute left-1/2 top-0 w-[2px] h-[30px] bg-white"></div>
-          <div className="absolute right-0 top-1/2 w-[30px] h-[2px] bg-white"></div>
-          <div className="absolute bottom-0 left-1/2 w-[2px] h-[30px] bg-white"></div>
-          <div className="absolute left-0 top-1/2 w-[30px] h-[2px] bg-white"></div>
-        </div>
-      </div>
-      <h3 className="text-[23px] font-bold mb-3">Smarter Targeting</h3>
-      <p className="text-[18px] text-white/80 leading-[30px]">
-        Filter by sector, stage, and location to find the best match for your startup.
-      </p>
-    </motion.div>
-
-    {/* Card 3 */}
-    <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, delay: 0.5 }}
-      viewport={{ once: true }}
-      className="relative bg-white/10 border border-white/20 rounded-[19px] p-10 flex flex-col items-center text-center shadow-[0_11px_17px_-3px_rgba(0,0,0,0.1)] backdrop-blur-sm hover:bg-white/15 transition-all"
-    >
-      <div className="relative w-[150px] h-[150px] opacity-40 mb-6 flex items-center justify-center">
-        <div className="absolute inset-[20%] border-[3px] border-dashed border-white/30 rounded-full"></div>
-        <div className="absolute inset-[30%] border-[3px] border-dashed border-white/30 rounded-full"></div>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" strokeWidth="1.5" stroke="white" className="w-[40px] h-[40px]">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" />
-        </svg>
-      </div>
-      <h3 className="text-[23px] font-bold mb-3">Faster Funding</h3>
-      <p className="text-[18px] text-white/80 leading-[30px]">
-        Save months of research and pitch with confidence, backed by real data.
-      </p>
-    </motion.div>
-  </div>
-</section>
-{/* Pricing Section */}
-<section className="relative bg-[#FAF7EE] py-28 text-[#31372B] overflow-hidden">
-  <div className="text-center mb-20">
-    <h2 className="text-[46px] font-bold leading-[68px] tracking-[-0.5px]">Simple, Transparent Pricing</h2>
-    <p className="text-[18px] text-[#717182] mt-2">
-      Choose the plan that fits your fundraising needs
-    </p>
-  </div>
-
-  {/* Pricing Grid */}
-  <div className="max-w-[1300px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-4">
-    {/* Starter */}
-    <div className="bg-white border border-[#D8D8D8]/60 rounded-[20px] p-10 text-center shadow-[0_10px_15px_-5px_rgba(0,0,0,0.05)] hover:-translate-y-2 transition-transform duration-300">
-      <h3 className="text-[20px] font-bold mb-3">Starter</h3>
-      <h4 className="text-[48px] font-bold mb-1">Free</h4>
-      <p className="text-[16px] text-[#717182] mb-6 leading-[24px]">
-        Get started with basics<br />Perfect for exploring our investor database
-      </p>
-      <ul className="text-left text-[16px] text-[#31372B]/90 mb-10 space-y-2">
-        {[
-          "Access to 100 investors",
-          "Basic search filters",
-          "View investor profiles",
-          "Limited to 5 searches/day",
-          "Email support",
-        ].map((item, i) => (
-          <li key={i} className="flex items-start gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" strokeWidth="2.5" stroke="#C6FF55" fill="none">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-            {item}
-          </li>
-        ))}
-      </ul>
-      <button className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-[#C6FF55] transition-colors">
-        Get started
-      </button>
-    </div>
-
-    {/* Professional */}
-    <div className="relative bg-white border border-[#31372B]/20 rounded-[20px] p-10 text-center shadow-[0_10px_15px_-5px_rgba(0,0,0,0.1)] hover:-translate-y-2 transition-transform duration-300">
-      {/* Tag */}
-      <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#C6FF55] text-[#31372B] text-xs font-bold px-5 py-1.5 rounded-full border border-[#31372B]/20 shadow-md">
-        MOST POPULAR
-      </div>
-      <h3 className="text-[20px] font-bold mb-3">Professional</h3>
-      <div className="flex justify-center items-end gap-1 mb-1">
-        <h4 className="text-[48px] font-bold leading-[1]">$15</h4>
-        <span className="text-[16px] text-[#717182] mb-1">/month</span>
-      </div>
-      <p className="text-[16px] text-[#717182] mb-6">60 credits<br />Unlock verified investor contacts</p>
-      <ul className="text-left text-[16px] text-[#31372B]/90 mb-10 space-y-2">
-        {[
-          "Everything in Starter",
-          "60 investor contact unlocks",
-          "Verified email addresses",
-          "Advanced search filters",
-          "Export to CSV",
-          "Priority email support",
-        ].map((item, i) => (
-          <li key={i} className="flex items-start gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" strokeWidth="2.5" stroke="#C6FF55" fill="none">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-            {item}
-          </li>
-        ))}
-      </ul>
-      <button className="w-full bg-[#C6FF55] text-[#31372B] font-bold rounded-[10px] py-3 hover:brightness-110 transition-all">
-        Get started
-      </button>
-    </div>
-
-    {/* Growth */}
-    <div className="bg-white border border-[#D8D8D8]/60 rounded-[20px] p-10 text-center shadow-[0_10px_15px_-5px_rgba(0,0,0,0.05)] hover:-translate-y-2 transition-transform duration-300">
-      <h3 className="text-[20px] font-bold mb-3">Growth</h3>
-      <div className="flex justify-center items-end gap-1 mb-1">
-        <h4 className="text-[48px] font-bold leading-[1]">$49</h4>
-        <span className="text-[16px] text-[#717182] mb-1">/month</span>
-      </div>
-      <p className="text-[16px] text-[#717182] mb-6">300 credits<br />Scale your fundraising outreach</p>
-      <ul className="text-left text-[16px] text-[#31372B]/90 mb-10 space-y-2">
-        {[
-          "Everything in Professional",
-          "300 investor contact unlocks",
-          "Unlimited searches",
-          "Save investor lists",
-          "Track outreach activity",
-          "Dedicated account manager",
-          "API access",
-        ].map((item, i) => (
-          <li key={i} className="flex items-start gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" strokeWidth="2.5" stroke="#C6FF55" fill="none">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-            {item}
-          </li>
-        ))}
-      </ul>
-      <button className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-[#C6FF55] transition-colors">
-        Get started
-      </button>
-    </div>
-
-    {/* Enterprise */}
-    <div className="bg-white border border-[#D8D8D8]/60 rounded-[20px] p-10 text-center shadow-[0_10px_15px_-5px_rgba(0,0,0,0.05)] hover:-translate-y-2 transition-transform duration-300">
-      <h3 className="text-[20px] font-bold mb-3">Enterprise</h3>
-      <h4 className="text-[48px] font-bold mb-1 leading-[1.2]">Contact<br />us</h4>
-      <p className="text-[16px] text-[#717182] mb-6 leading-[24px]">
-        Custom solution<br />For teams and organizations
-      </p>
-      <ul className="text-left text-[16px] text-[#31372B]/90 mb-10 space-y-2">
-        {[
-          "Everything in Growth",
-          "Unlimited contact unlocks",
-          "Multi-user accounts",
-          "Custom integrations",
-          "White-label options",
-          "Dedicated support team",
-          "Custom contract terms",
-        ].map((item, i) => (
-          <li key={i} className="flex items-start gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" strokeWidth="2.5" stroke="#C6FF55" fill="none">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-            {item}
-          </li>
-        ))}
-      </ul>
-      <button className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-[#C6FF55] transition-colors">
-        Talk to sales
-      </button>
-    </div>
-  </div>
-
-  {/* Footer Text */}
-  <p className="text-center text-[14px] text-[#717182] mt-10">
-    All plans include access to our verified investor database. <span className="font-bold text-[#31372B]">Credits never expire.</span>
-  </p>
-</section>
-{/* ✅ Trusted by Indian Founders Section */}
-<section
-  className="relative flex flex-col items-start isolate bg-[#FAF7EE]"
-  style={{
-    padding: "6.31vw 7.9vw 0 7.9vw",
-    gap: "4.21vw",
-  }}
->
-  {/* Badge */}
-  <div
-    className="absolute flex items-center"
-    style={{
-      top: "5.04vw",
-      left: "44.3vw",
-      background: "rgba(49,55,43,0.12)",
-      border: "0.05vw solid rgba(49,55,43,0.1)",
-      borderRadius: "100vw",
-      padding: "0.75vw 1.4vw",
-      gap: "0.93vw",
-    }}
-  >
-    <div
-      style={{
-        width: "0.53vw",
-        height: "0.53vw",
-        borderRadius: "50%",
-        background: "#C6FF55",
-        opacity: 0.94,
-      }}
-    ></div>
-    <span
-      className="font-bold uppercase tracking-wide text-[#31372B]"
-      style={{ fontSize: "0.92vw", letterSpacing: "0.02vw" }}
-    >
-      Testimonials
-    </span>
-  </div>
-
-  {/* Headings */}
-  <div className="text-center w-full" style={{ marginTop: "10vw" }}>
-    <h2
-      className="font-bold text-[#31372B]"
-      style={{
-        fontSize: "2.89vw",
-        lineHeight: "4.35vw",
-        letterSpacing: "-0.06vw",
-      }}
-    >
-      Trusted by Indian Founders
-    </h2>
-    <p
-      className="text-[#717182]"
-      style={{ fontSize: "1.18vw", lineHeight: "1.9vw", marginTop: "0.7vw" }}
-    >
-      See how founders are accelerating their fundraising journey with
-      <span className="font-semibold text-[#31372B]"> MyFundingList</span>
-    </p>
-  </div>
-
-  {/* Masonry Grid */}
-  <div
-    className="relative grid"
-    style={{
-      gridTemplateColumns: "55.6vw 27vw",
-      gap: "1.8vw",
-      width: "100%",
-      marginTop: "4vw",
-    }}
-  >
-    {/* Left Large Card */}
-    <div
-      className="flex flex-col justify-between bg-white border border-[#31372B]/10 shadow-md rounded-[1.58vw] p-[2.7vw]"
-      style={{ gridRow: "1 / span 2" }}
-    >
-      <div
+        {/* Footer Text */}
+        <p className="text-center text-[14px] text-[#717182] mt-10">
+          All plans include access to our verified investor database. <span className="font-bold text-[#31372B]">Credits never expire.</span>
+        </p>
+      </section>
+      {/* ✅ Trusted by Indian Founders Section */}
+      <section
+        className="relative flex flex-col items-start isolate bg-[#FAF7EE]"
         style={{
-          width: "2.63vw",
-          height: "2.1vw",
-          background:
-            "linear-gradient(90deg, rgba(198,255,85,0.3) 50%, rgba(198,255,85,0.3) 50%)",
-          marginBottom: "1.6vw",
+          padding: "6.31vw 7.9vw 0 7.9vw",
+          gap: "4.21vw",
         }}
-      ></div>
-      <p
-        className="font-bold text-[#31372B]"
-        style={{ fontSize: "1.58vw", lineHeight: "2.38vw" }}
       >
-        MyFundingList connected us with 15 VCs in our first month. The verified
-        emails and direct contact info saved us months of cold outreach.
-      </p>
-      <div className="flex items-center gap-[1.05vw] mt-[1.3vw]">
+        {/* Badge */}
         <div
-          className="flex items-center justify-center bg-[#31372B] text-[#FAF7EE] font-bold rounded-full"
-          style={{ width: "3.16vw", height: "3.16vw", fontSize: "0.92vw" }}
+          className="absolute flex items-center"
+          style={{
+            top: "5.04vw",
+            left: "44.3vw",
+            background: "rgba(49,55,43,0.12)",
+            border: "0.05vw solid rgba(49,55,43,0.1)",
+            borderRadius: "100vw",
+            padding: "0.75vw 1.4vw",
+            gap: "0.93vw",
+          }}
         >
-          PS
-        </div>
-        <div>
-          <p
-            className="font-bold text-[#31372B]"
-            style={{ fontSize: "1.05vw" }}
+          <div
+            style={{
+              width: "0.53vw",
+              height: "0.53vw",
+              borderRadius: "50%",
+              background: "#C6FF55",
+              opacity: 0.94,
+            }}
+          ></div>
+          <span
+            className="font-bold uppercase tracking-wide text-[#31372B]"
+            style={{ fontSize: "0.92vw", letterSpacing: "0.02vw" }}
           >
-            Priya Sharma
-          </p>
-          <p className="text-[#717182]" style={{ fontSize: "0.92vw" }}>
-            CEO, TechFlow
+            Testimonials
+          </span>
+        </div>
+
+        {/* Headings */}
+        <div className="text-center w-full" style={{ marginTop: "10vw" }}>
+          <h2
+            className="font-bold text-[#31372B]"
+            style={{
+              fontSize: "2.89vw",
+              lineHeight: "4.35vw",
+              letterSpacing: "-0.06vw",
+            }}
+          >
+            Trusted by Indian Founders
+          </h2>
+          <p
+            className="text-[#717182]"
+            style={{ fontSize: "1.18vw", lineHeight: "1.9vw", marginTop: "0.7vw" }}
+          >
+            See how founders are accelerating their fundraising journey with
+            <span className="font-semibold text-[#31372B]"> MyFundingList</span>
           </p>
         </div>
-      </div>
-    </div>
 
-    {/* Right Top */}
-    <div className="bg-white border border-[#31372B]/10 shadow-md rounded-[1.58vw] p-[2.7vw] flex flex-col justify-between">
-      <h3
-        className="font-bold text-[#31372B]"
-        style={{ fontSize: "1.58vw", lineHeight: "2vw" }}
-      >
-        We’ve 5x’d our investor meetings
-      </h3>
-      <p className="text-[#717182]" style={{ fontSize: "0.99vw" }}>
-        The quality of contacts is unmatched.
-      </p>
-      <div className="flex items-center gap-[1.05vw] mt-[1.3vw]">
+        {/* Masonry Grid */}
         <div
-          className="flex items-center justify-center bg-[#31372B] text-[#FAF7EE] font-bold rounded-full"
-          style={{ width: "3.16vw", height: "3.16vw", fontSize: "0.92vw" }}
+          className="relative grid"
+          style={{
+            gridTemplateColumns: "55.6vw 27vw",
+            gap: "1.8vw",
+            width: "100%",
+            marginTop: "4vw",
+          }}
         >
-          RV
-        </div>
-        <div>
-          <p
-            className="font-bold text-[#31372B]"
-            style={{ fontSize: "1.05vw" }}
+          {/* Left Large Card */}
+          <div
+            className="flex flex-col justify-between bg-white border border-[#31372B]/10 shadow-md rounded-[1.58vw] p-[2.7vw]"
+            style={{ gridRow: "1 / span 2" }}
           >
-            Rahul Verma
-          </p>
-          <p className="text-[#717182]" style={{ fontSize: "0.92vw" }}>
-            Founder, FinNext
+            <div
+              style={{
+                width: "2.63vw",
+                height: "2.1vw",
+                background:
+                  "linear-gradient(90deg, rgba(198,255,85,0.3) 50%, rgba(198,255,85,0.3) 50%)",
+                marginBottom: "1.6vw",
+              }}
+            ></div>
+            <p
+              className="font-bold text-[#31372B]"
+              style={{ fontSize: "1.58vw", lineHeight: "2.38vw" }}
+            >
+              MyFundingList connected us with 15 VCs in our first month. The verified
+              emails and direct contact info saved us months of cold outreach.
+            </p>
+            <div className="flex items-center gap-[1.05vw] mt-[1.3vw]">
+              <div
+                className="flex items-center justify-center bg-[#31372B] text-[#FAF7EE] font-bold rounded-full"
+                style={{ width: "3.16vw", height: "3.16vw", fontSize: "0.92vw" }}
+              >
+                PS
+              </div>
+              <div>
+                <p
+                  className="font-bold text-[#31372B]"
+                  style={{ fontSize: "1.05vw" }}
+                >
+                  Priya Sharma
+                </p>
+                <p className="text-[#717182]" style={{ fontSize: "0.92vw" }}>
+                  CEO, TechFlow
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Top */}
+          <div className="bg-white border border-[#31372B]/10 shadow-md rounded-[1.58vw] p-[2.7vw] flex flex-col justify-between">
+            <h3
+              className="font-bold text-[#31372B]"
+              style={{ fontSize: "1.58vw", lineHeight: "2vw" }}
+            >
+              We’ve 5x’d our investor meetings
+            </h3>
+            <p className="text-[#717182]" style={{ fontSize: "0.99vw" }}>
+              The quality of contacts is unmatched.
+            </p>
+            <div className="flex items-center gap-[1.05vw] mt-[1.3vw]">
+              <div
+                className="flex items-center justify-center bg-[#31372B] text-[#FAF7EE] font-bold rounded-full"
+                style={{ width: "3.16vw", height: "3.16vw", fontSize: "0.92vw" }}
+              >
+                RV
+              </div>
+              <div>
+                <p
+                  className="font-bold text-[#31372B]"
+                  style={{ fontSize: "1.05vw" }}
+                >
+                  Rahul Verma
+                </p>
+                <p className="text-[#717182]" style={{ fontSize: "0.92vw" }}>
+                  Founder, FinNext
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Middle (Green) */}
+          <div className="bg-[#EDF4E5] border border-[#31372B]/10 shadow-md rounded-[1.58vw] p-[2.7vw]">
+            <h3
+              className="font-bold text-[#31372B]"
+              style={{ fontSize: "1.32vw", lineHeight: "2vw" }}
+            >
+              How GrowthLabs raised $2M in 90 days
+            </h3>
+            <button
+              className="mt-[1.3vw] px-[1.5vw] py-[0.5vw] rounded-full font-bold text-[#31372B] shadow-sm border border-[#31372B]/20 hover:scale-105 transition"
+              style={{
+                fontSize: "0.92vw",
+                background: "#C6FF55",
+              }}
+            >
+              Read the case study here →
+            </button>
+          </div>
+        </div>
+
+        {/* ✅ Bottom Row — Fixed */}
+        <div
+          className="grid"
+          style={{
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "1.8vw",
+            width: "100%",
+            marginTop: "2vw",
+          }}
+        >
+          {/* Bottom Left */}
+          <div className="bg-white border border-[#31372B]/10 shadow-md rounded-[1.58vw] p-[2.7vw] flex flex-col justify-between">
+            <p
+              className="text-[#31372B]"
+              style={{ fontSize: "1.1vw", lineHeight: "1.8vw" }}
+            >
+              “Before MyFundingList, our team spent weeks researching investors. Now
+              we focus on what matters — building our product.”
+            </p>
+            <div className="flex items-center gap-[1.05vw] mt-[1.3vw]">
+              <div
+                className="flex items-center justify-center bg-[#31372B] text-[#FAF7EE] font-bold rounded-full"
+                style={{ width: "3.16vw", height: "3.16vw", fontSize: "0.92vw" }}
+              >
+                AM
+              </div>
+              <div>
+                <p
+                  className="font-bold text-[#31372B]"
+                  style={{ fontSize: "1.05vw" }}
+                >
+                  Anjali Mehta
+                </p>
+                <p className="text-[#717182]" style={{ fontSize: "0.92vw" }}>
+                  Co-founder, HealthTech Solutions
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Middle */}
+          <div className="bg-white border border-[#31372B]/10 shadow-md rounded-[1.58vw] p-[2.7vw] flex flex-col justify-between">
+            <p
+              className="font-bold text-[#31372B]"
+              style={{ fontSize: "1.18vw", lineHeight: "1.8vw" }}
+            >
+              “MyFundingList landed us some of our top investor partnerships!”
+            </p>
+            <div className="flex items-center gap-[1.05vw] mt-[1.3vw]">
+              <div
+                className="flex items-center justify-center bg-[#31372B] text-[#FAF7EE] font-bold rounded-full"
+                style={{ width: "3.16vw", height: "3.16vw", fontSize: "0.92vw" }}
+              >
+                VS
+              </div>
+              <div>
+                <p
+                  className="font-bold text-[#31372B]"
+                  style={{ fontSize: "1.05vw" }}
+                >
+                  Vikram Singh
+                </p>
+                <p className="text-[#717182]" style={{ fontSize: "0.92vw" }}>
+                  CEO, E-commerce startup
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Right */}
+          <div className="bg-white border border-[#31372B]/10 shadow-md rounded-[1.58vw] p-[2.7vw] flex flex-col justify-between">
+            <h3
+              className="font-bold text-[#31372B]"
+              style={{ fontSize: "1.58vw", lineHeight: "2vw" }}
+            >
+              Closed our seed round in 60 days
+            </h3>
+            <p className="text-[#717182]" style={{ fontSize: "0.99vw" }}>
+              The database is comprehensive and always up-to-date.
+            </p>
+            <div className="flex items-center gap-[1.05vw] mt-[1.3vw]">
+              <div
+                className="flex items-center justify-center bg-[#31372B] text-[#FAF7EE] font-bold rounded-full"
+                style={{ width: "3.16vw", height: "3.16vw", fontSize: "0.92vw" }}
+              >
+                DK
+              </div>
+              <div>
+                <p
+                  className="font-bold text-[#31372B]"
+                  style={{ fontSize: "1.05vw" }}
+                >
+                  Deepak Kumar
+                </p>
+                <p className="text-[#717182]" style={{ fontSize: "0.92vw" }}>
+                  Founder, AI Innovations
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div
+          className="text-center w-full mt-[4vw] text-[#717182]"
+          style={{ fontSize: "0.92vw" }}
+        >
+          Join hundreds of founders who've successfully raised funding.
+          <span className="font-bold text-[#31372B] ml-[0.3vw]">
+            Start your journey today.
+          </span>
+        </div>
+      </section>
+      <section
+        id="faq"
+        className="relative flex flex-wrap justify-between bg-white"
+        style={{ padding: "6.31vw 7.9vw" }}
+      >
+        {/* Left side */}
+        <div
+          className="flex flex-col"
+          style={{ width: "32vw", gap: "1.05vw", minWidth: "260px" }}
+        >
+          <div
+            className="flex items-center justify-center"
+            style={{
+              background: "rgba(49,55,43,0.1)",
+              borderRadius: "100vw",
+              width: "4.3vw",
+              height: "1.8vw",
+            }}
+          >
+            <span
+              className="font-bold text-[#31372B] uppercase"
+              style={{ fontSize: "0.86vw", letterSpacing: "0.05vw" }}
+            >
+              FAQs
+            </span>
+          </div>
+
+          <h2
+            className="font-bold text-[#31372B]"
+            style={{
+              fontSize: "2.64vw",
+              lineHeight: "3.1vw",
+              letterSpacing: "-0.05vw",
+            }}
+          >
+            Have Questions?
+          </h2>
+
+          <p
+            className="text-[#717182]"
+            style={{
+              fontSize: "1.12vw",
+              lineHeight: "1.9vw",
+            }}
+          >
+            Find answers to common questions about our platform, pricing, and how we
+            help you connect with the right investors.
           </p>
         </div>
-      </div>
-    </div>
 
-    {/* Right Middle (Green) */}
-    <div className="bg-[#EDF4E5] border border-[#31372B]/10 shadow-md rounded-[1.58vw] p-[2.7vw]">
-      <h3
-        className="font-bold text-[#31372B]"
-        style={{ fontSize: "1.32vw", lineHeight: "2vw" }}
+        {/* Right side (Framer Motion Accordion) */}
+        <div
+          className="flex flex-col gap-[1.05vw]"
+          style={{ width: "49vw", marginTop: "2vw" }}
+        >
+          {[
+            {
+              q: "How do credits work?",
+              a: "Each credit lets you unlock one verified investor contact. Use credits anytime to reveal verified emails and direct contact info.",
+            },
+            {
+              q: "Do credits expire?",
+              a: "No. Credits never expire — you can use them whenever you need as your fundraising progresses.",
+            },
+            {
+              q: "How often is the investor data updated?",
+              a: "Our investor database is updated weekly with verified information to ensure you always get fresh, accurate data.",
+            },
+          ].map((faq, i) => (
+            <motion.div
+              key={i}
+              className="border border-[#31372B]/10 rounded-[0.8vw] overflow-hidden bg-[#F5F5F5]/50"
+              initial={false}
+            >
+              <button
+                onClick={() =>
+                  setActiveIndex(activeIndex === i ? null : i)
+                }
+                className="w-full flex justify-between items-center px-[1.6vw] py-[1.2vw] text-left"
+              >
+                <span
+                  className="font-bold text-[#31372B]"
+                  style={{ fontSize: "1.05vw" }}
+                >
+                  {faq.q}
+                </span>
+                <motion.svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="1.05vw"
+                  height="1.05vw"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#717182"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  animate={{
+                    rotate: activeIndex === i ? 180 : 0,
+                  }}
+                  transition={{ duration: 0.25 }}
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </motion.svg>
+              </button>
+
+              <motion.div
+                initial={false}
+                animate={{
+                  height: activeIndex === i ? "auto" : 0,
+                  opacity: activeIndex === i ? 1 : 0,
+                }}
+                transition={{ duration: 0.35 }}
+                className="overflow-hidden px-[1.6vw] text-[#717182]"
+                style={{
+                  fontSize: "0.99vw",
+                  lineHeight: "1.6vw",
+                }}
+              >
+                <div className="pb-[1vw]">{faq.a}</div>
+              </motion.div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      <section
+        id="cta"
+        className="relative flex flex-col items-center justify-center overflow-hidden bg-[#31372B] text-center"
+        style={{ height: "37.78vw" }}
       >
-        How GrowthLabs raised $2M in 90 days
-      </h3>
-      <button
-        className="mt-[1.3vw] px-[1.5vw] py-[0.5vw] rounded-full font-bold text-[#31372B] shadow-sm border border-[#31372B]/20 hover:scale-105 transition"
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: "25.24vw",
+            height: "25.24vw",
+            left: "25vw",
+            top: "9.45vw",
+            background: "rgba(198,255,85,0.1)",
+            filter: "blur(4.21vw)",
+          }}
+        ></div>
+
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: "25.24vw",
+            height: "25.24vw",
+            left: "49.8vw",
+            top: "3.08vw",
+            background: "rgba(255,255,255,0.05)",
+            filter: "blur(4.21vw)",
+          }}
+        ></div>
+
+        <div className="relative z-10 flex flex-col items-center justify-center w-[59vw] text-center">
+          <h2
+            className="font-bold text-white"
+            style={{
+              fontSize: "3.68vw",
+              lineHeight: "4.06vw",
+              letterSpacing: "-0.11vw",
+              marginBottom: "2vw",
+            }}
+          >
+            Ready to accelerate your fundraising?
+          </h2>
+
+          <p
+            className="text-white/80"
+            style={{
+              fontSize: "1.32vw",
+              lineHeight: "2.08vw",
+              marginBottom: "3vw",
+              maxWidth: "44vw",
+            }}
+          >
+            Join hundreds of founders who've successfully raised funding <br />
+            with <span className="font-semibold text-white">MyFundingList</span>
+          </p>
+
+          <button
+            className="font-bold text-[#31372B] bg-[#C6FF55] shadow-[0_0_1.98vw_rgba(198,255,85,0.3)] border border-[#31372B]/20 rounded-[1.05vw] hover:scale-105 transition px-[2.74vw] py-[1vw]"
+            style={{
+              fontSize: "1.18vw",
+            }}
+          >
+            Start connecting with investors
+          </button>
+        </div>
+      </section>
+
+      <footer
+        className="flex items-center justify-between bg-white text-[#717182]"
         style={{
           fontSize: "0.92vw",
-          background: "#C6FF55",
+          padding: "1vw 7.9vw",
         }}
       >
-        Read the case study here →
-      </button>
-    </div>
-  </div>
-
-  {/* ✅ Bottom Row — Fixed */}
-  <div
-    className="grid"
-    style={{
-      gridTemplateColumns: "repeat(3, 1fr)",
-      gap: "1.8vw",
-      width: "100%",
-      marginTop: "2vw",
-    }}
-  >
-    {/* Bottom Left */}
-    <div className="bg-white border border-[#31372B]/10 shadow-md rounded-[1.58vw] p-[2.7vw] flex flex-col justify-between">
-      <p
-        className="text-[#31372B]"
-        style={{ fontSize: "1.1vw", lineHeight: "1.8vw" }}
-      >
-        “Before MyFundingList, our team spent weeks researching investors. Now
-        we focus on what matters — building our product.”
-      </p>
-      <div className="flex items-center gap-[1.05vw] mt-[1.3vw]">
-        <div
-          className="flex items-center justify-center bg-[#31372B] text-[#FAF7EE] font-bold rounded-full"
-          style={{ width: "3.16vw", height: "3.16vw", fontSize: "0.92vw" }}
-        >
-          AM
+        <div>© 2025 MyFundingList. All rights reserved.</div>
+        <div className="flex gap-[2vw]">
+          <a href="#" className="hover:text-[#31372B]">
+            Refund Policy
+          </a>
+          <a href="#" className="hover:text-[#31372B]">
+            Terms & Conditions
+          </a>
+          <a href="#" className="hover:text-[#31372B]">
+            Privacy Policy
+          </a>
+          <a href="#" className="hover:text-[#31372B]">
+            Blog
+          </a>
         </div>
-        <div>
-          <p
-            className="font-bold text-[#31372B]"
-            style={{ fontSize: "1.05vw" }}
-          >
-            Anjali Mehta
-          </p>
-          <p className="text-[#717182]" style={{ fontSize: "0.92vw" }}>
-            Co-founder, HealthTech Solutions
-          </p>
-        </div>
-      </div>
-    </div>
-
-    {/* Bottom Middle */}
-    <div className="bg-white border border-[#31372B]/10 shadow-md rounded-[1.58vw] p-[2.7vw] flex flex-col justify-between">
-      <p
-        className="font-bold text-[#31372B]"
-        style={{ fontSize: "1.18vw", lineHeight: "1.8vw" }}
-      >
-        “MyFundingList landed us some of our top investor partnerships!”
-      </p>
-      <div className="flex items-center gap-[1.05vw] mt-[1.3vw]">
-        <div
-          className="flex items-center justify-center bg-[#31372B] text-[#FAF7EE] font-bold rounded-full"
-          style={{ width: "3.16vw", height: "3.16vw", fontSize: "0.92vw" }}
-        >
-          VS
-        </div>
-        <div>
-          <p
-            className="font-bold text-[#31372B]"
-            style={{ fontSize: "1.05vw" }}
-          >
-            Vikram Singh
-          </p>
-          <p className="text-[#717182]" style={{ fontSize: "0.92vw" }}>
-            CEO, E-commerce startup
-          </p>
-        </div>
-      </div>
-    </div>
-
-    {/* Bottom Right */}
-    <div className="bg-white border border-[#31372B]/10 shadow-md rounded-[1.58vw] p-[2.7vw] flex flex-col justify-between">
-      <h3
-        className="font-bold text-[#31372B]"
-        style={{ fontSize: "1.58vw", lineHeight: "2vw" }}
-      >
-        Closed our seed round in 60 days
-      </h3>
-      <p className="text-[#717182]" style={{ fontSize: "0.99vw" }}>
-        The database is comprehensive and always up-to-date.
-      </p>
-      <div className="flex items-center gap-[1.05vw] mt-[1.3vw]">
-        <div
-          className="flex items-center justify-center bg-[#31372B] text-[#FAF7EE] font-bold rounded-full"
-          style={{ width: "3.16vw", height: "3.16vw", fontSize: "0.92vw" }}
-        >
-          DK
-        </div>
-        <div>
-          <p
-            className="font-bold text-[#31372B]"
-            style={{ fontSize: "1.05vw" }}
-          >
-            Deepak Kumar
-          </p>
-          <p className="text-[#717182]" style={{ fontSize: "0.92vw" }}>
-            Founder, AI Innovations
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  {/* Footer */}
-  <div
-    className="text-center w-full mt-[4vw] text-[#717182]"
-    style={{ fontSize: "0.92vw" }}
-  >
-    Join hundreds of founders who've successfully raised funding.
-    <span className="font-bold text-[#31372B] ml-[0.3vw]">
-      Start your journey today.
-    </span>
-  </div>
-</section>
-<section
-  id="faq"
-  className="relative flex flex-wrap justify-between bg-white"
-  style={{ padding: "6.31vw 7.9vw" }}
->
-  {/* Left side */}
-  <div
-    className="flex flex-col"
-    style={{ width: "32vw", gap: "1.05vw", minWidth: "260px" }}
-  >
-    <div
-      className="flex items-center justify-center"
-      style={{
-        background: "rgba(49,55,43,0.1)",
-        borderRadius: "100vw",
-        width: "4.3vw",
-        height: "1.8vw",
-      }}
-    >
-      <span
-        className="font-bold text-[#31372B] uppercase"
-        style={{ fontSize: "0.86vw", letterSpacing: "0.05vw" }}
-      >
-        FAQs
-      </span>
-    </div>
-
-    <h2
-      className="font-bold text-[#31372B]"
-      style={{
-        fontSize: "2.64vw",
-        lineHeight: "3.1vw",
-        letterSpacing: "-0.05vw",
-      }}
-    >
-      Have Questions?
-    </h2>
-
-    <p
-      className="text-[#717182]"
-      style={{
-        fontSize: "1.12vw",
-        lineHeight: "1.9vw",
-      }}
-    >
-      Find answers to common questions about our platform, pricing, and how we
-      help you connect with the right investors.
-    </p>
-  </div>
-
-  {/* Right side (Framer Motion Accordion) */}
-  <div
-    className="flex flex-col gap-[1.05vw]"
-    style={{ width: "49vw", marginTop: "2vw" }}
-  >
-    {[
-      {
-        q: "How do credits work?",
-        a: "Each credit lets you unlock one verified investor contact. Use credits anytime to reveal verified emails and direct contact info.",
-      },
-      {
-        q: "Do credits expire?",
-        a: "No. Credits never expire — you can use them whenever you need as your fundraising progresses.",
-      },
-      {
-        q: "How often is the investor data updated?",
-        a: "Our investor database is updated weekly with verified information to ensure you always get fresh, accurate data.",
-      },
-    ].map((faq, i) => (
-      <motion.div
-        key={i}
-        className="border border-[#31372B]/10 rounded-[0.8vw] overflow-hidden bg-[#F5F5F5]/50"
-        initial={false}
-      >
-        <button
-          onClick={() =>
-            setActiveIndex(activeIndex === i ? null : i)
-          }
-          className="w-full flex justify-between items-center px-[1.6vw] py-[1.2vw] text-left"
-        >
-          <span
-            className="font-bold text-[#31372B]"
-            style={{ fontSize: "1.05vw" }}
-          >
-            {faq.q}
-          </span>
-          <motion.svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.05vw"
-            height="1.05vw"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#717182"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            animate={{
-              rotate: activeIndex === i ? 180 : 0,
-            }}
-            transition={{ duration: 0.25 }}
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </motion.svg>
-        </button>
-
-        <motion.div
-          initial={false}
-          animate={{
-            height: activeIndex === i ? "auto" : 0,
-            opacity: activeIndex === i ? 1 : 0,
-          }}
-          transition={{ duration: 0.35 }}
-          className="overflow-hidden px-[1.6vw] text-[#717182]"
-          style={{
-            fontSize: "0.99vw",
-            lineHeight: "1.6vw",
-          }}
-        >
-          <div className="pb-[1vw]">{faq.a}</div>
-        </motion.div>
-      </motion.div>
-    ))}
-  </div>
-</section>
-
-<section
-  id="cta"
-  className="relative flex flex-col items-center justify-center overflow-hidden bg-[#31372B] text-center"
-  style={{ height: "37.78vw" }}
->
-  <div
-    className="absolute rounded-full"
-    style={{
-      width: "25.24vw",
-      height: "25.24vw",
-      left: "25vw",
-      top: "9.45vw",
-      background: "rgba(198,255,85,0.1)",
-      filter: "blur(4.21vw)",
-    }}
-  ></div>
-
-  <div
-    className="absolute rounded-full"
-    style={{
-      width: "25.24vw",
-      height: "25.24vw",
-      left: "49.8vw",
-      top: "3.08vw",
-      background: "rgba(255,255,255,0.05)",
-      filter: "blur(4.21vw)",
-    }}
-  ></div>
-
-  <div className="relative z-10 flex flex-col items-center justify-center w-[59vw] text-center">
-    <h2
-      className="font-bold text-white"
-      style={{
-        fontSize: "3.68vw",
-        lineHeight: "4.06vw",
-        letterSpacing: "-0.11vw",
-        marginBottom: "2vw",
-      }}
-    >
-      Ready to accelerate your fundraising?
-    </h2>
-
-    <p
-      className="text-white/80"
-      style={{
-        fontSize: "1.32vw",
-        lineHeight: "2.08vw",
-        marginBottom: "3vw",
-        maxWidth: "44vw",
-      }}
-    >
-      Join hundreds of founders who've successfully raised funding <br />
-      with <span className="font-semibold text-white">MyFundingList</span>
-    </p>
-
-    <button
-      className="font-bold text-[#31372B] bg-[#C6FF55] shadow-[0_0_1.98vw_rgba(198,255,85,0.3)] border border-[#31372B]/20 rounded-[1.05vw] hover:scale-105 transition px-[2.74vw] py-[1vw]"
-      style={{
-        fontSize: "1.18vw",
-      }}
-    >
-      Start connecting with investors
-    </button>
-  </div>
-</section>
-
-<footer
-  className="flex items-center justify-between bg-white text-[#717182]"
-  style={{
-    fontSize: "0.92vw",
-    padding: "1vw 7.9vw",
-  }}
->
-  <div>© 2025 MyFundingList. All rights reserved.</div>
-  <div className="flex gap-[2vw]">
-    <a href="#" className="hover:text-[#31372B]">
-      Refund Policy
-    </a>
-    <a href="#" className="hover:text-[#31372B]">
-      Terms & Conditions
-    </a>
-    <a href="#" className="hover:text-[#31372B]">
-      Privacy Policy
-    </a>
-    <a href="#" className="hover:text-[#31372B]">
-      Blog
-    </a>
-  </div>
-</footer>
+      </footer>
 
     </main>
   );
