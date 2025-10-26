@@ -43,8 +43,8 @@ export default function AuthenticatedNavbar({ credits = 0 }: { credits?: number 
         <div className="flex items-center gap-[12px]" style={{ height: "36px" }}>
           {/* Add My Startup */}
           <button
-            onClick={() => router.push("/startup-details")}
-            className={getButtonClasses("/startup-details")}
+            onClick={() => router.push("/add-startup")}
+            className={getButtonClasses("/add-startup")}
             style={{ width: "132.86px", height: "36px" }}
           >
             Add My Startup
