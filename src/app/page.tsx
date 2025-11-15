@@ -56,149 +56,253 @@ export default function Home() {
       </motion.nav>
 
       {/* Hero Section */}
-      <section className="pt-36 pb-16 flex flex-col md:flex-row justify-between items-start gap-12 px-8 lg:px-24">
-        {/* Left Column */}
-        <div className="flex flex-col max-w-xl">
-          {/* Trusted Tag */}
-          <div className="bg-[rgba(49,55,43,0.1)] border border-[rgba(49,55,43,0.2)] rounded-full px-6 py-2 text-sm mb-6 w-fit">
-            Trusted by 500+ startups
-          </div>
 
-          <h1 className="text-[56px] leading-[70px] font-bold tracking-[-1.12px]">
-            Find the Right Investor.<br />
-            <span>Faster.</span>
-          </h1>
-
-          <p className="text-[20px] leading-[32px] mt-6">
-            Access curated investor data that helps entrepreneurs close deals
-            without the guesswork.
-          </p>
-
-          {/* CTA Button */}
-          <a
-            href="#"
-            className="mt-10 inline-flex items-center justify-center bg-[#31372B] text-white font-bold text-[18px] rounded-[18px] px-10 py-4 shadow-md hover:bg-[#41483A] transition"
-          >
-            Start Connecting Today →
-          </a>
-
-          {/* Stats */}
-          <div className="flex gap-16 mt-12">
-            <div>
-              <h3 className="text-[36px] font-bold leading-[55px]">10K+</h3>
-              <p className="text-[18px] text-[#717182]">Verified Investors</p>
-            </div>
-            <div>
-              <h3 className="text-[36px] font-bold leading-[55px]">$2.5B+</h3>
-              <p className="text-[18px] text-[#717182]">Funding Raised</p>
-            </div>
-          </div>
+      <section className="bg-[#FAFAFA] flex flex-col items-center text-center px-6 md:px-12 lg:px-24 pt-28 pb-24 font-[var(--font-funnel-display)]">
+        {/* Trusted Tag */}
+        <div className="bg-[#1E1E1E]/10 border border-[#1E1E1E]/20] text-[#3C3C43] rounded-full px-5 py-2 text-sm font-medium mb-6 shadow-sm">
+          Trusted by 500+ startups
         </div>
 
-        {/* Right Column */}
-        <motion.div
-          initial={{ opacity: 0, x: 60 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          className="bg-white border border-[rgba(49,55,43,0.08)] rounded-[16px] shadow p-8 w-full md:w-[680px]"
+        {/* Heading */}
+        <h1 className="text-[40px] md:text-[48px] leading-tight font-bold text-[#000] tracking-[-1px] max-w-3xl">
+          4000+ Investors’ Access to get <br className="hidden md:block" /> your startup funded
+        </h1>
+
+        {/* Subtext */}
+        <p className="text-[#6B6B6B] text-lg md:text-[20px] leading-[32px] max-w-2xl mt-4">
+          Connect with investors across all sectors & geographies.
+        </p>
+
+        {/* CTA */}
+        <a
+          href="#"
+          className="mt-8 inline-flex items-center justify-center bg-gradient-to-r from-[#000] to-[#434343] text-white font-semibold text-[18px] rounded-[18px] px-8 py-4 shadow-md hover:opacity-90 transition"
         >
-          <div className="flex justify-between items-center mb-6">
-            <span className="text-[#717182]">Investor Matching</span>
-            <div className="flex items-center gap-2 bg-[#575C52] text-white px-4 py-2 rounded-lg">
-              <div className="w-2 h-2 rounded-full bg-[#C6FF55] shadow-[0_0_8px_#C6FF55]" />
-              <span className="font-bold text-sm">Real-time data</span>
-            </div>
-          </div>
+          Start Connecting Today →
+        </a>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 gap-6 mb-6">
-            {[
-              { stat: "94%", label: "Match Rate" },
-              { stat: "2.4K", label: "Active VCs" },
-              { stat: "$50M", label: "Avg Check Size" },
-              { stat: "156", label: "Deals/Month" },
-            ].map((item, i) => (
-              <div
-                key={i}
-                className="bg-[rgba(237,244,229,0.5)] border border-[rgba(49,55,43,0.12)] rounded-lg p-4"
-              >
-                <div className="text-[24px] font-bold text-[#31372B]/60">
-                  {item.stat}
-                </div>
-                <div className="text-[14px] text-[#717182]/70">{item.label}</div>
-              </div>
-            ))}
-          </div>
+        {/* Stats */}
+        {/* Stats */}
+<div className="flex gap-16 md:gap-24 mt-10">
+  {/* Stat 1 */}
+  <div className="flex flex-col items-center">
+    <h3 className="text-[32px] md:text-[40px] font-bold text-black">4000+</h3>
+    <p className="text-[#6B6B6B] text-sm md:text-base mt-1">Verified Investors</p>
+  </div>
 
-          {/* Progress Bar */}
-          <div>
-            <div className="flex justify-between text-[16px] mb-2">
-              <span className="text-[#717182]">Network Growth</span>
-              <span className="font-bold">+23% this week</span>
-            </div>
-            <div className="h-2 bg-[#F5F5F5] rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-[#31372B] to-[#31372B]/60 w-1/3 rounded-full" />
-            </div>
+  {/* Stat 2 */}
+  <div className="flex flex-col items-center">
+    <h3 className="text-[32px] md:text-[40px] font-bold text-black">$2.5B+</h3>
+    <p className="text-[#6B6B6B] text-sm md:text-base mt-1">Funding Raised</p>
+  </div>
+</div>
+
+        <div className="relative w-full flex justify-center mt-[30px]">
+          <div
+            className="
+      relative
+      bg-[#1E1E1E]
+      w-[1437px]
+      h-[555px]
+      rounded-[22px]
+      shadow-[inset_2px_2px_6.2px_rgba(255,255,255,0.11),inset_-2px_2px_9.2px_rgba(255,255,255,0.10)]
+      overflow-hidden
+    "
+          >
+            <div
+              className="absolute top-[67px] left-[172px] right-[61px] bottom-0 bg-no-repeat bg-center bg-contain"
+              style={{ backgroundImage: "url('/LandingPagePhoto.png')" }}
+            />
           </div>
-        </motion.div>
+        </div>
       </section>
+
+
 
       {/* Investors Carousel */}
-      <section className="py-20 text-center bg-[#FAF7EE] overflow-hidden relative">
-        <h2 className="text-[24px] font-bold mb-10 text-[#31372B]">
-          Connect with top investors from
-        </h2>
 
-        {/* Gradient masks for fade edges */}
-        <div className="absolute left-0 top-0 h-full w-32 bg-gradient-to-r from-[#FAF7EE] to-transparent z-10"></div>
-        <div className="absolute right-0 top-0 h-full w-32 bg-gradient-to-l from-[#FAF7EE] to-transparent z-10"></div>
+<section className="py-20 text-center bg-[#F5F5F5] overflow-hidden relative">
+  <h2 className="text-[24px] font-bold mb-10 text-[#1E1E1E]">
+    Connect with top investors from
+  </h2>
 
-        {/* Scrolling container */}
-        <div className="relative flex overflow-hidden">
-          <div className="flex animate-marquee whitespace-nowrap gap-6">
-            {[
-              "SEQUOIA",
-              "ACCEL",
-              "Y COMBINATOR",
-              "a16z",
-              "TIGER GLOBAL",
-              "LIGHTSPEED",
-              "MATRIX",
-              "ELEVATION",
-              "BLUME",
-              "NEXUS",
-            ].map((name, i) => (
-              <div
-                key={i}
-                className="min-w-[180px] flex items-center justify-center bg-white border border-black/10 rounded-lg shadow-sm h-20 font-bold text-[#1E1E1E]/70 tracking-[0.4px]"
-              >
-                {name}
-              </div>
-            ))}
+  {/* Fade edges */}
+  <div className="absolute left-0 top-0 h-full w-24 bg-gradient-to-r from-[#FAF7EE] to-transparent z-10"></div>
+  <div className="absolute right-0 top-0 h-full w-24 bg-gradient-to-l from-[#FAF7EE] to-transparent z-10"></div>
 
-            {/* duplicate logos for infinite loop */}
-            {[
-              "SEQUOIA",
-              "ACCEL",
-              "Y COMBINATOR",
-              "a16z",
-              "TIGER GLOBAL",
-              "LIGHTSPEED",
-              "MATRIX",
-              "ELEVATION",
-              "BLUME",
-              "NEXUS",
-            ].map((name, i) => (
-              <div
-                key={`dup-${i}`}
-                className="min-w-[180px] flex items-center justify-center bg-white border border-black/10 rounded-lg shadow-sm h-20 font-bold text-[#1E1E1E]/70 tracking-[0.4px]"
-              >
-                {name}
-              </div>
-            ))}
-          </div>
+  {/* Marquee wrapper */}
+  <div className="relative flex overflow-hidden">
+    <div className="flex animate-marquee whitespace-nowrap gap-12">
+
+      {/* ---- FIRST LOOP ---- */}
+      {[
+        "/KhoslaLogo.png",
+        "/AntlerLogo.png",
+        "/TigerLogo.png",
+        "/CombinatorLogo.png",
+        "/LightspeedLogo.png",
+        "/BlumeLogo.png",
+      ].map((src, i) => (
+        <div
+          key={i}
+          className="
+            flex items-center justify-center 
+            bg-white border border-black/20 
+            shadow-sm rounded-xl 
+            w-[200px] h-[90px] 
+            p-4
+            md:w-[200px] md:h-[90px]
+            sm:w-[170px] sm:h-[80px]
+            xs:w-[150px] xs:h-[70px]
+          "
+        >
+          <img src={src} alt="" className="w-full h-full object-contain" />
         </div>
-      </section>
+      ))}
+
+      {/* ---- SECOND LOOP (duplicate for infinite scroll) ---- */}
+      {[
+        "/KhoslaLogo.png",
+        "/AntlerLogo.png",
+        "/TigerLogo.png",
+        "/CombinatorLogo.png",
+        "/LightspeedLogo.png",
+        "/BlumeLogo.png",
+      ].map((src, i) => (
+        <div
+          key={`dup-${i}`}
+          className="
+            flex items-center justify-center 
+            bg-white border border-black/20 
+            shadow-sm rounded-xl 
+            w-[200px] h-[90px] 
+            p-4
+            md:w-[200px] md:h-[90px]
+            sm:w-[170px] sm:h-[80px]
+            xs:w-[150px] xs:h-[70px]
+          "
+        >
+          <img src={src} alt="" className="w-full h-full object-contain" />
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+{/* We Fixed Fundraising Frustration */}
+
+      <section className="bg-[#1E1E1E] py-24 text-white">
+  {/* Heading */}
+  <div className="text-center mb-16">
+    <h2 className="text-[46px] font-bold leading-[54px]">
+      We've Fixed Fundraising Frustration
+    </h2>
+    <p className="text-[18px] text-white/60 mt-3">
+      Stop pitching blind. Start pitching smart.
+    </p>
+  </div>
+
+  {/* 3 Cards */}
+  <div className="max-w-[1300px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
+    
+    {/* CARD COMPONENT */}
+    {[
+      {
+        step: "STEP 01",
+        title: "The Problem",
+        desc: "Finding investors takes months of wasted research and guesswork.",
+        icon: "/ProblemIcon.svg",
+      },
+      {
+        step: "STEP 02",
+        title: "The Solution",
+        desc: "We built a reliable, easy-to-use database of verified investors.",
+        icon: "/SolutionIcon.svg",
+      },
+      {
+        step: "STEP 03",
+        title: "The Outcome",
+        desc: "You connect faster, pitch smarter, and raise sooner.",
+        icon: "/OutcomeIcon.svg",
+      },
+    ].map((card, i) => (
+      <div
+        key={i}
+        className="
+          group relative p-10 rounded-[24px]
+          bg-white/[0.10] border border-white/10
+          transition-all duration-300
+          hover:border-[#C6FF55]/40 hover:shadow-[0_0_30px_-4px_#C6FF55]
+        "
+      >
+        {/* Step badge */}
+        <div className="
+          absolute top-6 left-6
+          bg-white/10 text-white text-xs font-semibold tracking-wide
+          px-4 py-1.5 rounded-full
+        ">
+          {card.step}
+        </div>
+
+        {/* ICON */}
+        <div className="flex justify-center mt-16 mb-8">
+          <img
+            src={card.icon}
+            alt={card.title}
+            className="
+              w-[120px] h-[120px] opacity-80 transition-all duration-300
+              group-hover:opacity-100 group-hover:drop-shadow-[0_0_12px_#C6FF55]
+            "
+          />
+        </div>
+
+        {/* TEXT */}
+        <p className="text-white/60 text-[14px] uppercase tracking-[0.6px] mb-2">
+          {card.title}
+        </p>
+        <h3
+          className="
+            text-[20px] font-semibold leading-[30px]
+            group-hover:text-[#C6FF55] transition-colors duration-300
+          "
+        >
+          {card.desc}
+        </h3>
+      </div>
+    ))}
+  </div>
+
+  {/* Bottom CTA */}
+  <div className="flex justify-center mt-20">
+    <div className="
+      bg-white/10 border border-white/10 px-8 py-4 rounded-[14px]
+      flex items-center gap-3
+      transition-all duration-300
+      hover:border-[#C6FF55]/50 hover:shadow-[0_0_25px_-4px_#C6FF55]
+    ">
+      <div className="
+        w-10 h-10 rounded-full bg-white/10 flex items-center justify-center
+        group-hover:bg-[#C6FF55]
+        transition-all duration-300
+      ">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20" height="20"
+          fill="none"
+          strokeWidth="2.5"
+          stroke="#C6FF55"
+          className="transition-all duration-300"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+
+      <p className="text-[17px] font-medium text-white group-hover:text-[#C6FF55] transition-colors duration-300">
+        Your fundraising journey, simplified from start to finish
+      </p>
+    </div>
+  </div>
+</section>
 
 
       {/* From Idea to Investment Section */}
@@ -401,7 +505,7 @@ export default function Home() {
       </section>
 
       {/* InvestorDataShowcase Section */}
-      <section className="relative overflow-hidden bg-[#31372B] text-white py-24 flex flex-col items-center">
+      <section className="relative overflow-hidden bg-[#1E1E1E] text-white py-24 flex flex-col items-center">
         {/* Background Blurs */}
         <div className="absolute w-[550px] h-[550px] bg-[#C6FF55]/10 blur-[70px] rounded-full top-0 left-1/4"></div>
         <div className="absolute w-[550px] h-[550px] bg-[#EDF4E5]/5 blur-[70px] rounded-full bottom-0 right-1/4"></div>
@@ -508,177 +612,9 @@ export default function Home() {
           <span className="text-white/60">• Direct access to decision-makers</span>
         </div>
       </section>
-
-      {/* Fixed Fundraising Frustration Section */}
-      <section className="relative overflow-hidden py-24 bg-gradient-to-b from-[rgba(245,245,245,0.3)] via-[#FAF7EE] to-[rgba(245,245,245,0.3)] text-[#31372B]">
-        {/* Blurred Background Glows */}
-        <div className="absolute w-[330px] h-[330px] bg-[rgba(237,244,229,0.3)] blur-[72px] rounded-full top-[90px] left-[45px]"></div>
-        <div className="absolute w-[330px] h-[330px] bg-[rgba(237,244,229,0.3)] blur-[72px] rounded-full bottom-[90px] right-[60px]"></div>
-
-        {/* Section Heading */}
-        <div className="relative z-10 text-center mb-20">
-          <h2 className="text-[50px] font-bold leading-[75px] tracking-[-1px] text-[#31372B]">
-            We’ve Fixed Fundraising Frustration
-          </h2>
-          <p className="text-[20px] text-[#717182] mt-3">
-            Stop pitching blind. Start pitching smart.
-          </p>
-        </div>
-
-        {/* 3 Steps Grid */}
-        <div className="relative z-10 max-w-[1300px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
-          {/* Step 01 */}
-          <div className="bg-white/90 border border-[rgba(49,55,43,0.12)] rounded-[27px] shadow-[0_11px_17px_-3px_rgba(0,0,0,0.1),0_5px_7px_-4px_rgba(0,0,0,0.1)] p-10 flex flex-col relative">
-            <div className="absolute top-6 left-6 bg-[#31372B] text-[#FAF7EE] text-sm font-bold px-4 py-2 rounded-full shadow-md">
-              STEP 01
-            </div>
-            <div className="flex justify-center mt-16 mb-8">
-              <img src="/Problem.png" alt="Problem" className="w-[230px] h-[180px] object-contain" />
-            </div>
-            <div>
-              <p className="uppercase text-[15px] font-bold tracking-[0.4px] mb-2">The Problem</p>
-              <h3 className="text-[23px] font-bold leading-[34px]">
-                Finding investors takes months of wasted research and guesswork.
-              </h3>
-            </div>
-          </div>
-
-          {/* Step 02 */}
-          <div className="bg-white/90 border border-[rgba(49,55,43,0.12)] rounded-[27px] shadow-[0_11px_17px_-3px_rgba(0,0,0,0.1),0_5px_7px_-4px_rgba(0,0,0,0.1)] p-10 flex flex-col relative">
-            <div className="absolute top-6 left-6 bg-[#31372B] text-[#FAF7EE] text-sm font-bold px-4 py-2 rounded-full shadow-md">
-              STEP 02
-            </div>
-            <div className="flex justify-center mt-16 mb-8">
-              <img src="/Solution.png" alt="Solution" className="w-[230px] h-[180px] object-contain" />
-            </div>
-            <div>
-              <p className="uppercase text-[15px] font-bold tracking-[0.4px] mb-2">The Solution</p>
-              <h3 className="text-[23px] font-bold leading-[34px]">
-                We built a reliable, easy-to-use database of verified investors.
-              </h3>
-            </div>
-          </div>
-
-          {/* Step 03 */}
-          <div className="bg-white/90 border border-[rgba(49,55,43,0.12)] rounded-[27px] shadow-[0_11px_17px_-3px_rgba(0,0,0,0.1),0_5px_7px_-4px_rgba(0,0,0,0.1)] p-10 flex flex-col relative">
-            <div className="absolute top-6 left-6 bg-[#31372B] text-[#FAF7EE] text-sm font-bold px-4 py-2 rounded-full shadow-md">
-              STEP 03
-            </div>
-            <div className="flex justify-center mt-16 mb-8">
-              <img src="/Outcome.png" alt="Outcome" className="w-[230px] h-[180px] object-contain" />
-            </div>
-            <div>
-              <p className="uppercase text-[15px] font-bold tracking-[0.4px] mb-2">The Outcome</p>
-              <h3 className="text-[23px] font-bold leading-[34px]">
-                You connect faster, pitch smarter, and raise sooner.
-              </h3>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Bar */}
-        <div className="relative z-10 mt-20 flex justify-center">
-          <div className="bg-[rgba(237,244,229,0.6)] border border-[rgba(49,55,43,0.2)] shadow-[0_4px_7px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] rounded-[18px] px-8 py-5 flex items-center gap-4">
-            <div className="w-10 h-10 bg-[#31372B] rounded-full flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="#FAF7EE">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <p className="text-[18px] font-bold text-[#31372B]">
-              Your fundraising journey, simplified from start to finish
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Why Choose MyFundingList Section */}
-      <section className="relative bg-[#31372B] text-white py-24 overflow-hidden">
-        <div className="relative z-10 text-center mb-20">
-          <h2 className="text-[50px] font-bold leading-[76px] tracking-[-1px]">
-            Why Choose MyFundingList?
-          </h2>
-          <p className="text-[20px] text-white/90 mt-2">
-            Because finding the right investor shouldn’t feel like guesswork.
-          </p>
-        </div>
-
-        {/* Cards Container */}
-        <div className="max-w-[1350px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
-          {/* Card 1 */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            viewport={{ once: true }}
-            className="relative bg-white/10 border border-white/20 rounded-[19px] p-10 flex flex-col items-center text-center shadow-[0_11px_17px_-3px_rgba(0,0,0,0.1)] backdrop-blur-sm hover:bg-white/15 transition-all"
-          >
-            <div className="relative w-[150px] h-[150px] opacity-40 mb-6">
-              <div className="absolute inset-0 rounded-full border-[3px] border-white/20"></div>
-              <div className="absolute inset-[10%] rounded-full border-[3px] border-white/30"></div>
-              <div className="absolute inset-[20%] rounded-full border-[3px] border-white/40"></div>
-              <div className="absolute inset-[30%] rounded-full border-[3px] border-white/50 flex items-center justify-center">
-                <div className="w-[35px] h-[35px] rounded-full border-[6px] border-white/90 flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="white" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-            <h3 className="text-[23px] font-bold mb-3">Verified Data</h3>
-            <p className="text-[18px] text-white/80 leading-[30px]">
-              Investor profiles curated and updated regularly so you never chase dead leads.
-            </p>
-          </motion.div>
-
-          {/* Card 2 */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            viewport={{ once: true }}
-            className="relative bg-white/10 border border-white/20 rounded-[19px] p-10 flex flex-col items-center text-center shadow-[0_11px_17px_-3px_rgba(0,0,0,0.1)] backdrop-blur-sm hover:bg-white/15 transition-all"
-          >
-            <div className="relative w-[150px] h-[150px] opacity-40 mb-6">
-              <div className="absolute inset-[15%] rounded-full border-[3px] border-white/30"></div>
-              <div className="absolute inset-[25%] rounded-full border-[3px] border-white/40"></div>
-              <div className="absolute inset-[35%] rounded-full border-[3px] border-white/50 flex items-center justify-center">
-                <div className="absolute inset-0 rounded-full border-[3px] border-white/50"></div>
-                <div className="absolute left-1/2 top-0 w-[2px] h-[30px] bg-white"></div>
-                <div className="absolute right-0 top-1/2 w-[30px] h-[2px] bg-white"></div>
-                <div className="absolute bottom-0 left-1/2 w-[2px] h-[30px] bg-white"></div>
-                <div className="absolute left-0 top-1/2 w-[30px] h-[2px] bg-white"></div>
-              </div>
-            </div>
-            <h3 className="text-[23px] font-bold mb-3">Smarter Targeting</h3>
-            <p className="text-[18px] text-white/80 leading-[30px]">
-              Filter by sector, stage, and location to find the best match for your startup.
-            </p>
-          </motion.div>
-
-          {/* Card 3 */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            viewport={{ once: true }}
-            className="relative bg-white/10 border border-white/20 rounded-[19px] p-10 flex flex-col items-center text-center shadow-[0_11px_17px_-3px_rgba(0,0,0,0.1)] backdrop-blur-sm hover:bg-white/15 transition-all"
-          >
-            <div className="relative w-[150px] h-[150px] opacity-40 mb-6 flex items-center justify-center">
-              <div className="absolute inset-[20%] border-[3px] border-dashed border-white/30 rounded-full"></div>
-              <div className="absolute inset-[30%] border-[3px] border-dashed border-white/30 rounded-full"></div>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" strokeWidth="1.5" stroke="white" className="w-[40px] h-[40px]">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" />
-              </svg>
-            </div>
-            <h3 className="text-[23px] font-bold mb-3">Faster Funding</h3>
-            <p className="text-[18px] text-white/80 leading-[30px]">
-              Save months of research and pitch with confidence, backed by real data.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+    
       {/* Pricing Section */}
-      <section className="relative bg-[#FAF7EE] py-28 text-[#31372B] overflow-hidden">
+      <section className="relative bg-[#F5F5F5] py-28 text-[#31372B] overflow-hidden">
         <div className="text-center mb-20">
           <h2 className="text-[46px] font-bold leading-[68px] tracking-[-0.5px]">Simple, Transparent Pricing</h2>
           <p className="text-[18px] text-[#717182] mt-2">
@@ -1093,134 +1029,116 @@ export default function Home() {
           </span>
         </div>
       </section>
+      {/* FAQ Section */}
       <section
-        id="faq"
-        className="relative flex flex-wrap justify-between bg-white"
-        style={{ padding: "6.31vw 7.9vw" }}
+  id="faq"
+  className="w-full bg-white flex flex-col items-center"
+  style={{ padding: "6vw 0" }}
+>
+  {/* Title */}
+  <h2
+    className="font-bold text-[#31372B]"
+    style={{
+      fontSize: "2.4vw",
+      marginBottom: "1vw",
+      letterSpacing: "-0.03vw",
+    }}
+  >
+    FAQs
+  </h2>
+
+  {/* Divider */}
+  <div
+    style={{
+      width: "82vw",
+      height: "1px",
+      background: "rgba(49,55,43,0.15)",
+      marginBottom: "2vw",
+    }}
+  />
+
+  {/* FAQ List */}
+  <div
+    className="flex flex-col"
+    style={{ width: "82vw", gap: "1vw" }}
+  >
+    {[
+      {
+        q: "How do credits work?",
+        a: "Each credit lets you unlock one verified investor contact. Use credits anytime to reveal verified emails and direct contact info.",
+      },
+      {
+        q: "What types of investors are in your database?",
+        a: "Our database includes angels, VCs, syndicates, funds, and strategic investors across industries and stages.",
+      },
+      {
+        q: "How often is the investor data updated?",
+        a: "Our investor database is updated weekly with verified information to ensure accuracy.",
+      },
+      {
+        q: "Do credits expire?",
+        a: "No. Credits never expire — you can use them anytime.",
+      },
+      {
+        q: "Can I get a refund if I don’t use my credits?",
+        a: "Unused credits are non-refundable, but they remain valid forever.",
+      },
+    ].map((faq, i) => (
+      <motion.div
+        key={i}
+        className="border-b border-[#31372B]/20"
+        initial={false}
       >
-        {/* Left side */}
-        <div
-          className="flex flex-col"
-          style={{ width: "32vw", gap: "1.05vw", minWidth: "260px" }}
+        <button
+          onClick={() => setActiveIndex(activeIndex === i ? null : i)}
+          className="w-full flex justify-between items-center py-[1.4vw] text-left"
         >
-          <div
-            className="flex items-center justify-center"
-            style={{
-              background: "rgba(49,55,43,0.1)",
-              borderRadius: "100vw",
-              width: "4.3vw",
-              height: "1.8vw",
-            }}
+          <span
+            className="text-[#31372B]"
+            style={{ fontSize: "1.25vw" }}
           >
-            <span
-              className="font-bold text-[#31372B] uppercase"
-              style={{ fontSize: "0.86vw", letterSpacing: "0.05vw" }}
-            >
-              FAQs
-            </span>
-          </div>
+            {faq.q}
+          </span>
 
-          <h2
-            className="font-bold text-[#31372B]"
-            style={{
-              fontSize: "2.64vw",
-              lineHeight: "3.1vw",
-              letterSpacing: "-0.05vw",
-            }}
+          <motion.span
+            animate={{ rotate: activeIndex === i ? 45 : 0 }}
+            transition={{ duration: 0.25 }}
+            className="text-[#31372B] font-bold"
+            style={{ fontSize: "1.6vw", lineHeight: "0" }}
           >
-            Have Questions?
-          </h2>
+            +
+          </motion.span>
+        </button>
 
+        <motion.div
+          initial={false}
+          animate={{
+            height: activeIndex === i ? "auto" : 0,
+            opacity: activeIndex === i ? 1 : 0,
+          }}
+          transition={{ duration: 0.3 }}
+          className="overflow-hidden"
+        >
           <p
             className="text-[#717182]"
             style={{
-              fontSize: "1.12vw",
-              lineHeight: "1.9vw",
+              fontSize: "1.1vw",
+              paddingBottom: activeIndex === i ? "1.4vw" : "0",
+              width: "90%",
             }}
           >
-            Find answers to common questions about our platform, pricing, and how we
-            help you connect with the right investors.
+            {faq.a}
           </p>
-        </div>
+        </motion.div>
+      </motion.div>
+    ))}
+  </div>
+</section>
 
-        {/* Right side (Framer Motion Accordion) */}
-        <div
-          className="flex flex-col gap-[1.05vw]"
-          style={{ width: "49vw", marginTop: "2vw" }}
-        >
-          {[
-            {
-              q: "How do credits work?",
-              a: "Each credit lets you unlock one verified investor contact. Use credits anytime to reveal verified emails and direct contact info.",
-            },
-            {
-              q: "Do credits expire?",
-              a: "No. Credits never expire — you can use them whenever you need as your fundraising progresses.",
-            },
-            {
-              q: "How often is the investor data updated?",
-              a: "Our investor database is updated weekly with verified information to ensure you always get fresh, accurate data.",
-            },
-          ].map((faq, i) => (
-            <motion.div
-              key={i}
-              className="border border-[#31372B]/10 rounded-[0.8vw] overflow-hidden bg-[#F5F5F5]/50"
-              initial={false}
-            >
-              <button
-                onClick={() =>
-                  setActiveIndex(activeIndex === i ? null : i)
-                }
-                className="w-full flex justify-between items-center px-[1.6vw] py-[1.2vw] text-left"
-              >
-                <span
-                  className="font-bold text-[#31372B]"
-                  style={{ fontSize: "1.05vw" }}
-                >
-                  {faq.q}
-                </span>
-                <motion.svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="1.05vw"
-                  height="1.05vw"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#717182"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  animate={{
-                    rotate: activeIndex === i ? 180 : 0,
-                  }}
-                  transition={{ duration: 0.25 }}
-                >
-                  <polyline points="6 9 12 15 18 9" />
-                </motion.svg>
-              </button>
-
-              <motion.div
-                initial={false}
-                animate={{
-                  height: activeIndex === i ? "auto" : 0,
-                  opacity: activeIndex === i ? 1 : 0,
-                }}
-                transition={{ duration: 0.35 }}
-                className="overflow-hidden px-[1.6vw] text-[#717182]"
-                style={{
-                  fontSize: "0.99vw",
-                  lineHeight: "1.6vw",
-                }}
-              >
-                <div className="pb-[1vw]">{faq.a}</div>
-              </motion.div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
+{/* CTA SECTION */}
       <section
         id="cta"
-        className="relative flex flex-col items-center justify-center overflow-hidden bg-[#31372B] text-center"
+        className="relative flex flex-col items-center justify-center overflow-hidden bg-[#1E1E1E] text-center"
         style={{ height: "37.78vw" }}
       >
         <div

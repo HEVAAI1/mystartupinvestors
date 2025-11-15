@@ -22,6 +22,7 @@ module.exports = {
       },
       fontFamily: {
         sans: ["SUSE", ...fontFamily.sans],
+        funnel: ["var(--font-funnel-display)", "Arial", "sans-serif"],
       },
     },
   },
