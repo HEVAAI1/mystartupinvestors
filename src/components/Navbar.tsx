@@ -1,20 +1,44 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
+import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 import { FiUser } from "react-icons/fi";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function AuthenticatedNavbar({ credits = 0 }: { credits?: number }) {
   const router = useRouter();
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
 
-  // Active button styling
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   const getButtonClasses = (path: string) => {
     const isActive = pathname === path;
     return isActive
       ? "flex justify-center items-center px-4 py-2 rounded-md bg-[#31372B] text-[#FAF7EE] font-[Arial] text-[14px] leading-[20px] cursor-pointer whitespace-nowrap transition"
       : "flex justify-center items-center px-4 py-2 rounded-md hover:bg-[#F5F5F5] text-[#31372B] font-[Arial] text-[14px] leading-[20px] cursor-pointer whitespace-nowrap transition";
   };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+const handleLogout = async () => {
+  const supabase = createSupabaseBrowserClient();
+
+  await supabase.auth.signOut();
+
+  router.push("/");
+};
 
   return (
     <nav
@@ -41,7 +65,6 @@ export default function AuthenticatedNavbar({ credits = 0 }: { credits?: number 
 
         {/* Right Controls */}
         <div className="flex items-center gap-[12px]" style={{ height: "36px" }}>
-          {/* Add My Startup */}
           <button
             onClick={() => router.push("/add-startup")}
             className={getButtonClasses("/add-startup")}
@@ -50,7 +73,6 @@ export default function AuthenticatedNavbar({ credits = 0 }: { credits?: number 
             Add My Startup
           </button>
 
-          {/* Get More Credits */}
           <button
             onClick={() => router.push("/pricing")}
             className={getButtonClasses("/pricing")}
@@ -59,34 +81,65 @@ export default function AuthenticatedNavbar({ credits = 0 }: { credits?: number 
             Get More Credits
           </button>
 
-          {/* Credits Badge — FIXED */}
           <div
             className="flex items-center gap-2 bg-[#F5F5F5] border border-[rgba(49,55,43,0.12)] rounded-md px-2"
             style={{ height: "29.59px" }}
           >
-            <Image
-              src="/CreditIcon.png"
-              alt="Credits Icon"
-              width={12}
-              height={12}
-            />
+            <Image src="/CreditIcon.png" alt="Credits Icon" width={12} height={12} />
             <span className="font-[Arial] text-[12px] leading-[16px] text-[#31372B]">
               {credits}
             </span>
           </div>
 
-          {/* Profile Icon */}
-          <button
-            onClick={() => router.push("/profile")}
-            className={`flex justify-center items-center rounded-md hover:bg-[#F5F5F5] cursor-pointer transition ${
-              pathname === "/profile" ? "bg-[#F5F5F5]" : ""
-            }`}
-            style={{ width: "36px", height: "36px" }}
-          >
-            <FiUser size={20} color="#31372B" />
-          </button>
+          {/* Profile */}
+          <div className="relative" ref={dropdownRef}>
+            <div
+              className="flex justify-center items-center rounded-md hover:bg-[#F5F5F5] cursor-pointer transition"
+              style={{ width: "36px", height: "36px" }}
+              onClick={() => setOpen((prev) => !prev)}
+            >
+              <FiUser size={20} color="#31372B" />
+            </div>
+
+            {open && (
+              <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg border border-[#31372B1F] rounded-md text-sm font-[Arial] py-2 animate-fadeIn z-50">
+                <button
+                  onClick={() => {
+                    setOpen(false);
+                    router.push("/profile");
+                  }}
+                  className="w-full text-left px-4 py-2 hover:bg-[#F5F5F5] transition"
+                >
+                  My Profile
+                </button>
+
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2 text-red-600 hover:bg-[#F5F5F5] transition"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .animate-fadeIn {
+          animation: fadeIn 0.15s ease-in-out;
+        }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-4px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </nav>
   );
 }

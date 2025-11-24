@@ -4,22 +4,23 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Search, Dot, ArrowRight, Download, Filter, Zap, Users, Mail, MapPin, Briefcase, MailIcon } from "lucide-react";
 import { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 
 
 export default function Home() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const supabase = createSupabaseBrowserClient();
 
   const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    },
+  });
 
-    if (error) console.error("Google login error:", error.message);
-  };
+  if (error) console.error("Google Login Error:", error);
+};
   return (
     <main className="min-h-screen bg-[#FAF7EE] font-[Arial] text-[#31372B] relative overflow-hidden">
       {/* Navbar */}
@@ -39,20 +40,9 @@ export default function Home() {
           />
         </div>
 
-        <button
-          onClick={async () => {
-            const { error } = await supabase.auth.signInWithOAuth({
-              provider: "google",
-              options: {
-                redirectTo: `${window.location.origin}/auth/callback`,
-              },
-            });
-            if (error) console.error("Google login error:", error.message);
-          }}
-          className="bg-[#31372B] text-[#FAF7EE] px-6 py-2 rounded-lg font-bold shadow hover:opacity-90 transition cursor-pointer"
-        >
-          Sign In
-        </button>
+        <button className="bg-[#31372B] text-[#FAF7EE] px-6 py-2 rounded-lg font-bold shadow hover:opacity-90 transition cursor-pointer" onClick={handleGoogleLogin}>
+      Sign In
+    </button>
       </motion.nav>
 
       {/* Hero Section */}
