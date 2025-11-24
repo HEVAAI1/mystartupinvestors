@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { useState, useEffect } from "react";
+import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 
 interface User {
   id: string;
@@ -10,118 +10,157 @@ interface User {
   plan: string;
   credits_allocated: number;
   credits_used: number;
-  last_login: string;
-  role: string;
-  profile_picture?: string | null;
   startup_form_submitted: boolean;
+  created_at: string;
+  last_login: string;
 }
 
 export default function UserListPage() {
   const [users, setUsers] = useState<User[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterPlan, setFilterPlan] = useState<string>("All");
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      const { data, error } = await supabase.from("users").select("*");
-      if (error) {
-        console.error("Error fetching users:", error);
-      } else {
-        setUsers(data as User[]);
-      }
-    };
     fetchUsers();
   }, []);
 
-  const filteredUsers = users.filter((user) => {
-    const matchesSearch =
-      user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchQuery.toLowerCase());
+  const fetchUsers = async () => {
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-    const matchesPlan =
-      filterPlan === "All" ? true : user.plan.toLowerCase() === filterPlan.toLowerCase();
+      if (error) throw error;
+      setUsers(data || []);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return matchesSearch && matchesPlan;
-  });
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.plan?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-[#717182]">Loading users...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6">User List</h1>
-
-      {/* Controls */}
-      <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
-        {/* Search */}
-        <input
-          type="text"
-          placeholder="Search by name or email..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="border rounded-md px-4 py-2 w-full md:w-1/3"
-        />
-
-        {/* Filter by Plan */}
-        <select
-          value={filterPlan}
-          onChange={(e) => setFilterPlan(e.target.value)}
-          className="border rounded-md px-4 py-2"
-        >
-          <option value="All">All Plans</option>
-          <option value="free">Free</option>
-          <option value="pro">Pro</option>
-          <option value="pro+">Pro+</option>
-        </select>
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-[32px] font-bold text-[#31372B] mb-2">
+            User List
+          </h1>
+          <p className="text-[16px] text-[#717182]">
+            {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''} registered
+          </p>
+        </div>
+        <button className="px-4 py-2 bg-[#31372B] text-white rounded-lg hover:opacity-90 transition text-[14px] font-medium">
+          Export CSV
+        </button>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto bg-white shadow rounded-lg">
-        <table className="min-w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-200 text-left">
-              <th className="p-3">Profile</th>
-              <th className="p-3">Name</th>
-              <th className="p-3">Email</th>
-              <th className="p-3">Plan</th>
-              <th className="p-3">Credits</th>
-              <th className="p-3">Startup Form</th>
-              <th className="p-3">Last Login</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredUsers.length === 0 ? (
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="Search by name, email, or plan..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full px-4 py-2 border border-[#31372B1F] rounded-lg outline-none focus:ring-2 focus:ring-[#31372B] text-[14px]"
+        />
+      </div>
+
+      <div className="bg-white rounded-xl border border-[#31372B1F] shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-[#F5F5F5] border-b border-[#31372B1F]">
               <tr>
-                <td colSpan={7} className="p-4 text-center text-gray-500">
-                  No users found
-                </td>
+                <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#31372B] uppercase tracking-wider">
+                  Name
+                </th>
+                <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#31372B] uppercase tracking-wider">
+                  Email
+                </th>
+                <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#31372B] uppercase tracking-wider">
+                  Plan
+                </th>
+                <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#31372B] uppercase tracking-wider">
+                  Credits
+                </th>
+                <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#31372B] uppercase tracking-wider">
+                  Used
+                </th>
+                <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#31372B] uppercase tracking-wider">
+                  Startup Form
+                </th>
+                <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#31372B] uppercase tracking-wider">
+                  Joined
+                </th>
+                <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#31372B] uppercase tracking-wider">
+                  Last Login
+                </th>
               </tr>
-            ) : (
-              filteredUsers.map((user) => (
-                <tr key={user.id} className="border-b hover:bg-gray-50">
-                  <td className="p-3">
-                    <img
-                      src={user.profile_picture || "/default-avatar.png"}
-                      alt={user.name}
-                      className="w-10 h-10 rounded-full"
-                    />
+            </thead>
+            <tbody className="divide-y divide-[#31372B1F]">
+              {filteredUsers.map((user) => (
+                <tr key={user.id} className="hover:bg-[#F5F5F5] transition">
+                  <td className="px-6 py-4 text-[14px] text-[#31372B] font-medium">
+                    {user.name || "N/A"}
                   </td>
-                  <td className="p-3">{user.name}</td>
-                  <td className="p-3">{user.email}</td>
-                  <td className="p-3 capitalize">{user.plan}</td>
-                  <td className="p-3">
-                    {user.credits_used}/{user.credits_allocated}
+                  <td className="px-6 py-4 text-[14px] text-[#717182]">
+                    {user.email || "N/A"}
                   </td>
-                  <td className="p-3">
-                    {user.startup_form_submitted ? "✅ Yes" : "❌ No"}
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-1 rounded-md text-[12px] font-medium ${user.plan === "premium"
+                        ? "bg-purple-100 text-purple-800"
+                        : "bg-gray-100 text-gray-800"
+                      }`}>
+                      {user.plan || "free"}
+                    </span>
                   </td>
-                  <td className="p-3">
-                    {user.last_login
-                      ? new Date(user.last_login).toLocaleString()
-                      : "—"}
+                  <td className="px-6 py-4 text-[14px] text-[#717182]">
+                    {user.credits_allocated || 0}
+                  </td>
+                  <td className="px-6 py-4 text-[14px] text-[#717182]">
+                    {user.credits_used || 0}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-1 rounded-md text-[12px] font-medium ${user.startup_form_submitted
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-800"
+                      }`}>
+                      {user.startup_form_submitted ? "Submitted" : "Not Submitted"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-[14px] text-[#717182]">
+                    {new Date(user.created_at).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 text-[14px] text-[#717182]">
+                    {user.last_login ? new Date(user.last_login).toLocaleDateString() : "Never"}
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {filteredUsers.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-[#717182]">No users found</p>
+          </div>
+        )}
       </div>
     </div>
   );

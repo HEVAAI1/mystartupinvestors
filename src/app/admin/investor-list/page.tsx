@@ -1,177 +1,185 @@
 "use client";
 
-import { useState, useEffect, ChangeEvent } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import * as XLSX from "xlsx";
+import { useState, useEffect } from "react";
+import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 
-// Define the Investor type
 interface Investor {
   id: number;
   name: string;
-  about: string;
-  city: string;
-  country: string;
-  preference_sector: string;
   firm_name: string;
   email: string;
   linkedin: string;
+  city: string;
+  country: string;
+  preference_sector: string;
+  about: string;
 }
 
-const AdminInvestorList = () => {
+export default function InvestorListPage() {
   const [investors, setInvestors] = useState<Investor[]>([]);
-  const [filteredInvestors, setFilteredInvestors] = useState<Investor[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-
-  // Fetch investors
-  const fetchInvestors = async () => {
-    try {
-      let { data, error } = await supabase
-        .from("investors")
-        .select("*") as { data: Investor[] | null; error: any };
-      if (error) throw error;
-      if (data) {
-        setInvestors(data);
-        setFilteredInvestors(data);
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Investor data table does not exist yet. Please create the table in Supabase.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
     fetchInvestors();
   }, []);
 
-  // Search filter
-  useEffect(() => {
-    if (!searchTerm) {
-      setFilteredInvestors(investors);
-    } else {
-      const filtered = investors.filter(
-        (inv) =>
-          inv.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          inv.firm_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          inv.preference_sector.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredInvestors(filtered);
-    }
-  }, [searchTerm, investors]);
-
-  // Handle Excel upload
-  const handleExcelUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const fetchInvestors = async () => {
     try {
-      const data = await file.arrayBuffer();
-      const workbook = XLSX.read(data);
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-      const rows: any[] = XLSX.utils.sheet_to_json(worksheet);
+      const supabase = createSupabaseBrowserClient();
+      const { data, error } = await supabase
+        .from("investors")
+        .select("*")
+        .order("id", { ascending: true });
 
-      const newInvestors = rows.map((row) => ({
-        name: row["Name"] || "",
-        about: row["About"] || "",
-        city: row["City"] || "",
-        country: row["Country"] || "",
-        preference_sector: row["Preference Sector"] || "",
-        firm_name: row["Firm Name"] || "",
-        email: row["Email"] || "",
-        linkedin: row["LinkedIn"] || "",
-      }));
-
-      const { error } = await supabase.from("investors").insert(newInvestors);
-      if (error) {
-        console.error("Excel upload error:", error);
-        alert("Upload failed: " + error.message);
-      } else {
-        alert("Upload successful!");
-        fetchInvestors(); // refresh table
-      }
-    } catch (err) {
-      console.error("Excel parsing error:", err);
-      alert("Failed to read Excel file. Make sure it is valid.");
+      if (error) throw error;
+      setInvestors(data || []);
+    } catch (error) {
+      console.error("Error fetching investors:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-900 text-gray-200">
-      {/* Admin Navbar */}
-      <nav className="bg-gray-900 text-gray-200 flex items-center justify-between px-8 py-4 shadow-md">
-        <div className="text-2xl font-bold">Admin Panel</div>
-        <div className="flex gap-6">
-          <a href="/admin/investors" className="hover:underline">Investor Details</a>
-          <a href="/admin/startup-leads" className="hover:underline">Startup Leads</a>
-          <a href="/admin/users" className="hover:underline">User Lists</a>
-        </div>
-      </nav>
+  const filteredInvestors = investors.filter(
+    (investor) =>
+      investor.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      investor.firm_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      investor.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      investor.country?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      investor.preference_sector?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-      {/* Controls */}
-      <div className="flex flex-col md:flex-row items-center justify-between p-8 gap-4">
-        <input
-          type="text"
-          placeholder="Search investors..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"
-        />
-        <label className="bg-blue-500 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-600">
-          Upload Excel
-          <input
-            type="file"
-            accept=".xlsx, .xls"
-            className="hidden"
-            onChange={handleExcelUpload}
-          />
-        </label>
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-[#717182]">Loading investors...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-[32px] font-bold text-[#31372B] mb-2">
+            Investor Table
+          </h1>
+          <p className="text-[16px] text-[#717182]">
+            {filteredInvestors.length} investor{filteredInvestors.length !== 1 ? 's' : ''} in database
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <button className="px-4 py-2 border border-[#31372B1F] rounded-lg hover:bg-[#F5F5F5] transition text-[14px] font-medium">
+            Add Investor
+          </button>
+          <button className="px-4 py-2 bg-[#31372B] text-white rounded-lg hover:opacity-90 transition text-[14px] font-medium">
+            Export CSV
+          </button>
+        </div>
       </div>
 
-      {/* Investor Table */}
-      <div className="p-8 overflow-x-auto">
-        {loading ? (
-          <p className="text-gray-400">Loading investor data...</p>
-        ) : error ? (
-          <p className="text-red-500">{error}</p>
-        ) : (
-          <table className="min-w-full bg-gray-800 border border-gray-700 rounded-lg">
-            <thead className="bg-gray-700 text-gray-400">
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="Search by name, firm, email, country, or sector..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full px-4 py-2 border border-[#31372B1F] rounded-lg outline-none focus:ring-2 focus:ring-[#31372B] text-[14px]"
+        />
+      </div>
+
+      <div className="bg-white rounded-xl border border-[#31372B1F] shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-[#F5F5F5] border-b border-[#31372B1F]">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Investor Name</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">About</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Location</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Preference Sector</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Firm Name</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Email</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">LinkedIn</th>
+                <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#31372B] uppercase tracking-wider">
+                  ID
+                </th>
+                <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#31372B] uppercase tracking-wider">
+                  Name
+                </th>
+                <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#31372B] uppercase tracking-wider">
+                  Firm
+                </th>
+                <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#31372B] uppercase tracking-wider">
+                  Email
+                </th>
+                <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#31372B] uppercase tracking-wider">
+                  Location
+                </th>
+                <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#31372B] uppercase tracking-wider">
+                  Sectors
+                </th>
+                <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#31372B] uppercase tracking-wider">
+                  LinkedIn
+                </th>
               </tr>
             </thead>
-            <tbody>
-              {filteredInvestors.map((inv) => (
-                <tr key={inv.id} className="border-t border-gray-700 hover:bg-gray-700">
-                  <td className="px-6 py-4">{inv.name}</td>
-                  <td className="px-6 py-4">{inv.about}</td>
-                  <td className="px-6 py-4">{inv.city}, {inv.country}</td>
-                  <td className="px-6 py-4">{inv.preference_sector}</td>
-                  <td className="px-6 py-4">{inv.firm_name}</td>
-                  <td className="px-6 py-4">{inv.email}</td>
+            <tbody className="divide-y divide-[#31372B1F]">
+              {filteredInvestors.map((investor) => (
+                <tr key={investor.id} className="hover:bg-[#F5F5F5] transition">
+                  <td className="px-6 py-4 text-[14px] text-[#717182]">
+                    {investor.id}
+                  </td>
+                  <td className="px-6 py-4 text-[14px] text-[#31372B] font-medium">
+                    {investor.name || "N/A"}
+                  </td>
+                  <td className="px-6 py-4 text-[14px] text-[#717182]">
+                    {investor.firm_name || "N/A"}
+                  </td>
+                  <td className="px-6 py-4 text-[14px] text-[#717182]">
+                    {investor.email || "N/A"}
+                  </td>
+                  <td className="px-6 py-4 text-[14px] text-[#717182]">
+                    {investor.city && investor.country
+                      ? `${investor.city}, ${investor.country}`
+                      : investor.country || "N/A"}
+                  </td>
                   <td className="px-6 py-4">
-                    <a href={inv.linkedin} target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">
-                      Profile
-                    </a>
+                    <div className="flex flex-wrap gap-1">
+                      {investor.preference_sector?.split(",").slice(0, 2).map((sector, idx) => (
+                        <span
+                          key={idx}
+                          className="px-2 py-1 bg-blue-100 text-blue-800 rounded-md text-[12px] font-medium"
+                        >
+                          {sector.trim()}
+                        </span>
+                      ))}
+                      {investor.preference_sector?.split(",").length > 2 && (
+                        <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-md text-[12px] font-medium">
+                          +{investor.preference_sector.split(",").length - 2}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-[14px]">
+                    {investor.linkedin ? (
+                      <a
+                        href={investor.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        View
+                      </a>
+                    ) : (
+                      <span className="text-[#717182]">N/A</span>
+                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+
+        {filteredInvestors.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-[#717182]">No investors found</p>
+          </div>
         )}
       </div>
     </div>
   );
-};
-
-export default AdminInvestorList;
+}
