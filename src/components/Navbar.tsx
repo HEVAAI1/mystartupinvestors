@@ -8,7 +8,7 @@ export default function AuthenticatedNavbar({ credits = 0 }: { credits?: number 
   const router = useRouter();
   const pathname = usePathname();
 
-  // Helper function for button style
+  // Active button styling
   const getButtonClasses = (path: string) => {
     const isActive = pathname === path;
     return isActive
@@ -59,22 +59,18 @@ export default function AuthenticatedNavbar({ credits = 0 }: { credits?: number 
             Get More Credits
           </button>
 
-          {/* Credits Badge */}
+          {/* Credits Badge — FIXED */}
           <div
-            className="relative flex items-center justify-center bg-[#F5F5F5] border border-[rgba(49,55,43,0.12)] rounded-md cursor-default"
-            style={{ width: "54.26px", height: "29.59px" }}
+            className="flex items-center gap-2 bg-[#F5F5F5] border border-[rgba(49,55,43,0.12)] rounded-md px-2"
+            style={{ height: "29.59px" }}
           >
             <Image
               src="/CreditIcon.png"
               alt="Credits Icon"
               width={12}
               height={12}
-              className="absolute left-[12.8px] top-[8.79px]"
             />
-            <span
-              className="absolute font-[Arial] text-[12px] leading-[16px] text-[#31372B]"
-              style={{ left: "34.8px", top: "5.8px" }}
-            >
+            <span className="font-[Arial] text-[12px] leading-[16px] text-[#31372B]">
               {credits}
             </span>
           </div>

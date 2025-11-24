@@ -128,7 +128,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#FAF7EE] font-[Arial] text-[#31372B]">
-      <Navbar credits={5} />
+ 
 
       <div className="max-w-[1400px] mx-auto mt-[92px] px-6 flex justify-between items-center">
         <h1 className="text-[32px] font-bold">Investor database</h1>
