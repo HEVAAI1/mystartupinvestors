@@ -123,8 +123,12 @@ const Dashboard = () => {
       filtered = filtered.filter((inv) => inv.preference_sector === selectedIndustry);
     }
 
+    if (showViewed) {
+      filtered = filtered.filter((inv) => viewedInvestorIds.includes(inv.id));
+    }
+
     setFilteredInvestors(filtered);
-  }, [searchTerm, investors, selectedLocation, selectedIndustry]);
+  }, [searchTerm, investors, selectedLocation, selectedIndustry, showViewed, viewedInvestorIds]);
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -299,7 +303,7 @@ const Dashboard = () => {
           className="flex items-center bg-white border border-[#31372B1F] rounded-md px-3 py-2 text-sm gap-3 cursor-pointer select-none"
           onClick={handleToggleViewed}
         >
-          <span>Show Viewed</span>
+          <span>Show Viewed Only</span>
           <div
             className={`w-8 h-4 rounded-full flex items-center p-0.5 transition-all duration-300 ${showViewed ? "bg-[#31372B]" : "bg-[#CBCED4]"
               }`}
@@ -375,9 +379,6 @@ const Dashboard = () => {
       <UpgradeModal
         open={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
-        onViewPlans={() => {
-          setShowUpgradeModal(false);
-        }}
       />
 
       <InvestorDetailModal

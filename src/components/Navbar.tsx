@@ -5,12 +5,12 @@ import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 import { FiUser } from "react-icons/fi";
-import { supabase } from "@/lib/supabaseClient";
 
 export default function AuthenticatedNavbar({ credits = 0 }: { credits?: number }) {
   const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [startupFormSubmitted, setStartupFormSubmitted] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -20,6 +20,26 @@ export default function AuthenticatedNavbar({ credits = 0 }: { credits?: number 
       ? "flex justify-center items-center px-4 py-2 rounded-md bg-[#31372B] text-[#FAF7EE] font-[Arial] text-[14px] leading-[20px] cursor-pointer whitespace-nowrap transition"
       : "flex justify-center items-center px-4 py-2 rounded-md hover:bg-[#F5F5F5] text-[#31372B] font-[Arial] text-[14px] leading-[20px] cursor-pointer whitespace-nowrap transition";
   };
+
+  // Fetch user's startup form submission status
+  useEffect(() => {
+    const fetchUserStatus = async () => {
+      const supabase = createSupabaseBrowserClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from("users")
+          .select("startup_form_submitted")
+          .eq("id", user.id)
+          .single();
+
+        if (data) {
+          setStartupFormSubmitted(data.startup_form_submitted ?? false);
+        }
+      }
+    };
+    fetchUserStatus();
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -32,13 +52,13 @@ export default function AuthenticatedNavbar({ credits = 0 }: { credits?: number 
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-const handleLogout = async () => {
-  const supabase = createSupabaseBrowserClient();
+  const handleLogout = async () => {
+    const supabase = createSupabaseBrowserClient();
 
-  await supabase.auth.signOut();
+    await supabase.auth.signOut();
 
-  router.push("/");
-};
+    router.push("/");
+  };
 
   return (
     <nav
@@ -66,11 +86,11 @@ const handleLogout = async () => {
         {/* Right Controls */}
         <div className="flex items-center gap-[12px]" style={{ height: "36px" }}>
           <button
-            onClick={() => router.push("/add-startup")}
-            className={getButtonClasses("/add-startup")}
-            style={{ width: "132.86px", height: "36px" }}
+            onClick={() => router.push(startupFormSubmitted ? "/view-startup" : "/add-startup")}
+            className={getButtonClasses(startupFormSubmitted ? "/view-startup" : "/add-startup")}
+            style={{ minWidth: "132.86px", height: "36px", padding: "0 16px" }}
           >
-            Add My Startup
+            {startupFormSubmitted ? "View My Startup" : "Add My Startup"}
           </button>
 
           <button

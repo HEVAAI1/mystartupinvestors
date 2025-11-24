@@ -2,14 +2,16 @@
 
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 interface UpgradeModalProps {
   open: boolean;
   onClose: () => void;
-  onViewPlans: () => void;
 }
 
-export default function UpgradeModal({ open, onClose, onViewPlans }: UpgradeModalProps) {
+export default function UpgradeModal({ open, onClose }: UpgradeModalProps) {
+  const router = useRouter();
+
   if (!open) return null;
 
   return (
@@ -91,7 +93,10 @@ export default function UpgradeModal({ open, onClose, onViewPlans }: UpgradeModa
               {/* Buttons */}
               <div className="flex flex-col gap-3 w-full">
                 <button
-                  onClick={onViewPlans}
+                  onClick={() => {
+                    router.push("/pricing");
+                    onClose();
+                  }}
                   className="w-full bg-[#31372B] text-[#FAF7EE] py-2.5 rounded-md font-bold text-[14px] leading-[20px] hover:opacity-90 transition cursor-pointer"
                 >
                   View Plans
