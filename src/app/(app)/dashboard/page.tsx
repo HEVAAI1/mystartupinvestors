@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, ChangeEvent } from "react";
+import { useState, useEffect, ChangeEvent, useCallback } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
 import UpgradeModal from "@/components/UpgradeModal";
+import InvestorDetailModal from "@/components/InvestorDetailModal";
 import { useCredits } from "@/context/CreditsContext"; // ✅ USE CONTEXT
 
 interface Investor {
@@ -25,15 +26,17 @@ const Dashboard = () => {
   const [industries, setIndustries] = useState<string[]>([]);
   const [selectedLocation, setSelectedLocation] = useState("All");
   const [selectedIndustry, setSelectedIndustry] = useState("All");
-  const [expandedRows, setExpandedRows] = useState<number[]>([]);
+  const [selectedInvestor, setSelectedInvestor] = useState<Investor | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [showViewed, setShowViewed] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
+  const [viewedInvestorIds, setViewedInvestorIds] = useState<number[]>([]);
   // ⭐⭐⭐ USE CREDITS FROM CONTEXT ⭐⭐⭐
-  const { credits } = useCredits(); // <— THIS is the correct way
+  const { credits, used, decrementCredit, userId } = useCredits(); // <— THIS is the correct way
 
   const handleCountryChange = (e: ChangeEvent<HTMLSelectElement>) => {
     setSelectedLocation(e.target.value);
@@ -48,8 +51,9 @@ const Dashboard = () => {
   // ============================
   const fetchInvestors = async () => {
     try {
-      let { data, error } = await supabase
+      const { data, error } = await supabase
         .from("investors")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .select("*") as { data: Investor[] | null; error: any };
 
       if (error) throw error;
@@ -80,6 +84,24 @@ const Dashboard = () => {
     fetchInvestors();
   }, []);
 
+  // Fetch viewed investors
+  useEffect(() => {
+    const fetchViewed = async () => {
+      if (userId) {
+        console.log("Fetching viewed investors for user:", userId);
+        const { data } = await supabase
+          .from("user_investor_views")
+          .select("investor_id")
+          .eq("user_id", userId);
+
+        if (data) {
+          setViewedInvestorIds(data.map((item) => item.investor_id));
+        }
+      }
+    };
+    fetchViewed();
+  }, [userId]);
+
   useEffect(() => {
     let filtered = investors;
 
@@ -108,18 +130,16 @@ const Dashboard = () => {
     setSearchTerm(e.target.value);
   };
 
-  const toggleRow = (id: number) => {
-    setExpandedRows((prev) =>
-      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
-    );
-  };
+
 
   const handleToggleViewed = () => {
     setShowViewed((prev) => !prev);
   };
 
   // Masking Names
-  const maskName = (name: string): string => {
+  const maskName = (name: string, id: number): string => {
+    if (viewedInvestorIds.includes(id)) return name; // Show full name if viewed
+
     if (!name) return "";
     const parts = name.trim().split(" ");
 
@@ -133,6 +153,76 @@ const Dashboard = () => {
     return `${first} ${last}`;
   };
 
+  const handleViewProfile = useCallback(async (investor: Investor) => {
+    console.log("handleViewProfile called for:", investor.id);
+    console.log("Current credits:", credits);
+    console.log("Current used:", used);
+    console.log("Current userId:", userId);
+    console.log("Viewed IDs:", viewedInvestorIds);
+
+    // 1. If already viewed, just open modal
+    if (viewedInvestorIds.includes(investor.id)) {
+      console.log("Investor already viewed. Opening modal.");
+      setSelectedInvestor(investor);
+      setShowDetailModal(true);
+      return;
+    }
+
+    // 2. If not viewed, check credits
+    if (credits > 0) {
+      console.log("Credits available. Proceeding with deduction.");
+
+      // Optimistic update
+      decrementCredit();
+      setViewedInvestorIds((prev) => [...prev, investor.id]);
+      setSelectedInvestor(investor);
+      setShowDetailModal(true);
+
+      // DB Updates
+      if (userId) {
+        try {
+          console.log("Updating DB for user:", userId);
+
+          // Record view
+          const { error: viewError } = await supabase.from("user_investor_views").insert({
+            user_id: userId,
+            investor_id: investor.id,
+          });
+
+          if (viewError) {
+            console.error("Error inserting into user_investor_views:", viewError);
+            throw viewError;
+          } else {
+            console.log("Successfully inserted into user_investor_views");
+          }
+
+          // Deduct credit
+          const { error: updateError } = await supabase
+            .from("users")
+            .update({ credits_used: used + 1 })
+            .eq("id", userId);
+
+          if (updateError) {
+            console.error("Error updating users table:", updateError);
+            throw updateError;
+          } else {
+            console.log("Successfully updated users table credits_used");
+          }
+
+        } catch (err) {
+          console.error("Error updating credits/views:", err);
+          // Ideally revert optimistic update here, but for now we log
+        }
+      } else {
+        console.error("No userId found, skipping DB updates");
+      }
+    } else {
+      // 3. No credits
+      console.log("No credits left. Showing upgrade modal.");
+      setShowUpgradeModal(true);
+    }
+  }, [credits, used, userId, viewedInvestorIds, decrementCredit]);
+
   return (
     <div className="min-h-screen bg-[#FAF7EE] font-[Arial] text-[#31372B]">
       {/* Header */}
@@ -142,7 +232,7 @@ const Dashboard = () => {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 bg-white border border-[#31372B1F] rounded-lg px-3 py-1.5">
             <div className="w-2 h-2 bg-[#F0B100] rounded-full"></div>
-            
+
             {/* ⭐⭐⭐ THE ONLY CHANGE ⭐⭐⭐ */}
             <span className="text-sm font-bold text-[#31372B]">
               Credits Left: {credits}
@@ -211,14 +301,12 @@ const Dashboard = () => {
         >
           <span>Show Viewed</span>
           <div
-            className={`w-8 h-4 rounded-full flex items-center p-0.5 transition-all duration-300 ${
-              showViewed ? "bg-[#31372B]" : "bg-[#CBCED4]"
-            }`}
+            className={`w-8 h-4 rounded-full flex items-center p-0.5 transition-all duration-300 ${showViewed ? "bg-[#31372B]" : "bg-[#CBCED4]"
+              }`}
           >
             <div
-              className={`w-3.5 h-3.5 bg-white rounded-full transform transition-transform duration-300 ${
-                showViewed ? "translate-x-4" : ""
-              }`}
+              className={`w-3.5 h-3.5 bg-white rounded-full transform transition-transform duration-300 ${showViewed ? "translate-x-4" : ""
+                }`}
             ></div>
           </div>
         </div>
@@ -232,8 +320,6 @@ const Dashboard = () => {
           <p className="text-red-500">{error}</p>
         ) : (
           filteredInvestors.map((inv) => {
-            const expanded = expandedRows.includes(inv.id);
-
             return (
               <div
                 key={inv.id}
@@ -246,7 +332,7 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <p className="font-bold text-[15px] leading-5">
-                      {expanded ? inv.name : maskName(inv.name)}
+                      {maskName(inv.name, inv.id)}
                     </p>
                     <p className="text-[14px] text-[#717182]">{inv.firm_name}</p>
                   </div>
@@ -270,14 +356,14 @@ const Dashboard = () => {
                 {/* Actions */}
                 <div className="flex flex-col items-end gap-3 w-[150px]">
                   <p className="text-[14px] text-[#717182] text-right pr-2">
-                    {expanded ? `${inv.city}, ${inv.country}` : inv.country}
+                    {inv.country}
                   </p>
 
                   <button
-                    onClick={() => toggleRow(inv.id)}
+                    onClick={() => handleViewProfile(inv)}
                     className="bg-[#31372B] text-[#FAF7EE] rounded-md px-4 py-1.5 text-sm font-bold hover:opacity-90 cursor-pointer"
                   >
-                    {expanded ? "Hide" : "View Profile"}
+                    View Profile
                   </button>
                 </div>
               </div>
@@ -292,6 +378,12 @@ const Dashboard = () => {
         onViewPlans={() => {
           setShowUpgradeModal(false);
         }}
+      />
+
+      <InvestorDetailModal
+        open={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
+        investor={selectedInvestor}
       />
     </div>
   );
