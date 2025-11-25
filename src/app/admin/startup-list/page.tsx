@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { Eye } from "lucide-react";
+import StartupDetailsModal from "@/components/StartupDetailsModal";
 
 interface Startup {
     id: number;
@@ -20,6 +22,8 @@ export default function StartupListPage() {
     const [startups, setStartups] = useState<Startup[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    const [selectedStartup, setSelectedStartup] = useState<any>(null);
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         fetchStartups();
@@ -42,6 +46,11 @@ export default function StartupListPage() {
         }
     };
 
+    const handleViewDetails = (startup: any) => {
+        setSelectedStartup(startup);
+        setShowModal(true);
+    };
+
     const filteredStartups = startups.filter(
         (startup) =>
             startup.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -60,18 +69,13 @@ export default function StartupListPage() {
 
     return (
         <div>
-            <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h1 className="text-[32px] font-bold text-[#31372B] mb-2">
-                        Startup List
-                    </h1>
-                    <p className="text-[16px] text-[#717182]">
-                        {filteredStartups.length} startup{filteredStartups.length !== 1 ? 's' : ''} registered
-                    </p>
-                </div>
-                <button className="px-4 py-2 bg-[#31372B] text-white rounded-lg hover:opacity-90 transition text-[14px] font-medium">
-                    Export CSV
-                </button>
+            <div className="mb-6">
+                <h1 className="text-[32px] font-bold text-[#31372B] mb-2">
+                    Startup List
+                </h1>
+                <p className="text-[16px] text-[#717182]">
+                    {filteredStartups.length} startup{filteredStartups.length !== 1 ? 's' : ''} registered
+                </p>
             </div>
 
             <div className="mb-6">
@@ -99,19 +103,16 @@ export default function StartupListPage() {
                                     Email
                                 </th>
                                 <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#31372B] uppercase tracking-wider">
-                                    Phone
-                                </th>
-                                <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#31372B] uppercase tracking-wider">
                                     Industry
                                 </th>
                                 <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#31372B] uppercase tracking-wider">
                                     Funding Status
                                 </th>
                                 <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#31372B] uppercase tracking-wider">
-                                    Raising
+                                    Submitted
                                 </th>
                                 <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#31372B] uppercase tracking-wider">
-                                    Submitted
+                                    Actions
                                 </th>
                             </tr>
                         </thead>
@@ -128,9 +129,6 @@ export default function StartupListPage() {
                                         {startup.email || "N/A"}
                                     </td>
                                     <td className="px-6 py-4 text-[14px] text-[#717182]">
-                                        {startup.phone || "N/A"}
-                                    </td>
-                                    <td className="px-6 py-4 text-[14px] text-[#717182]">
                                         {startup.industry || "N/A"}
                                     </td>
                                     <td className="px-6 py-4">
@@ -138,16 +136,17 @@ export default function StartupListPage() {
                                             {startup.funding_status || "N/A"}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-2 py-1 rounded-md text-[12px] font-medium ${startup.looking_to_raise?.includes("Yes")
-                                                ? "bg-green-100 text-green-800"
-                                                : "bg-gray-100 text-gray-800"
-                                            }`}>
-                                            {startup.looking_to_raise?.includes("Yes") ? "Yes" : "No"}
-                                        </span>
-                                    </td>
                                     <td className="px-6 py-4 text-[14px] text-[#717182]">
                                         {new Date(startup.created_at).toLocaleDateString()}
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <button
+                                            onClick={() => handleViewDetails(startup)}
+                                            className="flex items-center gap-2 px-3 py-1.5 bg-[#31372B] text-white rounded-md hover:opacity-90 transition text-[12px] font-medium"
+                                        >
+                                            <Eye size={14} />
+                                            View Details
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
@@ -161,6 +160,12 @@ export default function StartupListPage() {
                     </div>
                 )}
             </div>
+
+            <StartupDetailsModal
+                startup={selectedStartup}
+                open={showModal}
+                onClose={() => setShowModal(false)}
+            />
         </div>
     );
 }

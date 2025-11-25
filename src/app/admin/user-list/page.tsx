@@ -58,18 +58,13 @@ export default function UserListPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-[32px] font-bold text-[#31372B] mb-2">
-            User List
-          </h1>
-          <p className="text-[16px] text-[#717182]">
-            {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''} registered
-          </p>
-        </div>
-        <button className="px-4 py-2 bg-[#31372B] text-white rounded-lg hover:opacity-90 transition text-[14px] font-medium">
-          Export CSV
-        </button>
+      <div className="mb-6">
+        <h1 className="text-[32px] font-bold text-[#31372B] mb-2">
+          User List
+        </h1>
+        <p className="text-[16px] text-[#717182]">
+          {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''} registered
+        </p>
       </div>
 
       <div className="mb-6">
@@ -124,8 +119,8 @@ export default function UserListPage() {
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded-md text-[12px] font-medium ${user.plan === "premium"
-                        ? "bg-purple-100 text-purple-800"
-                        : "bg-gray-100 text-gray-800"
+                      ? "bg-purple-100 text-purple-800"
+                      : "bg-gray-100 text-gray-800"
                       }`}>
                       {user.plan || "free"}
                     </span>
@@ -138,8 +133,8 @@ export default function UserListPage() {
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded-md text-[12px] font-medium ${user.startup_form_submitted
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-800"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-gray-100 text-gray-800"
                       }`}>
                       {user.startup_form_submitted ? "Submitted" : "Not Submitted"}
                     </span>

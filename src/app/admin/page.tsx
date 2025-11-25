@@ -60,7 +60,7 @@ export default function AdminLoginPage() {
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
                                 className="w-full px-4 py-2 border border-[#31372B1F] rounded-md outline-none focus:ring-2 focus:ring-[#31372B] text-[14px]"
-                                placeholder="admin@mystartupinvestors.com"
+                                placeholder="Email Address"
                                 required
                             />
                         </div>

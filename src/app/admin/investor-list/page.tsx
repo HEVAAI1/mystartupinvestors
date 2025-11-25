@@ -2,6 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { Eye, Plus, FileSpreadsheet } from "lucide-react";
+import InvestorDetailsModal from "@/components/InvestorDetailsModal";
+import AddInvestorModal from "@/components/AddInvestorModal";
+import AddInvestorExcelModal from "@/components/AddInvestorExcelModal";
 
 interface Investor {
   id: number;
@@ -19,6 +23,10 @@ export default function InvestorListPage() {
   const [investors, setInvestors] = useState<Investor[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedInvestor, setSelectedInvestor] = useState<any>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showExcelModal, setShowExcelModal] = useState(false);
 
   useEffect(() => {
     fetchInvestors();
@@ -39,6 +47,11 @@ export default function InvestorListPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleViewDetails = (investor: any) => {
+    setSelectedInvestor(investor);
+    setShowModal(true);
   };
 
   const filteredInvestors = investors.filter(
@@ -70,11 +83,19 @@ export default function InvestorListPage() {
           </p>
         </div>
         <div className="flex gap-3">
-          <button className="px-4 py-2 border border-[#31372B1F] rounded-lg hover:bg-[#F5F5F5] transition text-[14px] font-medium">
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-2 px-4 py-2 border border-[#31372B1F] rounded-lg hover:bg-[#F5F5F5] transition text-[14px] font-medium"
+          >
+            <Plus size={18} />
             Add Investor
           </button>
-          <button className="px-4 py-2 bg-[#31372B] text-white rounded-lg hover:opacity-90 transition text-[14px] font-medium">
-            Export CSV
+          <button
+            onClick={() => setShowExcelModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-[#31372B] text-white rounded-lg hover:opacity-90 transition text-[14px] font-medium"
+          >
+            <FileSpreadsheet size={18} />
+            Add via Excel
           </button>
         </div>
       </div>
@@ -113,7 +134,7 @@ export default function InvestorListPage() {
                   Sectors
                 </th>
                 <th className="px-6 py-3 text-left text-[12px] font-semibold text-[#31372B] uppercase tracking-wider">
-                  LinkedIn
+                  Actions
                 </th>
               </tr>
             </thead>
@@ -154,19 +175,14 @@ export default function InvestorListPage() {
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-[14px]">
-                    {investor.linkedin ? (
-                      <a
-                        href={investor.linkedin}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
-                      >
-                        View
-                      </a>
-                    ) : (
-                      <span className="text-[#717182]">N/A</span>
-                    )}
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => handleViewDetails(investor)}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-[#31372B] text-white rounded-md hover:opacity-90 transition text-[12px] font-medium"
+                    >
+                      <Eye size={14} />
+                      View Details
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -180,6 +196,24 @@ export default function InvestorListPage() {
           </div>
         )}
       </div>
+
+      <InvestorDetailsModal
+        investor={selectedInvestor}
+        open={showModal}
+        onClose={() => setShowModal(false)}
+      />
+
+      <AddInvestorModal
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSuccess={fetchInvestors}
+      />
+
+      <AddInvestorExcelModal
+        open={showExcelModal}
+        onClose={() => setShowExcelModal(false)}
+        onSuccess={fetchInvestors}
+      />
     </div>
   );
 }
