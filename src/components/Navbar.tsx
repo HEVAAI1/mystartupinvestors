@@ -52,12 +52,33 @@ export default function AuthenticatedNavbar({ credits = 0 }: { credits?: number 
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const [loggingOut, setLoggingOut] = useState(false);
+
   const handleLogout = async () => {
+    if (loggingOut) return; // Prevent double-clicks
+
+    setLoggingOut(true);
     const supabase = createSupabaseBrowserClient();
 
-    await supabase.auth.signOut();
+    try {
+      console.log("Logging out user...");
+      const { error } = await supabase.auth.signOut();
 
-    router.push("/");
+      if (error) {
+        console.error("Error during logout:", error);
+        throw error;
+      }
+
+      console.log("Logout successful, redirecting...");
+      // Small delay to ensure session is cleared
+      await new Promise(resolve => setTimeout(resolve, 100));
+      router.push("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      setLoggingOut(false);
+      // Optionally show error to user
+      alert("Logout failed. Please try again.");
+    }
   };
 
   return (
@@ -135,9 +156,16 @@ export default function AuthenticatedNavbar({ credits = 0 }: { credits?: number 
 
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 text-red-600 hover:bg-[#F5F5F5] transition"
+                  disabled={loggingOut}
+                  className="w-full text-left px-4 py-2 text-red-600 hover:bg-[#F5F5F5] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  Logout
+                  {loggingOut && (
+                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  )}
+                  {loggingOut ? "Logging out..." : "Logout"}
                 </button>
               </div>
             )}

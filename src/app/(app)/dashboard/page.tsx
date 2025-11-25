@@ -187,31 +187,40 @@ const Dashboard = () => {
         try {
           console.log("Updating DB for user:", userId);
 
-          // Record view
-          const { error: viewError } = await supabase.from("user_investor_views").insert({
-            user_id: userId,
-            investor_id: investor.id,
-          });
+          // Use Promise.all to run both operations in parallel for better performance
+          const [viewResult, creditResult] = await Promise.all([
+            // Record view
+            supabase.from("user_investor_views").insert({
+              user_id: userId,
+              investor_id: investor.id,
+            }),
+            // Atomically increment credits_used to avoid race conditions
+            supabase.rpc('increment_credits_used', { user_id: userId })
+          ]);
 
-          if (viewError) {
-            console.error("Error inserting into user_investor_views:", viewError);
-            throw viewError;
+          if (viewResult.error) {
+            console.error("Error inserting into user_investor_views:", viewResult.error);
+            throw viewResult.error;
           } else {
             console.log("Successfully inserted into user_investor_views");
           }
 
-          // Deduct credit
-          const { error: updateError } = await supabase
-            .from("users")
-            .update({ credits_used: used + 1 })
-            .eq("id", userId);
+          if (creditResult.error) {
+            console.error("Error updating credits:", creditResult.error);
+            // Fallback to manual update if RPC doesn't exist
+            const { error: updateError } = await supabase
+              .from("users")
+              .update({ credits_used: used + 1 })
+              .eq("id", userId);
 
-          if (updateError) {
-            console.error("Error updating users table:", updateError);
-            throw updateError;
+            if (updateError) {
+              console.error("Error updating users table:", updateError);
+              throw updateError;
+            }
           } else {
-            console.log("Successfully updated users table credits_used");
+            console.log("Successfully updated credits_used atomically");
           }
+
 
         } catch (err) {
           console.error("Error updating credits/views:", err);
