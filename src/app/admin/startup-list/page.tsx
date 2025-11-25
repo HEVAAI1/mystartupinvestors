@@ -22,7 +22,7 @@ export default function StartupListPage() {
     const [startups, setStartups] = useState<Startup[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedStartup, setSelectedStartup] = useState<any>(null);
+    const [selectedStartup, setSelectedStartup] = useState<Startup | null>(null);
     const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
@@ -46,7 +46,7 @@ export default function StartupListPage() {
         }
     };
 
-    const handleViewDetails = (startup: any) => {
+    const handleViewDetails = (startup: Startup) => {
         setSelectedStartup(startup);
         setShowModal(true);
     };

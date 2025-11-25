@@ -12,6 +12,17 @@ interface AddInvestorExcelModalProps {
     onSuccess: () => void;
 }
 
+interface InvestorRow {
+    name?: string;
+    firm_name?: string;
+    email?: string;
+    linkedin?: string;
+    city?: string;
+    country?: string;
+    preference_sector?: string;
+    about?: string;
+}
+
 export default function AddInvestorExcelModal({ open, onClose, onSuccess }: AddInvestorExcelModalProps) {
     const [file, setFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
@@ -67,13 +78,13 @@ export default function AddInvestorExcelModal({ open, onClose, onSuccess }: AddI
             const data = await file.arrayBuffer();
             const workbook = XLSX.read(data);
             const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet);
+            const jsonData = XLSX.utils.sheet_to_json<InvestorRow>(worksheet);
 
             if (jsonData.length === 0) {
                 throw new Error("The Excel file is empty");
             }
 
-            const investors = jsonData.map((row: any) => ({
+            const investors = jsonData.map((row: InvestorRow) => ({
                 name: row.name || "",
                 firm_name: row.firm_name || "",
                 email: row.email || "",
@@ -101,9 +112,10 @@ export default function AddInvestorExcelModal({ open, onClose, onSuccess }: AddI
                 onSuccess();
                 onClose();
             }, 2000);
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Error uploading investors:", err);
-            setError(err.message || "Failed to upload investors. Please check your file format.");
+            const errorMessage = err instanceof Error ? err.message : "Failed to upload investors. Please check your file format.";
+            setError(errorMessage);
         } finally {
             setUploading(false);
         }

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Search, Dot, ArrowRight, Download, Filter, Zap, Users, Mail, MapPin, Briefcase, MailIcon } from "lucide-react";
+import { Search, Dot, Download, Filter, Zap } from "lucide-react";
 import { useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 
@@ -12,15 +12,15 @@ export default function Home() {
   const supabase = createSupabaseBrowserClient();
 
   const handleGoogleLogin = async () => {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: `${window.location.origin}/auth/callback`,
-    },
-  });
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
 
-  if (error) console.error("Google Login Error:", error);
-};
+    if (error) console.error("Google Login Error:", error);
+  };
   return (
     <main className="min-h-screen bg-[#FAF7EE] font-[Arial] text-[#31372B] relative overflow-hidden">
       {/* Navbar */}
@@ -41,8 +41,8 @@ export default function Home() {
         </div>
 
         <button className="bg-[#31372B] text-[#FAF7EE] px-6 py-2 rounded-lg font-bold shadow hover:opacity-90 transition cursor-pointer" onClick={handleGoogleLogin}>
-      Sign In
-    </button>
+          Sign In
+        </button>
       </motion.nav>
 
       {/* Hero Section */}
@@ -73,19 +73,19 @@ export default function Home() {
 
         {/* Stats */}
         {/* Stats */}
-<div className="flex gap-16 md:gap-24 mt-10">
-  {/* Stat 1 */}
-  <div className="flex flex-col items-center">
-    <h3 className="text-[32px] md:text-[40px] font-bold text-black">4000+</h3>
-    <p className="text-[#6B6B6B] text-sm md:text-base mt-1">Verified Investors</p>
-  </div>
+        <div className="flex gap-16 md:gap-24 mt-10">
+          {/* Stat 1 */}
+          <div className="flex flex-col items-center">
+            <h3 className="text-[32px] md:text-[40px] font-bold text-black">4000+</h3>
+            <p className="text-[#6B6B6B] text-sm md:text-base mt-1">Verified Investors</p>
+          </div>
 
-  {/* Stat 2 */}
-  <div className="flex flex-col items-center">
-    <h3 className="text-[32px] md:text-[40px] font-bold text-black">$2.5B+</h3>
-    <p className="text-[#6B6B6B] text-sm md:text-base mt-1">Funding Raised</p>
-  </div>
-</div>
+          {/* Stat 2 */}
+          <div className="flex flex-col items-center">
+            <h3 className="text-[32px] md:text-[40px] font-bold text-black">$2.5B+</h3>
+            <p className="text-[#6B6B6B] text-sm md:text-base mt-1">Funding Raised</p>
+          </div>
+        </div>
 
         <div className="relative w-full flex justify-center mt-[30px]">
           <div
@@ -111,31 +111,31 @@ export default function Home() {
 
       {/* Investors Carousel */}
 
-<section className="py-20 text-center bg-[#F5F5F5] overflow-hidden relative">
-  <h2 className="text-[24px] font-bold mb-10 text-[#1E1E1E]">
-    Connect with top investors from
-  </h2>
+      <section className="py-20 text-center bg-[#F5F5F5] overflow-hidden relative">
+        <h2 className="text-[24px] font-bold mb-10 text-[#1E1E1E]">
+          Connect with top investors from
+        </h2>
 
-  {/* Fade edges */}
-  <div className="absolute left-0 top-0 h-full w-24 bg-gradient-to-r from-[#FAF7EE] to-transparent z-10"></div>
-  <div className="absolute right-0 top-0 h-full w-24 bg-gradient-to-l from-[#FAF7EE] to-transparent z-10"></div>
+        {/* Fade edges */}
+        <div className="absolute left-0 top-0 h-full w-24 bg-gradient-to-r from-[#FAF7EE] to-transparent z-10"></div>
+        <div className="absolute right-0 top-0 h-full w-24 bg-gradient-to-l from-[#FAF7EE] to-transparent z-10"></div>
 
-  {/* Marquee wrapper */}
-  <div className="relative flex overflow-hidden">
-    <div className="flex animate-marquee whitespace-nowrap gap-12">
+        {/* Marquee wrapper */}
+        <div className="relative flex overflow-hidden">
+          <div className="flex animate-marquee whitespace-nowrap gap-12">
 
-      {/* ---- FIRST LOOP ---- */}
-      {[
-        "/KhoslaLogo.png",
-        "/AntlerLogo.png",
-        "/TigerLogo.png",
-        "/CombinatorLogo.png",
-        "/LightspeedLogo.png",
-        "/BlumeLogo.png",
-      ].map((src, i) => (
-        <div
-          key={i}
-          className="
+            {/* ---- FIRST LOOP ---- */}
+            {[
+              "/KhoslaLogo.png",
+              "/AntlerLogo.png",
+              "/TigerLogo.png",
+              "/CombinatorLogo.png",
+              "/LightspeedLogo.png",
+              "/BlumeLogo.png",
+            ].map((src, i) => (
+              <div
+                key={i}
+                className="
             flex items-center justify-center 
             bg-white border border-black/20 
             shadow-sm rounded-xl 
@@ -145,23 +145,24 @@ export default function Home() {
             sm:w-[170px] sm:h-[80px]
             xs:w-[150px] xs:h-[70px]
           "
-        >
-          <img src={src} alt="" className="w-full h-full object-contain" />
-        </div>
-      ))}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt="" className="w-full h-full object-contain" />
+              </div>
+            ))}
 
-      {/* ---- SECOND LOOP (duplicate for infinite scroll) ---- */}
-      {[
-        "/KhoslaLogo.png",
-        "/AntlerLogo.png",
-        "/TigerLogo.png",
-        "/CombinatorLogo.png",
-        "/LightspeedLogo.png",
-        "/BlumeLogo.png",
-      ].map((src, i) => (
-        <div
-          key={`dup-${i}`}
-          className="
+            {/* ---- SECOND LOOP (duplicate for infinite scroll) ---- */}
+            {[
+              "/KhoslaLogo.png",
+              "/AntlerLogo.png",
+              "/TigerLogo.png",
+              "/CombinatorLogo.png",
+              "/LightspeedLogo.png",
+              "/BlumeLogo.png",
+            ].map((src, i) => (
+              <div
+                key={`dup-${i}`}
+                className="
             flex items-center justify-center 
             bg-white border border-black/20 
             shadow-sm rounded-xl 
@@ -171,128 +172,128 @@ export default function Home() {
             sm:w-[170px] sm:h-[80px]
             xs:w-[150px] xs:h-[70px]
           "
-        >
-          <img src={src} alt="" className="w-full h-full object-contain" />
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt="" className="w-full h-full object-contain" />
+              </div>
+            ))}
+          </div>
         </div>
-      ))}
-    </div>
-  </div>
-</section>
+      </section>
 
-{/* We Fixed Fundraising Frustration */}
+      {/* We Fixed Fundraising Frustration */}
 
       <section className="bg-[#1E1E1E] py-24 text-white">
-  {/* Heading */}
-  <div className="text-center mb-16">
-    <h2 className="text-[46px] font-bold leading-[54px]">
-      We've Fixed Fundraising Frustration
-    </h2>
-    <p className="text-[18px] text-white/60 mt-3">
-      Stop pitching blind. Start pitching smart.
-    </p>
-  </div>
+        {/* Heading */}
+        <div className="text-center mb-16">
+          <h2 className="text-[46px] font-bold leading-[54px]">
+            We&apos;ve Fixed Fundraising Frustration
+          </h2>
+          <p className="text-[18px] text-white/60 mt-3">
+            Stop pitching blind. Start pitching smart.
+          </p>
+        </div>
 
-  {/* 3 Cards */}
-  <div className="max-w-[1300px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
-    
-    {/* CARD COMPONENT */}
-    {[
-      {
-        step: "STEP 01",
-        title: "The Problem",
-        desc: "Finding investors takes months of wasted research and guesswork.",
-        icon: "/ProblemIcon.svg",
-      },
-      {
-        step: "STEP 02",
-        title: "The Solution",
-        desc: "We built a reliable, easy-to-use database of verified investors.",
-        icon: "/SolutionIcon.svg",
-      },
-      {
-        step: "STEP 03",
-        title: "The Outcome",
-        desc: "You connect faster, pitch smarter, and raise sooner.",
-        icon: "/OutcomeIcon.svg",
-      },
-    ].map((card, i) => (
-      <div
-        key={i}
-        className="
+        {/* 3 Cards */}
+        <div className="max-w-[1300px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
+
+          {/* CARD COMPONENT */}
+          {[
+            {
+              step: "STEP 01",
+              title: "The Problem",
+              desc: "Finding investors takes months of wasted research and guesswork.",
+              icon: "/ProblemIcon.svg",
+            },
+            {
+              step: "STEP 02",
+              title: "The Solution",
+              desc: "We built a reliable, easy-to-use database of verified investors.",
+              icon: "/SolutionIcon.svg",
+            },
+            {
+              step: "STEP 03",
+              title: "The Outcome",
+              desc: "You connect faster, pitch smarter, and raise sooner.",
+              icon: "/OutcomeIcon.svg",
+            },
+          ].map((card, i) => (
+            <div
+              key={i}
+              className="
           group relative p-10 rounded-[24px]
           bg-white/[0.10] border border-white/10
           transition-all duration-300
           hover:border-[#C6FF55]/40 hover:shadow-[0_0_30px_-4px_#C6FF55]
         "
-      >
-        {/* Step badge */}
-        <div className="
+            >
+              {/* Step badge */}
+              <div className="
           absolute top-6 left-6
           bg-white/10 text-white text-xs font-semibold tracking-wide
           px-4 py-1.5 rounded-full
         ">
-          {card.step}
-        </div>
+                {card.step}
+              </div>
 
-        {/* ICON */}
-        <div className="flex justify-center mt-16 mb-8">
-          <img
-            src={card.icon}
-            alt={card.title}
-            className="
-              w-[120px] h-[120px] opacity-80 transition-all duration-300
-              group-hover:opacity-100 group-hover:drop-shadow-[0_0_12px_#C6FF55]
-            "
-          />
-        </div>
+              {/* ICON */}
+              <div className="flex justify-center mt-16 mb-8">
+                <Image
+                  src={card.icon}
+                  alt={card.title}
+                  width={120}
+                  height={120}
+                  className="opacity-80 transition-all duration-300 group-hover:opacity-100 group-hover:drop-shadow-[0_0_12px_#C6FF55]"
+                />
+              </div>
 
-        {/* TEXT */}
-        <p className="text-white/60 text-[14px] uppercase tracking-[0.6px] mb-2">
-          {card.title}
-        </p>
-        <h3
-          className="
+              {/* TEXT */}
+              <p className="text-white/60 text-[14px] uppercase tracking-[0.6px] mb-2">
+                {card.title}
+              </p>
+              <h3
+                className="
             text-[20px] font-semibold leading-[30px]
             group-hover:text-[#C6FF55] transition-colors duration-300
           "
-        >
-          {card.desc}
-        </h3>
-      </div>
-    ))}
-  </div>
+              >
+                {card.desc}
+              </h3>
+            </div>
+          ))}
+        </div>
 
-  {/* Bottom CTA */}
-  <div className="flex justify-center mt-20">
-    <div className="
+        {/* Bottom CTA */}
+        <div className="flex justify-center mt-20">
+          <div className="
       bg-white/10 border border-white/10 px-8 py-4 rounded-[14px]
       flex items-center gap-3
       transition-all duration-300
       hover:border-[#C6FF55]/50 hover:shadow-[0_0_25px_-4px_#C6FF55]
     ">
-      <div className="
+            <div className="
         w-10 h-10 rounded-full bg-white/10 flex items-center justify-center
         group-hover:bg-[#C6FF55]
         transition-all duration-300
       ">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20" height="20"
-          fill="none"
-          strokeWidth="2.5"
-          stroke="#C6FF55"
-          className="transition-all duration-300"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-        </svg>
-      </div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20" height="20"
+                fill="none"
+                strokeWidth="2.5"
+                stroke="#C6FF55"
+                className="transition-all duration-300"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
 
-      <p className="text-[17px] font-medium text-white group-hover:text-[#C6FF55] transition-colors duration-300">
-        Your fundraising journey, simplified from start to finish
-      </p>
-    </div>
-  </div>
-</section>
+            <p className="text-[17px] font-medium text-white group-hover:text-[#C6FF55] transition-colors duration-300">
+              Your fundraising journey, simplified from start to finish
+            </p>
+          </div>
+        </div>
+      </section>
 
 
       {/* From Idea to Investment Section */}
@@ -602,7 +603,7 @@ export default function Home() {
           <span className="text-white/60">• Direct access to decision-makers</span>
         </div>
       </section>
-    
+
       {/* Pricing Section */}
       <section className="relative bg-[#F5F5F5] py-28 text-[#31372B] overflow-hidden">
         <div className="text-center mb-20">
@@ -1013,7 +1014,7 @@ export default function Home() {
           className="text-center w-full mt-[4vw] text-[#717182]"
           style={{ fontSize: "0.92vw" }}
         >
-          Join hundreds of founders who've successfully raised funding.
+          Join hundreds of founders who&apos;ve successfully raised funding.
           <span className="font-bold text-[#31372B] ml-[0.3vw]">
             Start your journey today.
           </span>
@@ -1021,111 +1022,111 @@ export default function Home() {
       </section>
       {/* FAQ Section */}
       <section
-  id="faq"
-  className="w-full bg-white flex flex-col items-center"
-  style={{ padding: "6vw 0" }}
->
-  {/* Title */}
-  <h2
-    className="font-bold text-[#31372B]"
-    style={{
-      fontSize: "2.4vw",
-      marginBottom: "1vw",
-      letterSpacing: "-0.03vw",
-    }}
-  >
-    FAQs
-  </h2>
-
-  {/* Divider */}
-  <div
-    style={{
-      width: "82vw",
-      height: "1px",
-      background: "rgba(49,55,43,0.15)",
-      marginBottom: "2vw",
-    }}
-  />
-
-  {/* FAQ List */}
-  <div
-    className="flex flex-col"
-    style={{ width: "82vw", gap: "1vw" }}
-  >
-    {[
-      {
-        q: "How do credits work?",
-        a: "Each credit lets you unlock one verified investor contact. Use credits anytime to reveal verified emails and direct contact info.",
-      },
-      {
-        q: "What types of investors are in your database?",
-        a: "Our database includes angels, VCs, syndicates, funds, and strategic investors across industries and stages.",
-      },
-      {
-        q: "How often is the investor data updated?",
-        a: "Our investor database is updated weekly with verified information to ensure accuracy.",
-      },
-      {
-        q: "Do credits expire?",
-        a: "No. Credits never expire — you can use them anytime.",
-      },
-      {
-        q: "Can I get a refund if I don’t use my credits?",
-        a: "Unused credits are non-refundable, but they remain valid forever.",
-      },
-    ].map((faq, i) => (
-      <motion.div
-        key={i}
-        className="border-b border-[#31372B]/20"
-        initial={false}
+        id="faq"
+        className="w-full bg-white flex flex-col items-center"
+        style={{ padding: "6vw 0" }}
       >
-        <button
-          onClick={() => setActiveIndex(activeIndex === i ? null : i)}
-          className="w-full flex justify-between items-center py-[1.4vw] text-left"
-        >
-          <span
-            className="text-[#31372B]"
-            style={{ fontSize: "1.25vw" }}
-          >
-            {faq.q}
-          </span>
-
-          <motion.span
-            animate={{ rotate: activeIndex === i ? 45 : 0 }}
-            transition={{ duration: 0.25 }}
-            className="text-[#31372B] font-bold"
-            style={{ fontSize: "1.6vw", lineHeight: "0" }}
-          >
-            +
-          </motion.span>
-        </button>
-
-        <motion.div
-          initial={false}
-          animate={{
-            height: activeIndex === i ? "auto" : 0,
-            opacity: activeIndex === i ? 1 : 0,
+        {/* Title */}
+        <h2
+          className="font-bold text-[#31372B]"
+          style={{
+            fontSize: "2.4vw",
+            marginBottom: "1vw",
+            letterSpacing: "-0.03vw",
           }}
-          transition={{ duration: 0.3 }}
-          className="overflow-hidden"
         >
-          <p
-            className="text-[#717182]"
-            style={{
-              fontSize: "1.1vw",
-              paddingBottom: activeIndex === i ? "1.4vw" : "0",
-              width: "90%",
-            }}
-          >
-            {faq.a}
-          </p>
-        </motion.div>
-      </motion.div>
-    ))}
-  </div>
-</section>
+          FAQs
+        </h2>
 
-{/* CTA SECTION */}
+        {/* Divider */}
+        <div
+          style={{
+            width: "82vw",
+            height: "1px",
+            background: "rgba(49,55,43,0.15)",
+            marginBottom: "2vw",
+          }}
+        />
+
+        {/* FAQ List */}
+        <div
+          className="flex flex-col"
+          style={{ width: "82vw", gap: "1vw" }}
+        >
+          {[
+            {
+              q: "How do credits work?",
+              a: "Each credit lets you unlock one verified investor contact. Use credits anytime to reveal verified emails and direct contact info.",
+            },
+            {
+              q: "What types of investors are in your database?",
+              a: "Our database includes angels, VCs, syndicates, funds, and strategic investors across industries and stages.",
+            },
+            {
+              q: "How often is the investor data updated?",
+              a: "Our investor database is updated weekly with verified information to ensure accuracy.",
+            },
+            {
+              q: "Do credits expire?",
+              a: "No. Credits never expire — you can use them anytime.",
+            },
+            {
+              q: "Can I get a refund if I don’t use my credits?",
+              a: "Unused credits are non-refundable, but they remain valid forever.",
+            },
+          ].map((faq, i) => (
+            <motion.div
+              key={i}
+              className="border-b border-[#31372B]/20"
+              initial={false}
+            >
+              <button
+                onClick={() => setActiveIndex(activeIndex === i ? null : i)}
+                className="w-full flex justify-between items-center py-[1.4vw] text-left"
+              >
+                <span
+                  className="text-[#31372B]"
+                  style={{ fontSize: "1.25vw" }}
+                >
+                  {faq.q}
+                </span>
+
+                <motion.span
+                  animate={{ rotate: activeIndex === i ? 45 : 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="text-[#31372B] font-bold"
+                  style={{ fontSize: "1.6vw", lineHeight: "0" }}
+                >
+                  +
+                </motion.span>
+              </button>
+
+              <motion.div
+                initial={false}
+                animate={{
+                  height: activeIndex === i ? "auto" : 0,
+                  opacity: activeIndex === i ? 1 : 0,
+                }}
+                transition={{ duration: 0.3 }}
+                className="overflow-hidden"
+              >
+                <p
+                  className="text-[#717182]"
+                  style={{
+                    fontSize: "1.1vw",
+                    paddingBottom: activeIndex === i ? "1.4vw" : "0",
+                    width: "90%",
+                  }}
+                >
+                  {faq.a}
+                </p>
+              </motion.div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA SECTION */}
       <section
         id="cta"
         className="relative flex flex-col items-center justify-center overflow-hidden bg-[#1E1E1E] text-center"
@@ -1177,7 +1178,7 @@ export default function Home() {
               maxWidth: "44vw",
             }}
           >
-            Join hundreds of founders who've successfully raised funding <br />
+            Join hundreds of founders who&apos;ve successfully raised funding <br />
             with <span className="font-semibold text-white">MyFundingList</span>
           </p>
 

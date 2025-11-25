@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 import { useRouter } from "next/navigation";
 import { Edit2, Save, X } from "lucide-react";
@@ -35,11 +35,7 @@ export default function ViewStartupPage() {
     const [editValue, setEditValue] = useState("");
     const [saving, setSaving] = useState(false);
 
-    useEffect(() => {
-        fetchStartupData();
-    }, []);
-
-    const fetchStartupData = async () => {
+    const fetchStartupData = useCallback(async () => {
         try {
             const supabase = createSupabaseBrowserClient();
             const { data: { user } } = await supabase.auth.getUser();
@@ -66,7 +62,11 @@ export default function ViewStartupPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [router]);
+
+    useEffect(() => {
+        fetchStartupData();
+    }, [fetchStartupData]);
 
     const handleEdit = (field: string, currentValue: string) => {
         setEditingField(field);

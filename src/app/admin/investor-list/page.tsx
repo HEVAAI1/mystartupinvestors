@@ -23,7 +23,7 @@ export default function InvestorListPage() {
   const [investors, setInvestors] = useState<Investor[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedInvestor, setSelectedInvestor] = useState<any>(null);
+  const [selectedInvestor, setSelectedInvestor] = useState<Investor | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showExcelModal, setShowExcelModal] = useState(false);
@@ -49,7 +49,7 @@ export default function InvestorListPage() {
     }
   };
 
-  const handleViewDetails = (investor: any) => {
+  const handleViewDetails = (investor: Investor) => {
     setSelectedInvestor(investor);
     setShowModal(true);
   };

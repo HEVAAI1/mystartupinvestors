@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface InvestorDetailsModalProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     investor: any;
     open: boolean;
     onClose: () => void;

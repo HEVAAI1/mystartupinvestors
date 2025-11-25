@@ -60,9 +60,10 @@ export default function AddInvestorModal({ open, onClose, onSuccess }: AddInvest
 
             onSuccess();
             onClose();
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Error adding investor:", err);
-            setError(err.message || "Failed to add investor. Please try again.");
+            const errorMessage = err instanceof Error ? err.message : "Failed to add investor. Please try again.";
+            setError(errorMessage);
         } finally {
             setSaving(false);
         }

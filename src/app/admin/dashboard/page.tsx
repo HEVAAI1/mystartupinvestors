@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 import { Users, Building2, Database, TrendingUp, DollarSign, Calendar } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
@@ -43,13 +43,55 @@ export default function AdminDashboardPage() {
   const [chartView, setChartView] = useState<"monthly" | "yearly">("monthly");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchStats();
-    fetchRevenueData();
-  }, []);
+  const fetchRevenueData = useCallback(async () => {
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { data: transactionsData } = await supabase
+        .from("transactions")
+        .select("amount, completed_at, status")
+        .eq("status", "completed")
+        .order("completed_at", { ascending: true });
 
-  useEffect(() => {
-    fetchRevenueData();
+      if (!transactionsData) return;
+
+      const groupedData: { [key: string]: { revenue: number; count: number } } = {};
+
+      transactionsData.forEach(transaction => {
+        if (!transaction.completed_at) return;
+
+        const date = new Date(transaction.completed_at);
+        let key: string;
+
+        if (chartView === "monthly") {
+          // Group by month for current year
+          if (date.getFullYear() === new Date().getFullYear()) {
+            key = date.toLocaleDateString('en-US', { month: 'short' });
+          } else {
+            return;
+          }
+        } else {
+          // Group by year
+          key = date.getFullYear().toString();
+        }
+
+        if (!groupedData[key]) {
+          groupedData[key] = { revenue: 0, count: 0 };
+        }
+
+        groupedData[key].revenue += parseFloat(transaction.amount) || 0;
+        groupedData[key].count += 1;
+      });
+
+      const chartData: RevenueData[] = Object.entries(groupedData).map(([period, data]) => ({
+        period,
+        revenue: Math.round(data.revenue * 100) / 100,
+        transactions: data.count,
+      }));
+
+      setRevenueData(chartData);
+    } catch (error) {
+      console.error("Error fetching revenue data:", error);
+    }
   }, [chartView]);
 
   const fetchStats = async () => {
@@ -139,56 +181,14 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const fetchRevenueData = async () => {
-    try {
-      const supabase = createSupabaseBrowserClient();
-      const { data: transactionsData } = await supabase
-        .from("transactions")
-        .select("amount, completed_at, status")
-        .eq("status", "completed")
-        .order("completed_at", { ascending: true });
+  useEffect(() => {
+    fetchStats();
+    fetchRevenueData();
+  }, [fetchRevenueData]);
 
-      if (!transactionsData) return;
-
-      const groupedData: { [key: string]: { revenue: number; count: number } } = {};
-
-      transactionsData.forEach(transaction => {
-        if (!transaction.completed_at) return;
-
-        const date = new Date(transaction.completed_at);
-        let key: string;
-
-        if (chartView === "monthly") {
-          // Group by month for current year
-          if (date.getFullYear() === new Date().getFullYear()) {
-            key = date.toLocaleDateString('en-US', { month: 'short' });
-          } else {
-            return;
-          }
-        } else {
-          // Group by year
-          key = date.getFullYear().toString();
-        }
-
-        if (!groupedData[key]) {
-          groupedData[key] = { revenue: 0, count: 0 };
-        }
-
-        groupedData[key].revenue += parseFloat(transaction.amount) || 0;
-        groupedData[key].count += 1;
-      });
-
-      const chartData: RevenueData[] = Object.entries(groupedData).map(([period, data]) => ({
-        period,
-        revenue: Math.round(data.revenue * 100) / 100,
-        transactions: data.count,
-      }));
-
-      setRevenueData(chartData);
-    } catch (error) {
-      console.error("Error fetching revenue data:", error);
-    }
-  };
+  useEffect(() => {
+    fetchRevenueData();
+  }, [fetchRevenueData]);
 
   const statCards = [
     {
