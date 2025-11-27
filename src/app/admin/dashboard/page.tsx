@@ -19,11 +19,13 @@ interface DashboardStats {
   monthlyActiveUsers: number;
 }
 
-interface RevenueData {
+interface VisualizationData {
   period: string;
-  revenue: number;
-  transactions: number;
+  value: number;
 }
+
+type MetricType = "creditsUsed" | "creditsAllocated" | "revenue" | "activeUsers";
+type DurationType = "1D" | "7D" | "28D" | "90D" | "1Y";
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({
@@ -39,60 +41,130 @@ export default function AdminDashboardPage() {
     dailyActiveUsers: 0,
     monthlyActiveUsers: 0,
   });
-  const [revenueData, setRevenueData] = useState<RevenueData[]>([]);
-  const [chartView, setChartView] = useState<"monthly" | "yearly">("monthly");
+  const [visualizationData, setVisualizationData] = useState<VisualizationData[]>([]);
+  const [selectedMetric, setSelectedMetric] = useState<MetricType>("revenue");
+  const [selectedDuration, setSelectedDuration] = useState<DurationType>("28D");
   const [loading, setLoading] = useState(true);
 
-  const fetchRevenueData = useCallback(async () => {
+  const fetchVisualizationData = useCallback(async () => {
     try {
       const supabase = createSupabaseBrowserClient();
-      const { data: transactionsData } = await supabase
-        .from("transactions")
-        .select("amount, completed_at, status")
-        .eq("status", "completed")
-        .order("completed_at", { ascending: true });
+      const now = new Date();
 
-      if (!transactionsData) return;
+      // Calculate the start date based on selected duration
+      let startDate: Date;
+      let groupBy: "hour" | "day" | "week" | "month";
 
-      const groupedData: { [key: string]: { revenue: number; count: number } } = {};
+      switch (selectedDuration) {
+        case "1D":
+          startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+          groupBy = "hour";
+          break;
+        case "7D":
+          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          groupBy = "day";
+          break;
+        case "28D":
+          startDate = new Date(now.getTime() - 28 * 24 * 60 * 60 * 1000);
+          groupBy = "day";
+          break;
+        case "90D":
+          startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+          groupBy = "week";
+          break;
+        case "1Y":
+          startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+          groupBy = "month";
+          break;
+      }
 
-      transactionsData.forEach(transaction => {
-        if (!transaction.completed_at) return;
+      const groupedData: { [key: string]: number[] } = {};
 
-        const date = new Date(transaction.completed_at);
-        let key: string;
+      if (selectedMetric === "revenue") {
+        // Fetch transaction data
+        const { data: transactionsData } = await supabase
+          .from("transactions")
+          .select("amount, completed_at, status")
+          .eq("status", "completed")
+          .gte("completed_at", startDate.toISOString())
+          .order("completed_at", { ascending: true });
 
-        if (chartView === "monthly") {
-          // Group by month for current year
-          if (date.getFullYear() === new Date().getFullYear()) {
-            key = date.toLocaleDateString('en-US', { month: 'short' });
-          } else {
-            return;
-          }
-        } else {
-          // Group by year
-          key = date.getFullYear().toString();
-        }
+        transactionsData?.forEach(transaction => {
+          if (!transaction.completed_at) return;
+          const date = new Date(transaction.completed_at);
+          const key = formatDateByGroup(date, groupBy);
+          if (!groupedData[key]) groupedData[key] = [];
+          groupedData[key].push(parseFloat(transaction.amount) || 0);
+        });
 
-        if (!groupedData[key]) {
-          groupedData[key] = { revenue: 0, count: 0 };
-        }
+      } else if (selectedMetric === "creditsUsed" || selectedMetric === "creditsAllocated") {
+        // For credits, we need to aggregate user data over time
+        // Note: This is a snapshot approach - we're showing current values grouped by user creation
+        const { data: usersData } = await supabase
+          .from("users")
+          .select("created_at, credits_used, credits_allocated")
+          .gte("created_at", startDate.toISOString())
+          .order("created_at", { ascending: true });
 
-        groupedData[key].revenue += parseFloat(transaction.amount) || 0;
-        groupedData[key].count += 1;
-      });
+        usersData?.forEach(user => {
+          if (!user.created_at) return;
+          const date = new Date(user.created_at);
+          const key = formatDateByGroup(date, groupBy);
+          if (!groupedData[key]) groupedData[key] = [];
 
-      const chartData: RevenueData[] = Object.entries(groupedData).map(([period, data]) => ({
+          const value = selectedMetric === "creditsUsed"
+            ? (user.credits_used || 0)
+            : (user.credits_allocated || 0);
+          groupedData[key].push(value);
+        });
+
+      } else if (selectedMetric === "activeUsers") {
+        // Fetch user login data
+        const { data: usersData } = await supabase
+          .from("users")
+          .select("last_login")
+          .gte("last_login", startDate.toISOString())
+          .order("last_login", { ascending: true });
+
+        usersData?.forEach(user => {
+          if (!user.last_login) return;
+          const date = new Date(user.last_login);
+          const key = formatDateByGroup(date, groupBy);
+          if (!groupedData[key]) groupedData[key] = [];
+          groupedData[key].push(1); // Count each user as 1
+        });
+      }
+
+      // Convert grouped data to chart format
+      const chartData: VisualizationData[] = Object.entries(groupedData).map(([period, values]) => ({
         period,
-        revenue: Math.round(data.revenue * 100) / 100,
-        transactions: data.count,
+        value: selectedMetric === "activeUsers"
+          ? values.length // For active users, count unique entries
+          : Math.round(values.reduce((sum, val) => sum + val, 0) * 100) / 100, // Sum and round
       }));
 
-      setRevenueData(chartData);
+      setVisualizationData(chartData);
     } catch (error) {
-      console.error("Error fetching revenue data:", error);
+      console.error("Error fetching visualization data:", error);
     }
-  }, [chartView]);
+  }, [selectedMetric, selectedDuration]);
+
+  // Helper function to format dates based on grouping
+  const formatDateByGroup = (date: Date, groupBy: "hour" | "day" | "week" | "month"): string => {
+    switch (groupBy) {
+      case "hour":
+        return date.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric' });
+      case "day":
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      case "week":
+        // Get the start of the week
+        const weekStart = new Date(date);
+        weekStart.setDate(date.getDate() - date.getDay());
+        return weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      case "month":
+        return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    }
+  };
 
   const fetchStats = async () => {
     try {
@@ -183,12 +255,12 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     fetchStats();
-    fetchRevenueData();
-  }, [fetchRevenueData]);
+    fetchVisualizationData();
+  }, [fetchVisualizationData]);
 
   useEffect(() => {
-    fetchRevenueData();
-  }, [fetchRevenueData]);
+    fetchVisualizationData();
+  }, [fetchVisualizationData]);
 
   const statCards = [
     {
@@ -329,37 +401,46 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Revenue Chart */}
+      {/* Visualization Chart */}
       <div className="mt-8 bg-white rounded-xl border border-[#31372B1F] p-6 shadow-sm">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
           <h2 className="text-[20px] font-bold text-[#31372B]">
-            Revenue Analytics
+            Visualization
           </h2>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setChartView("monthly")}
-              className={`px-4 py-2 rounded-lg text-[14px] font-medium transition ${chartView === "monthly"
-                ? "bg-[#31372B] text-white"
-                : "border border-[#31372B1F] hover:bg-[#F5F5F5]"
-                }`}
+          <div className="flex gap-3 flex-wrap">
+            {/* Metric Selector */}
+            <select
+              value={selectedMetric}
+              onChange={(e) => setSelectedMetric(e.target.value as MetricType)}
+              className="px-4 py-2 rounded-lg text-[14px] font-medium border border-[#31372B1F] bg-white hover:bg-[#F5F5F5] transition cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#31372B]"
             >
-              Monthly
-            </button>
-            <button
-              onClick={() => setChartView("yearly")}
-              className={`px-4 py-2 rounded-lg text-[14px] font-medium transition ${chartView === "yearly"
-                ? "bg-[#31372B] text-white"
-                : "border border-[#31372B1F] hover:bg-[#F5F5F5]"
-                }`}
-            >
-              Yearly
-            </button>
+              <option value="revenue">Revenue</option>
+              <option value="creditsUsed">Credits Used</option>
+              <option value="creditsAllocated">Credits Allocated</option>
+              <option value="activeUsers">Active Users</option>
+            </select>
+
+            {/* Duration Selector */}
+            <div className="flex gap-2">
+              {(["1D", "7D", "28D", "90D", "1Y"] as DurationType[]).map((duration) => (
+                <button
+                  key={duration}
+                  onClick={() => setSelectedDuration(duration)}
+                  className={`px-4 py-2 rounded-lg text-[14px] font-medium transition ${selectedDuration === duration
+                      ? "bg-[#31372B] text-white"
+                      : "border border-[#31372B1F] hover:bg-[#F5F5F5]"
+                    }`}
+                >
+                  {duration}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        {revenueData.length > 0 ? (
+        {visualizationData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={revenueData}>
+            <LineChart data={visualizationData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E5E5E5" />
               <XAxis
                 dataKey="period"
@@ -369,7 +450,12 @@ export default function AdminDashboardPage() {
               <YAxis
                 stroke="#717182"
                 style={{ fontSize: '12px' }}
-                tickFormatter={(value) => `$${value}`}
+                tickFormatter={(value) => {
+                  if (selectedMetric === "revenue") {
+                    return `$${value}`;
+                  }
+                  return value.toString();
+                }}
               />
               <Tooltip
                 contentStyle={{
@@ -378,23 +464,38 @@ export default function AdminDashboardPage() {
                   borderRadius: '8px',
                   fontSize: '14px'
                 }}
-                formatter={(value: number) => [`$${value.toFixed(2)}`, 'Revenue']}
+                formatter={(value: number) => {
+                  if (selectedMetric === "revenue") {
+                    return [`$${value.toFixed(2)}`, 'Revenue'];
+                  } else if (selectedMetric === "creditsUsed") {
+                    return [value, 'Credits Used'];
+                  } else if (selectedMetric === "creditsAllocated") {
+                    return [value, 'Credits Allocated'];
+                  } else {
+                    return [value, 'Active Users'];
+                  }
+                }}
               />
               <Legend />
               <Line
                 type="monotone"
-                dataKey="revenue"
+                dataKey="value"
                 stroke="#31372B"
                 strokeWidth={2}
                 dot={{ fill: '#31372B', r: 4 }}
                 activeDot={{ r: 6 }}
-                name="Revenue"
+                name={
+                  selectedMetric === "revenue" ? "Revenue" :
+                    selectedMetric === "creditsUsed" ? "Credits Used" :
+                      selectedMetric === "creditsAllocated" ? "Credits Allocated" :
+                        "Active Users"
+                }
               />
             </LineChart>
           </ResponsiveContainer>
         ) : (
           <div className="text-center py-12">
-            <p className="text-[#717182]">No transaction data available</p>
+            <p className="text-[#717182]">No data available for the selected period</p>
           </div>
         )}
       </div>
