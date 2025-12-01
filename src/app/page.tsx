@@ -778,7 +778,7 @@ export default function Home() {
         </div>
 
         {/* Headings */}
-        <div className="text-center w-full" style={{ marginTop: "vw" }}>
+        <div className="text-center w-full" style={{ marginTop: "2vw" }}>
           <h2
             className="font-bold text-[#31372B]"
             style={{
