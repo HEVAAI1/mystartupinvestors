@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Search, Dot, Download, Filter, Zap } from "lucide-react";
+import { Search, Zap } from "lucide-react";
 import { useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 
@@ -473,8 +473,7 @@ export default function Home() {
                   </svg>
                 </div>
                 <p className="text-[12px] text-[#717182] leading-[18px] max-w-[200px]">
-                  Submit your startup details and we'll connect you with relevant investors
-                </p>
+                  Submit your startup details and we&apos;ll connect you with relevant investors                </p>
               </div>
             </div>
           </div>
