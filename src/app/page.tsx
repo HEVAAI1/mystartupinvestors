@@ -204,18 +204,21 @@ export default function Home() {
               title: "The Problem",
               desc: "Finding investors takes months of wasted research and guesswork.",
               icon: "/ProblemIcon.svg",
+              hoverIcon: "/ProblemIconHover.svg",
             },
             {
               step: "STEP 02",
               title: "The Solution",
               desc: "We built a reliable, easy-to-use database of verified investors.",
               icon: "/SolutionIcon.svg",
+              hoverIcon: "/SolutionIconHover.svg",
             },
             {
               step: "STEP 03",
               title: "The Outcome",
               desc: "You connect faster, pitch smarter, and raise sooner.",
               icon: "/OutcomeIcon.svg",
+              hoverIcon: "/OutcomeIconHover.svg",
             },
           ].map((card, i) => (
             <div
@@ -224,7 +227,7 @@ export default function Home() {
           group relative p-10 rounded-[24px]
           bg-white/[0.10] border border-white/10
           transition-all duration-300
-          hover:border-[#C6FF55]/40 hover:shadow-[0_0_30px_-4px_#C6FF55]
+          hover:border-[#C6FF55]/40
         "
             >
               {/* Step badge */}
@@ -236,19 +239,28 @@ export default function Home() {
                 {card.step}
               </div>
 
-              {/* ICON */}
-              <div className="flex justify-center mt-16 mb-8">
+              {/* ICON with hover swap */}
+              <div className="flex justify-center mt-16 mb-8 relative">
+                {/* Default icon */}
                 <Image
                   src={card.icon}
                   alt={card.title}
                   width={120}
                   height={120}
-                  className="opacity-80 transition-all duration-300 group-hover:opacity-100 group-hover:drop-shadow-[0_0_12px_#C6FF55]"
+                  className="opacity-80 transition-all duration-300 group-hover:opacity-0 absolute"
+                />
+                {/* Hover icon */}
+                <Image
+                  src={card.hoverIcon}
+                  alt={card.title}
+                  width={120}
+                  height={120}
+                  className="opacity-0 transition-all duration-300 group-hover:opacity-100"
                 />
               </div>
 
               {/* TEXT */}
-              <p className="text-white/60 text-[14px] uppercase tracking-[0.6px] mb-2">
+              <p className="text-white/60 text-[14px] uppercase tracking-[0.6px] mb-2 transition-colors duration-300 group-hover:text-[#C6FF55]">
                 {card.title}
               </p>
               <h3
@@ -268,13 +280,9 @@ export default function Home() {
           <div className="
       bg-white/10 border border-white/10 px-8 py-4 rounded-[14px]
       flex items-center gap-3
-      transition-all duration-300
-      hover:border-[#C6FF55]/50 hover:shadow-[0_0_25px_-4px_#C6FF55]
     ">
             <div className="
         w-10 h-10 rounded-full bg-white/10 flex items-center justify-center
-        group-hover:bg-[#C6FF55]
-        transition-all duration-300
       ">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -282,13 +290,12 @@ export default function Home() {
                 fill="none"
                 strokeWidth="2.5"
                 stroke="#C6FF55"
-                className="transition-all duration-300"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
 
-            <p className="text-[17px] font-medium text-white group-hover:text-[#C6FF55] transition-colors duration-300">
+            <p className="text-[17px] font-medium text-white">
               Your fundraising journey, simplified from start to finish
             </p>
           </div>
@@ -297,10 +304,7 @@ export default function Home() {
 
 
       {/* From Idea to Investment Section */}
-      <section className="relative bg-white py-28 px-6 lg:px-24 text-center overflow-hidden">
-        {/* Background glow effects */}
-        <div className="absolute w-[500px] h-[500px] bg-[rgba(198,255,85,0.1)] blur-[64px] rounded-full top-0 left-[25%]"></div>
-        <div className="absolute w-[512px] h-[87px] bg-[rgba(198,255,85,0.2)] blur-[34px] rounded-full bottom-[80px] left-1/2 -translate-x-1/2"></div>
+      <section className="relative bg-[#FAF7EE] py-28 px-6 lg:px-24 text-center overflow-hidden">
 
         {/* Section Header */}
         <div className="relative z-10 mb-20">
@@ -313,180 +317,172 @@ export default function Home() {
         </div>
 
         {/* Cards Container */}
-        <div className="relative z-10 grid md:grid-cols-3 gap-10 max-w-[1450px] mx-auto">
+        <div className="relative z-10 grid md:grid-cols-3 gap-8 max-w-[1450px] mx-auto">
+
           {/* Card 1: The List You Need */}
-          <div className="bg-white border border-[rgba(49,55,43,0.12)] shadow-md rounded-[18px] p-7 flex flex-col text-left">
-            <h3 className="text-[27px] font-bold text-[#31372B] mb-2">
+          <div className="bg-white border border-[rgba(49,55,43,0.12)] shadow-sm rounded-[24px] p-8 flex flex-col text-left h-full">
+            <h3 className="text-[24px] font-bold text-[#31372B] mb-3">
               The List You Need
             </h3>
-            <p className="text-[#717182] text-[17px] leading-[28px] mb-6">
-              Thousands of investors, angels, and VCs — organized for founders who mean business.
+            <p className="text-[#717182] text-[16px] leading-[26px] mb-8">
+              Thousands of investors, angels, and VCs organized for founders who mean business.
             </p>
 
-            {/* Mini investor dashboard */}
-            <div className="border border-[rgba(49,55,43,0.12)] rounded-[14px] shadow-sm overflow-hidden">
-              <div className="bg-[#EDF4E5] border-b border-[rgba(49,55,43,0.12)] px-4 py-3 flex justify-between items-center text-sm font-bold text-[#31372B]">
-                <div className="flex items-center gap-2">
-                  <Dot size={18} className="text-[#31372B] opacity-90" />
+            {/* Visual */}
+            <div className="bg-[#EDF4E5] rounded-[16px] p-4 border border-[rgba(49,55,43,0.08)] flex-1 flex flex-col">
+              {/* Header */}
+              <div className="flex justify-between items-center mb-4 px-1">
+                <div className="flex items-center gap-2 text-[13px] font-bold text-[#31372B]">
+                  <div className="w-2 h-2 rounded-full bg-[#31372B]"></div>
                   5,000+ Investors
                 </div>
                 <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-[#31372B] opacity-70 rounded-full"></div>
-                  <div className="w-2 h-2 bg-[#31372B] opacity-50 rounded-full"></div>
-                  <div className="w-2 h-2 bg-[#31372B] opacity-30 rounded-full"></div>
+                  <div className="w-1 h-1 bg-[#31372B] rounded-full opacity-40"></div>
+                  <div className="w-1 h-1 bg-[#31372B] rounded-full opacity-40"></div>
+                  <div className="w-1 h-1 bg-[#31372B] rounded-full opacity-40"></div>
                 </div>
               </div>
 
-              {/* Search input */}
-              <div className="relative p-4">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[#717182]" size={16} />
+              {/* Search */}
+              <div className="relative mb-4">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#717182]" size={14} />
                 <input
                   type="text"
                   placeholder="Search by name, company or email..."
-                  className="w-full border border-[rgba(49,55,43,0.12)] rounded-[9px] px-10 py-2 text-sm text-[#31372B]/70 focus:outline-none"
+                  className="w-full bg-white border border-[rgba(49,55,43,0.1)] rounded-[8px] pl-10 pr-4 py-2.5 text-[12px] text-[#31372B] placeholder:text-[#717182]/60 focus:outline-none"
+                  readOnly
                 />
               </div>
 
-              {/* Sample investor rows */}
-              {[
-                { initials: "SC", name: "Sarah Chen", email: "sarah.chen@techventures.io", tag: "TechVentures" },
-                { initials: "MR", name: "Michael Rodriguez", email: "m.rodriguez@innovate.vc", tag: "Innovate" },
-                { initials: "PS", name: "Priya Sharma", email: "priya@globaltech.co", tag: "Globaltech" },
-              ].map((inv, i) => (
-                <div key={i} className="flex items-center justify-between bg-[#FAF7EE]/50 border border-[rgba(49,55,43,0.06)] mx-4 my-2 px-3 py-3 rounded-[9px]">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#31372B] rounded-full flex items-center justify-center text-white font-bold text-sm">
-                      {inv.initials}
+              {/* List Items */}
+              <div className="space-y-2.5 mb-4">
+                {[
+                  { initials: "SC", name: "Sarah Chen", email: "sarah.chen@techventures.io", tag: "TechVentures" },
+                  { initials: "MR", name: "Michael Rodriguez", email: "m.rodriguez@innovate.vc", tag: "Innovate" },
+                  { initials: "PS", name: "Priya Sharma", email: "priya@globaltech.co", tag: "Globaltech" },
+                ].map((item, i) => (
+                  <div key={i} className="bg-[#FAF7EE] border border-[rgba(49,55,43,0.06)] rounded-[10px] p-3 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#1E1E1E] text-white text-[10px] font-bold flex items-center justify-center">
+                        {item.initials}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[12px] font-bold text-[#31372B]">{item.name}</span>
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-[#717182]">
+                            <path d="M20 6L9 17l-5-5" />
+                          </svg>
+                        </div>
+                        <div className="text-[10px] text-[#717182]">{item.email}</div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="font-bold text-[#31372B]">{inv.name}</div>
-                      <div className="text-[#717182] text-sm">{inv.email}</div>
+                    <div className="bg-[#EDF4E5] border border-[rgba(49,55,43,0.1)] text-[#31372B] text-[9px] font-bold px-2 py-1 rounded-full">
+                      {item.tag}
                     </div>
                   </div>
-                  <div className="bg-[#EDF4E5] text-[#31372B] text-xs border border-[rgba(49,55,43,0.1)] rounded-full px-3 py-1">
-                    {inv.tag}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
 
-              <div className="border-t border-[rgba(49,55,43,0.12)] text-[#717182] text-sm py-3 flex justify-center items-center gap-2">
-                <Dot size={18} className="text-[#31372B] opacity-90" />
-                Live dashboard preview
+              {/* Footer */}
+              <div className="mt-auto pt-2 text-center text-[11px] font-bold text-[#31372B]/70">
+                Showing 3 of 5,000+ verified investors
               </div>
             </div>
           </div>
 
-          {/* Card 2: Warm Doors, Not Cold Calls */}
-          <div className="bg-white border border-[rgba(49,55,43,0.12)] shadow-md rounded-[18px] p-7 flex flex-col text-left">
-            <h3 className="text-[27px] font-bold text-[#31372B] mb-2">
-              Warm Doors, Not Cold Calls
+          {/* Card 2: Connect directly via Email */}
+          <div className="bg-white border border-[rgba(49,55,43,0.12)] shadow-sm rounded-[24px] p-8 flex flex-col text-left h-full">
+            <h3 className="text-[24px] font-bold text-[#31372B] mb-3">
+              Connect directly via Email
             </h3>
-            <p className="text-[#717182] text-[17px] leading-[28px] mb-6">
-              Reach decision-makers with verified contact details that actually connect.
+            <p className="text-[#717182] text-[16px] leading-[26px] mb-8">
+              Connect directly with investors, introduce your startups & send your pitch deck.
             </p>
 
-            <div className="border border-[rgba(49,55,43,0.12)] rounded-[14px] shadow-sm overflow-hidden">
-              <div className="bg-[#EDF4E5] border-b border-[rgba(49,55,43,0.12)] px-4 py-3 flex justify-between items-center text-sm font-bold text-[#31372B]">
-                <div className="flex items-center gap-2">Verified Contacts</div>
-                <div className="bg-[#31372B] text-white text-xs rounded-full px-3 py-1">98% Accuracy</div>
+            {/* Visual */}
+            <div className="bg-[#EDF4E5] rounded-[16px] p-4 border border-[rgba(49,55,43,0.08)] flex-1 flex flex-col">
+              {/* Header */}
+              <div className="flex items-center gap-2 text-[13px] font-bold text-[#31372B] mb-4 px-1">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <rect x="2" y="4" width="20" height="16" rx="2" />
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                </svg>
+                Direct Email Access
               </div>
 
-              {[
-                { initials: "SC", name: "Sarah Chen", email: "sarah.chen@techventures.io", date: "Oct 12, 2025" },
-                { initials: "MR", name: "Michael Rodriguez", email: "m.rodriguez@innovate.vc", date: "Oct 14, 2025" },
-              ].map((c, i) => (
-                <div key={i} className="flex items-center justify-between mx-4 my-3 border border-[rgba(49,55,43,0.12)] rounded-[9px] px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 bg-[#31372B] rounded-[9px] flex items-center justify-center text-white font-bold text-sm">
-                      {c.initials}
-                    </div>
-                    <div>
-                      <div className="font-bold text-[#31372B]">{c.name}</div>
-                      <div className="text-[#31372B] text-sm">{c.email}</div>
-                      <div className="flex gap-3 mt-2 items-center">
-                        <span className="bg-[#EDF4E5] text-[#31372B] text-xs font-bold px-2 py-1 rounded-md border border-[rgba(49,55,43,0.2)]">
-                          Responded
-                        </span>
-                        <span className="text-xs text-[#717182]">{c.date}</span>
+              {/* List Items */}
+              <div className="space-y-3 flex-1">
+                {[
+                  { initials: "SC", name: "Sarah Chen", email: "sarah.chen@techventures.io" },
+                  { initials: "MR", name: "Michael Rodriguez", email: "m.rodriguez@innovate.vc" },
+                ].map((item, i) => (
+                  <div key={i} className="bg-white border border-[rgba(49,55,43,0.1)] rounded-[12px] p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-[8px] bg-[#31372B] text-white text-[12px] font-bold flex items-center justify-center shrink-0">
+                        {item.initials}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[13px] font-bold text-[#31372B] mb-1">{item.name}</div>
+                        <div className="flex items-center gap-2 text-[11px] text-[#717182]">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="2" y="4" width="20" height="16" rx="2" />
+                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                          </svg>
+                          <span className="truncate">{item.email}</span>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="ml-auto cursor-pointer opacity-50 hover:opacity-100">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="m9 12 2 2 4-4" />
+                          </svg>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-
-              {/* Buttons */}
-              <div className="flex gap-4 px-4 mt-4 pb-4">
-                <button className="flex items-center justify-center gap-2 flex-1 bg-[#31372B] text-white font-bold rounded-[9px] py-2 text-sm">
-                  <Download size={16} /> Export
-                </button>
-                <button className="flex items-center justify-center gap-2 flex-1 bg-[#EDF4E5] text-[#31372B] font-bold rounded-[9px] py-2 text-sm">
-                  <Filter size={16} /> Filter
-                </button>
-              </div>
-
-              <div className="border-t border-[rgba(49,55,43,0.12)] text-[#717182] text-sm py-3 flex justify-center items-center gap-2">
-                <Dot size={18} className="text-[#31372B] opacity-90" />
-                Live dashboard preview
+                ))}
               </div>
             </div>
           </div>
 
-          {/* Card 3: Get Funded, Faster */}
-          <div className="bg-white border border-[rgba(49,55,43,0.12)] shadow-md rounded-[18px] p-7 flex flex-col text-left">
-            <h3 className="text-[27px] font-bold text-[#31372B] mb-2">
-              Get Funded, Faster
+          {/* Card 3: Add your startup */}
+          <div className="bg-white border border-[rgba(49,55,43,0.12)] shadow-sm rounded-[24px] p-8 flex flex-col text-left h-full">
+            <h3 className="text-[24px] font-bold text-[#31372B] mb-3">
+              Add your startup
             </h3>
-            <p className="text-[#717182] text-[17px] leading-[28px] mb-6">
-              Turn pitches into partnerships without wasting precious time and energy.
+            <p className="text-[#717182] text-[16px] leading-[26px] mb-8">
+              Fill out the form. If your startup is exceptional, we will also manually help you raise funds.
             </p>
 
-            <div className="border border-[rgba(49,55,43,0.12)] rounded-[14px] shadow-sm overflow-hidden">
-              <div className="bg-[#EDF4E5] border-b border-[rgba(49,55,43,0.12)] px-4 py-3 flex justify-between items-center text-sm font-bold text-[#31372B]">
-                <div className="flex items-center gap-2">Your Activity</div>
+            {/* Visual */}
+            <div className="bg-[#EDF4E5] rounded-[16px] p-4 border border-[rgba(49,55,43,0.08)] flex-1 flex flex-col">
+              {/* Header */}
+              <div className="flex items-center gap-2 text-[13px] font-bold text-[#31372B] mb-4 px-1">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                Add your startup
               </div>
 
-              {/* Metrics Grid */}
-              <div className="grid grid-cols-2 gap-3 p-4">
-                <div className="bg-[#FAF7EE] border border-[rgba(49,55,43,0.12)] rounded-[9px] p-3">
-                  <div className="text-2xl font-bold">156</div>
-                  <div className="text-xs text-[#717182] font-bold">Matches Found</div>
+              {/* Upload Area */}
+              <div className="bg-white border border-[rgba(49,55,43,0.1)] rounded-[12px] flex-1 flex flex-col items-center justify-center p-6 text-center">
+                <div className="w-12 h-12 rounded-full bg-[#EDF4E5] flex items-center justify-center mb-4 text-[#31372B]">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
                 </div>
-                <div className="bg-[#EDF4E5] border border-[rgba(49,55,43,0.12)] rounded-[9px] p-3">
-                  <div className="text-2xl font-bold">23</div>
-                  <div className="text-xs text-[#31372B] font-bold">Contacted</div>
-                </div>
-                <div className="bg-[#31372B] border border-[#31372B] rounded-[9px] p-3 text-white">
-                  <div className="text-2xl font-bold">12</div>
-                  <div className="text-xs opacity-80 font-bold">Responses</div>
-                </div>
-                <div className="bg-[#FAF7EE] border border-[rgba(49,55,43,0.12)] rounded-[9px] p-3">
-                  <div className="text-2xl font-bold">4.2x</div>
-                  <div className="text-xs text-[#717182] font-bold">Faster</div>
-                </div>
-              </div>
-
-              {/* Progress Section */}
-              <div className="p-4 border-t border-[rgba(49,55,43,0.12)]">
-                <div className="flex justify-between text-xs font-bold text-[#717182] mb-1">
-                  <span>Fundraising Goal</span>
-                  <span className="text-[#31372B]">52%</span>
-                </div>
-                <div className="h-2 bg-[#FAF7EE] border border-[rgba(49,55,43,0.12)] rounded-full overflow-hidden">
-                  <div className="h-full w-[52%] bg-[#31372B] rounded-full"></div>
-                </div>
-              </div>
-
-              <div className="border-t border-[rgba(49,55,43,0.12)] text-[#717182] text-sm py-3 flex justify-center items-center gap-2">
-                <Dot size={18} className="text-[#31372B] opacity-90" />
-                Live dashboard preview
+                <p className="text-[12px] text-[#717182] leading-[18px] max-w-[200px]">
+                  Submit your startup details and we'll connect you with relevant investors
+                </p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Signup Bar */}
-        <div className="relative z-10 mt-24 flex justify-center">
-          <div className="bg-[#EDF4E5] border border-[rgba(49,55,43,0.2)] rounded-[14px] px-8 py-4 flex items-center gap-3 shadow-sm">
+        <div className="relative z-10 mt-16 flex justify-center">
+          <div className="bg-[#EDF4E5] border border-[rgba(49,55,43,0.2)] rounded-[14px] px-8 py-4 flex items-center gap-3 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
             <Zap size={18} strokeWidth={1.5} className="text-[#31372B]" />
             <span className="font-bold text-[#31372B] text-[16px]">
               Get instant access to all features when you sign up
@@ -616,13 +612,13 @@ export default function Home() {
         {/* Pricing Grid */}
         <div className="max-w-[1300px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-4">
           {/* Starter */}
-          <div className="bg-white border border-[#D8D8D8]/60 rounded-[20px] p-10 text-center shadow-[0_10px_15px_-5px_rgba(0,0,0,0.05)] hover:-translate-y-2 transition-transform duration-300">
+          <div className="bg-white border border-[#D8D8D8]/60 rounded-[20px] p-10 text-center shadow-[0_10px_15px_-5px_rgba(0,0,0,0.05)] hover:-translate-y-2 transition-transform duration-300 flex flex-col h-full">
             <h3 className="text-[20px] font-bold mb-3">Starter</h3>
             <h4 className="text-[48px] font-bold mb-1">Free</h4>
             <p className="text-[16px] text-[#717182] mb-6 leading-[24px]">
               Get started with basics<br />Perfect for exploring our investor database
             </p>
-            <ul className="text-left text-[16px] text-[#31372B]/90 mb-10 space-y-2">
+            <ul className="text-left text-[16px] text-[#31372B]/90 mb-10 space-y-2 flex-1">
               {[
                 "Access to 100 investors",
                 "Basic search filters",
@@ -638,13 +634,13 @@ export default function Home() {
                 </li>
               ))}
             </ul>
-            <button className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-[#C6FF55] transition-colors">
+            <button className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-black hover:text-white transition-colors">
               Get started
             </button>
           </div>
 
           {/* Professional */}
-          <div className="relative bg-white border border-[#31372B]/20 rounded-[20px] p-10 text-center shadow-[0_10px_15px_-5px_rgba(0,0,0,0.1)] hover:-translate-y-2 transition-transform duration-300">
+          <div className="relative bg-white border border-[#31372B]/20 rounded-[20px] p-10 text-center shadow-[0_10px_15px_-5px_rgba(0,0,0,0.1)] hover:-translate-y-2 transition-transform duration-300 flex flex-col h-full">
             {/* Tag */}
             <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#C6FF55] text-[#31372B] text-xs font-bold px-5 py-1.5 rounded-full border border-[#31372B]/20 shadow-md">
               MOST POPULAR
@@ -652,10 +648,9 @@ export default function Home() {
             <h3 className="text-[20px] font-bold mb-3">Professional</h3>
             <div className="flex justify-center items-end gap-1 mb-1">
               <h4 className="text-[48px] font-bold leading-[1]">$15</h4>
-              <span className="text-[16px] text-[#717182] mb-1">/month</span>
             </div>
             <p className="text-[16px] text-[#717182] mb-6">60 credits<br />Unlock verified investor contacts</p>
-            <ul className="text-left text-[16px] text-[#31372B]/90 mb-10 space-y-2">
+            <ul className="text-left text-[16px] text-[#31372B]/90 mb-10 space-y-2 flex-1">
               {[
                 "Everything in Starter",
                 "60 investor contact unlocks",
@@ -678,14 +673,13 @@ export default function Home() {
           </div>
 
           {/* Growth */}
-          <div className="bg-white border border-[#D8D8D8]/60 rounded-[20px] p-10 text-center shadow-[0_10px_15px_-5px_rgba(0,0,0,0.05)] hover:-translate-y-2 transition-transform duration-300">
+          <div className="bg-white border border-[#D8D8D8]/60 rounded-[20px] p-10 text-center shadow-[0_10px_15px_-5px_rgba(0,0,0,0.05)] hover:-translate-y-2 transition-transform duration-300 flex flex-col h-full">
             <h3 className="text-[20px] font-bold mb-3">Growth</h3>
             <div className="flex justify-center items-end gap-1 mb-1">
               <h4 className="text-[48px] font-bold leading-[1]">$49</h4>
-              <span className="text-[16px] text-[#717182] mb-1">/month</span>
             </div>
             <p className="text-[16px] text-[#717182] mb-6">300 credits<br />Scale your fundraising outreach</p>
-            <ul className="text-left text-[16px] text-[#31372B]/90 mb-10 space-y-2">
+            <ul className="text-left text-[16px] text-[#31372B]/90 mb-10 space-y-2 flex-1">
               {[
                 "Everything in Professional",
                 "300 investor contact unlocks",
@@ -703,19 +697,21 @@ export default function Home() {
                 </li>
               ))}
             </ul>
-            <button className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-[#C6FF55] transition-colors">
+            <button className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-black hover:text-white transition-colors">
               Get started
             </button>
           </div>
 
           {/* Enterprise */}
-          <div className="bg-white border border-[#D8D8D8]/60 rounded-[20px] p-10 text-center shadow-[0_10px_15px_-5px_rgba(0,0,0,0.05)] hover:-translate-y-2 transition-transform duration-300">
+          <div className="bg-white border border-[#D8D8D8]/60 rounded-[20px] p-10 text-center shadow-[0_10px_15px_-5px_rgba(0,0,0,0.05)] hover:-translate-y-2 transition-transform duration-300 flex flex-col h-full">
             <h3 className="text-[20px] font-bold mb-3">Enterprise</h3>
-            <h4 className="text-[48px] font-bold mb-1 leading-[1.2]">Contact<br />us</h4>
+            <div className="flex justify-center items-end gap-1 mb-1">
+              <h4 className="text-[48px] font-bold leading-[1]">$999</h4>
+            </div>
             <p className="text-[16px] text-[#717182] mb-6 leading-[24px]">
-              Custom solution<br />For teams and organizations
+              Unlimited credits<br />For serious fundraisers
             </p>
-            <ul className="text-left text-[16px] text-[#31372B]/90 mb-10 space-y-2">
+            <ul className="text-left text-[16px] text-[#31372B]/90 mb-10 space-y-2 flex-1">
               {[
                 "Everything in Growth",
                 "Unlimited contact unlocks",
@@ -733,8 +729,8 @@ export default function Home() {
                 </li>
               ))}
             </ul>
-            <button className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-[#C6FF55] transition-colors">
-              Talk to sales
+            <button className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-black hover:text-white transition-colors">
+              Get started
             </button>
           </div>
         </div>
@@ -746,7 +742,7 @@ export default function Home() {
       </section>
       {/* ✅ Trusted by Indian Founders Section */}
       <section
-        className="relative flex flex-col items-start isolate bg-[#FAF7EE]"
+        className="relative mt-[-7vw] flex flex-col items-start isolate bg-[#FAF7EE]"
         style={{
           padding: "6.31vw 7.9vw 0 7.9vw",
           gap: "4.21vw",
@@ -783,7 +779,7 @@ export default function Home() {
         </div>
 
         {/* Headings */}
-        <div className="text-center w-full" style={{ marginTop: "10vw" }}>
+        <div className="text-center w-full" style={{ marginTop: "vw" }}>
           <h2
             className="font-bold text-[#31372B]"
             style={{
@@ -810,7 +806,7 @@ export default function Home() {
             gridTemplateColumns: "55.6vw 27vw",
             gap: "1.8vw",
             width: "100%",
-            marginTop: "4vw",
+            marginTop: "-1.5vw",
           }}
         >
           {/* Left Large Card */}
@@ -912,9 +908,9 @@ export default function Home() {
           className="grid"
           style={{
             gridTemplateColumns: "repeat(3, 1fr)",
-            gap: "1.8vw",
+            gap: "1.1vw",
             width: "100%",
-            marginTop: "2vw",
+            marginTop: "-3vw",
           }}
         >
           {/* Bottom Left */}
@@ -1011,7 +1007,7 @@ export default function Home() {
 
         {/* Footer */}
         <div
-          className="text-center w-full mt-[4vw] text-[#717182]"
+          className="text-center w-full mt-[-1.5vw] mb-[2.5vw] text-[#717182]"
           style={{ fontSize: "0.92vw" }}
         >
           Join hundreds of founders who&apos;ve successfully raised funding.
