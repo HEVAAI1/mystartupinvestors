@@ -70,8 +70,16 @@ export async function POST(request: NextRequest) {
     } catch (error: unknown) {
         console.error('Error creating checkout session FULL OBJECT:', error);
 
+        let debug = 'Unknown error';
+
         if (error instanceof Error) {
             console.error('Error message:', error.message);
+            debug = error.message;
+        }
+        else {
+            try {
+                debug = JSON.stringify(error);
+            } catch { }
         }
 
         const err = error as {
@@ -83,7 +91,11 @@ export async function POST(request: NextRequest) {
         if (err?.response) console.error('Error response:', JSON.stringify(err.response, null, 2));
 
         return NextResponse.json(
-            { error: 'Failed to create checkout session' },
+            {
+                error: 'Failed to create checkout session',
+                debug,
+            },
+
             { status: 500 }
         );
     }
