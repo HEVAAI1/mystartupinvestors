@@ -2,7 +2,7 @@
 
 A comprehensive platform connecting startups with investors. This application features a robust investor database, credit-based access system, startup submission workflow, and a full-featured admin panel.
 
-## 🚀 Features
+## 🚀 Feature
 
 ### User Platform
 - **Investor Database**: Searchable and filterable list of verified investors.
