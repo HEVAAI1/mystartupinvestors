@@ -67,14 +67,25 @@ export async function POST(request: NextRequest) {
             checkout_url: checkoutSession.checkout_url,
             session_id: checkoutSession.session_id,
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Error creating checkout session FULL OBJECT:', error);
-        if (error?.message) console.error('Error message:', error.message);
-        if (error?.body) console.error('Error body:', JSON.stringify(error.body, null, 2));
-        if (error?.response) console.error('Error response:', JSON.stringify(error.response, null, 2));
+
+        if (error instanceof Error) {
+            console.error('Error message:', error.message);
+        }
+
+        const err = error as {
+            body?: unknown;
+            response?: unknown;
+        };
+
+        if (err?.body) console.error('Error body:', JSON.stringify(err.body, null, 2));
+        if (err?.response) console.error('Error response:', JSON.stringify(err.response, null, 2));
+
         return NextResponse.json(
             { error: 'Failed to create checkout session' },
             { status: 500 }
         );
     }
+
 }
