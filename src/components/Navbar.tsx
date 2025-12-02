@@ -5,12 +5,14 @@ import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 import { FiUser } from "react-icons/fi";
+import { useCredits } from "@/context/CreditsContext";
 
-export default function AuthenticatedNavbar({ credits = 0 }: { credits?: number }) {
+export default function AuthenticatedNavbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [startupFormSubmitted, setStartupFormSubmitted] = useState(false);
+  const { credits } = useCredits(); // Get credits from context
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -144,7 +146,7 @@ export default function AuthenticatedNavbar({ credits = 0 }: { credits?: number 
 
             {open && (
               <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg border border-[#31372B1F] rounded-md text-sm font-[Arial] py-2 animate-fadeIn z-50">
-                <button
+                {/* <button
                   onClick={() => {
                     setOpen(false);
                     router.push("/profile");
@@ -152,7 +154,7 @@ export default function AuthenticatedNavbar({ credits = 0 }: { credits?: number 
                   className="w-full text-left px-4 py-2 hover:bg-[#F5F5F5] transition"
                 >
                   My Profile
-                </button>
+                </button> */}
 
                 <button
                   onClick={handleLogout}

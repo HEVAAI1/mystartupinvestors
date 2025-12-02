@@ -106,6 +106,19 @@ export default function ViewStartupPage() {
         }
     };
 
+    const renderReadOnlyField = (label: string, value: string) => {
+        return (
+            <div className="mb-6">
+                <div className="flex items-center justify-between mb-2">
+                    <label className="text-[14px] font-semibold text-[#31372B]">{label}</label>
+                </div>
+                <p className="text-[14px] text-[#717182] bg-[#F3F3F5] px-3 py-2 rounded-md">
+                    {value || "Not provided"}
+                </p>
+            </div>
+        );
+    };
+
     const renderField = (label: string, field: keyof StartupData, value: string) => {
         const isEditing = editingField === field;
 
@@ -299,11 +312,11 @@ export default function ViewStartupPage() {
                 <div className="bg-white rounded-xl border border-[#31372B1F] shadow-sm p-8">
                     {/* Personal Details Section */}
                     <h2 className="text-[24px] font-bold text-[#31372B] mb-6">Personal Details</h2>
-                    {renderField("Name", "full_name", startupData.full_name)}
-                    {renderField("Email", "email", startupData.email)}
-                    {renderField("Phone Number", "phone", startupData.phone)}
-                    {renderField("LinkedIn URL", "linkedin", startupData.linkedin)}
-                    {renderField("City", "city", startupData.city)}
+                    {renderReadOnlyField("Name", startupData.full_name)}
+                    {renderReadOnlyField("Email", startupData.email)}
+                    {renderReadOnlyField("Phone Number", startupData.phone)}
+                    {renderReadOnlyField("LinkedIn URL", startupData.linkedin)}
+                    {renderReadOnlyField("City", startupData.city)}
 
                     <hr className="my-8 border-[#31372B1F]" />
 

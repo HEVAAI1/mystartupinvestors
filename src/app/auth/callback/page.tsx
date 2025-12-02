@@ -21,7 +21,7 @@ export default function AuthCallbackPage() {
           // First, check if user already exists
           const { data: existingUser } = await supabase
             .from("users")
-            .select("id, credits_used, name, email")
+            .select("id, credits_used, name, email, role")
             .eq("id", user.id)
             .single();
 
@@ -65,8 +65,20 @@ export default function AuthCallbackPage() {
             }
           }
 
-          // Redirect to dashboard after ensuring user is in database
-          router.replace("/dashboard");
+          // Redirect based on user role
+          const { data: userData } = await supabase
+            .from("users")
+            .select("role")
+            .eq("id", user.id)
+            .single();
+
+          if (userData?.role === "admin") {
+            console.log("Redirecting admin to /admin/dashboard");
+            router.replace("/admin/dashboard");
+          } else {
+            console.log("Redirecting user to /dashboard");
+            router.replace("/dashboard");
+          }
         }
 
         // Listen for future auth state changes
@@ -81,7 +93,7 @@ export default function AuthCallbackPage() {
               // First, check if user already exists
               const { data: existingUser } = await supabase
                 .from("users")
-                .select("id, credits_used, name, email")
+                .select("id, credits_used, name, email, role")
                 .eq("id", user.id)
                 .single();
 
@@ -125,7 +137,20 @@ export default function AuthCallbackPage() {
                 }
               }
 
-              router.replace("/dashboard");
+              // Redirect based on user role
+              const { data: userData } = await supabase
+                .from("users")
+                .select("role")
+                .eq("id", user.id)
+                .single();
+
+              if (userData?.role === "admin") {
+                console.log("Redirecting admin to /admin/dashboard");
+                router.replace("/admin/dashboard");
+              } else {
+                console.log("Redirecting user to /dashboard");
+                router.replace("/dashboard");
+              }
             }
           }
         );

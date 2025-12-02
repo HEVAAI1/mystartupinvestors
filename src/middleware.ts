@@ -135,6 +135,23 @@ export async function middleware(request: NextRequest) {
         }
     }
 
+    // RULE 4: Landing page - redirect authenticated users to their dashboard
+    if (pathname === '/' && user) {
+        const { data: userData } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+
+        if (userData?.role === 'admin') {
+            console.log(`[Middleware] Admin accessing landing page, redirecting to /admin/dashboard`);
+            return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+        } else {
+            console.log(`[Middleware] Authenticated user accessing landing page, redirecting to /dashboard`);
+            return NextResponse.redirect(new URL('/dashboard', request.url));
+        }
+    }
+
     return response;
 }
 

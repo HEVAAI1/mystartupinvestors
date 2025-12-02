@@ -19,6 +19,12 @@ interface DashboardStats {
   monthlyActiveUsers: number;
 }
 
+interface SalesBreakdown {
+  professional: number;
+  growth: number;
+  enterprise: number;
+}
+
 interface VisualizationData {
   period: string;
   value: number;
@@ -26,6 +32,10 @@ interface VisualizationData {
 
 type MetricType = "creditsUsed" | "creditsAllocated" | "revenue" | "activeUsers";
 type DurationType = "1D" | "7D" | "28D" | "90D" | "1Y";
+type Currency = "USD" | "INR";
+
+// Conversion rate: 1 USD = 83 INR (approximate)
+const USD_TO_INR = 83;
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({
@@ -41,10 +51,39 @@ export default function AdminDashboardPage() {
     dailyActiveUsers: 0,
     monthlyActiveUsers: 0,
   });
+  const [salesBreakdown, setSalesBreakdown] = useState<SalesBreakdown>({
+    professional: 0,
+    growth: 0,
+    enterprise: 0,
+  });
   const [visualizationData, setVisualizationData] = useState<VisualizationData[]>([]);
   const [selectedMetric, setSelectedMetric] = useState<MetricType>("revenue");
   const [selectedDuration, setSelectedDuration] = useState<DurationType>("28D");
+  const [selectedCurrency, setSelectedCurrency] = useState<Currency>("INR");
   const [loading, setLoading] = useState(true);
+
+  // Helper function to format currency
+  const formatCurrency = (amount: number, currency: Currency) => {
+    if (currency === "USD") {
+      // Database stores INR, convert to USD
+      const usdAmount = amount / USD_TO_INR;
+      return `$${usdAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    } else {
+      // Show INR as stored in database
+      return `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+  };
+
+  // Helper function to get plan prices in selected currency
+  const getPlanPrice = (plan: 'professional' | 'growth' | 'enterprise', currency: Currency) => {
+    const pricesUSD = { professional: 15, growth: 49, enterprise: 999 };
+    if (currency === "USD") {
+      return pricesUSD[plan];
+    } else {
+      // Convert USD to INR for display
+      return Math.round(pricesUSD[plan] * USD_TO_INR);
+    }
+  };
 
   const fetchVisualizationData = useCallback(async () => {
     try {
@@ -84,14 +123,14 @@ export default function AdminDashboardPage() {
         // Fetch transaction data
         const { data: transactionsData } = await supabase
           .from("transactions")
-          .select("amount, completed_at, status")
-          .eq("status", "completed")
-          .gte("completed_at", startDate.toISOString())
-          .order("completed_at", { ascending: true });
+          .select("amount, created_at, status")
+          .eq("status", "succeeded")
+          .gte("created_at", startDate.toISOString())
+          .order("created_at", { ascending: true });
 
         transactionsData?.forEach(transaction => {
-          if (!transaction.completed_at) return;
-          const date = new Date(transaction.completed_at);
+          if (!transaction.created_at) return;
+          const date = new Date(transaction.created_at);
           const key = formatDateByGroup(date, groupBy);
           if (!groupedData[key]) groupedData[key] = [];
           groupedData[key].push(parseFloat(transaction.amount) || 0);
@@ -178,7 +217,7 @@ export default function AdminDashboardPage() {
       // Calculate user counts by plan
       const freeCount = usersData?.filter(u => !u.plan || u.plan === "free").length || 0;
       const starterCount = usersData?.filter(u => u.plan === "starter").length || 0;
-      const growthCount = usersData?.filter(u => u.plan === "growth").length || 0;
+      const planGrowthCount = usersData?.filter(u => u.plan === "growth").length || 0;
 
       // Calculate active users
       const now = new Date();
@@ -216,9 +255,9 @@ export default function AdminDashboardPage() {
       // Fetch revenue data
       const { data: transactionsData } = await supabase
         .from("transactions")
-        .select("amount, completed_at, status");
+        .select("amount, created_at, status");
 
-      const completedTransactions = transactionsData?.filter(t => t.status === "completed") || [];
+      const completedTransactions = transactionsData?.filter(t => t.status === "succeeded") || [];
 
       const totalRev = completedTransactions.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
 
@@ -227,11 +266,27 @@ export default function AdminDashboardPage() {
       const currentYear = new Date().getFullYear();
       const monthlyRev = completedTransactions
         .filter(t => {
-          if (!t.completed_at) return false;
-          const date = new Date(t.completed_at);
+          if (!t.created_at) return false;
+          const date = new Date(t.created_at);
           return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
         })
         .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+
+      // Calculate sales breakdown by plan type
+      const { data: salesData } = await supabase
+        .from("transactions")
+        .select("plan_type")
+        .eq("status", "succeeded");
+
+      const professionalCount = salesData?.filter(t => t.plan_type === "professional").length || 0;
+      const growthCount = salesData?.filter(t => t.plan_type === "growth").length || 0;
+      const enterpriseCount = salesData?.filter(t => t.plan_type === "enterprise").length || 0;
+
+      setSalesBreakdown({
+        professional: professionalCount,
+        growth: growthCount,
+        enterprise: enterpriseCount,
+      });
 
       setStats({
         totalUsers: usersData?.length || 0,
@@ -240,7 +295,7 @@ export default function AdminDashboardPage() {
         creditsUsed: totalCreditsUsed,
         freeUsers: freeCount,
         starterUsers: starterCount,
-        growthUsers: growthCount,
+        growthUsers: planGrowthCount,
         totalRevenue: totalRev,
         monthlyRevenue: monthlyRev,
         dailyActiveUsers: dailyActive,
@@ -299,12 +354,41 @@ export default function AdminDashboardPage() {
 
   return (
     <div>
-      <h1 className="text-[32px] font-bold text-[#31372B] mb-2">
-        Data Dashboard
-      </h1>
-      <p className="text-[16px] text-[#717182] mb-8">
-        Overview of platform statistics
-      </p>
+      <div className="flex justify-between items-start mb-8">
+        <div>
+          <h1 className="text-[32px] font-bold text-[#31372B] mb-2">
+            Data Dashboard
+          </h1>
+          <p className="text-[16px] text-[#717182]">
+            Overview of platform statistics
+          </p>
+        </div>
+
+        {/* Currency Selector */}
+        <div className="flex items-center gap-2">
+          <span className="text-[14px] text-[#717182]">Currency:</span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSelectedCurrency("INR")}
+              className={`px-4 py-2 rounded-lg text-[14px] font-medium transition ${selectedCurrency === "INR"
+                ? "bg-[#31372B] text-white"
+                : "border border-[#31372B1F] hover:bg-[#F5F5F5]"
+                }`}
+            >
+              ₹ INR
+            </button>
+            <button
+              onClick={() => setSelectedCurrency("USD")}
+              className={`px-4 py-2 rounded-lg text-[14px] font-medium transition ${selectedCurrency === "USD"
+                ? "bg-[#31372B] text-white"
+                : "border border-[#31372B1F] hover:bg-[#F5F5F5]"
+                }`}
+            >
+              $ USD
+            </button>
+          </div>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((card) => {
@@ -339,7 +423,7 @@ export default function AdminDashboardPage() {
           </div>
           <h3 className="text-[14px] text-[#717182] mb-1">Total Revenue</h3>
           <p className="text-[32px] font-bold text-[#31372B]">
-            ${stats.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatCurrency(stats.totalRevenue, selectedCurrency)}
           </p>
           <p className="text-[12px] text-[#717182] mt-2">All-time earnings</p>
         </div>
@@ -353,11 +437,67 @@ export default function AdminDashboardPage() {
           </div>
           <h3 className="text-[14px] text-[#717182] mb-1">Monthly Revenue</h3>
           <p className="text-[32px] font-bold text-[#31372B]">
-            ${stats.monthlyRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatCurrency(stats.monthlyRevenue, selectedCurrency)}
           </p>
           <p className="text-[12px] text-[#717182] mt-2">
             {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
           </p>
+        </div>
+      </div>
+
+      {/* Sales Breakdown Section */}
+      <div className="mt-8 bg-white rounded-xl border border-[#31372B1F] p-6 shadow-sm">
+        <h2 className="text-[20px] font-bold text-[#31372B] mb-6">
+          Sales Breakdown
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Professional Plan */}
+          <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-6 border border-indigo-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="bg-indigo-500 p-3 rounded-lg">
+                <TrendingUp size={24} className="text-white" />
+              </div>
+            </div>
+            <h3 className="text-[14px] text-[#717182] mb-1">Professional Plan</h3>
+            <p className="text-[32px] font-bold text-[#31372B]">
+              {salesBreakdown.professional}
+            </p>
+            <p className="text-[12px] text-[#717182] mt-2">
+              {selectedCurrency === "USD" ? "$" : "₹"}{getPlanPrice('professional', selectedCurrency)} × {salesBreakdown.professional} = {formatCurrency(getPlanPrice('professional', 'INR') * salesBreakdown.professional, selectedCurrency)}
+            </p>
+          </div>
+
+          {/* Growth Plan */}
+          <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-6 border border-teal-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="bg-teal-500 p-3 rounded-lg">
+                <TrendingUp size={24} className="text-white" />
+              </div>
+            </div>
+            <h3 className="text-[14px] text-[#717182] mb-1">Growth Plan</h3>
+            <p className="text-[32px] font-bold text-[#31372B]">
+              {salesBreakdown.growth}
+            </p>
+            <p className="text-[12px] text-[#717182] mt-2">
+              {selectedCurrency === "USD" ? "$" : "₹"}{getPlanPrice('growth', selectedCurrency)} × {salesBreakdown.growth} = {formatCurrency(getPlanPrice('growth', 'INR') * salesBreakdown.growth, selectedCurrency)}
+            </p>
+          </div>
+
+          {/* Enterprise Plan */}
+          <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-6 border border-amber-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="bg-amber-500 p-3 rounded-lg">
+                <TrendingUp size={24} className="text-white" />
+              </div>
+            </div>
+            <h3 className="text-[14px] text-[#717182] mb-1">Enterprise Plan</h3>
+            <p className="text-[32px] font-bold text-[#31372B]">
+              {salesBreakdown.enterprise}
+            </p>
+            <p className="text-[12px] text-[#717182] mt-2">
+              {selectedCurrency === "USD" ? "$" : "₹"}{getPlanPrice('enterprise', selectedCurrency)} × {salesBreakdown.enterprise} = {formatCurrency(getPlanPrice('enterprise', 'INR') * salesBreakdown.enterprise, selectedCurrency)}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -427,8 +567,8 @@ export default function AdminDashboardPage() {
                   key={duration}
                   onClick={() => setSelectedDuration(duration)}
                   className={`px-4 py-2 rounded-lg text-[14px] font-medium transition ${selectedDuration === duration
-                      ? "bg-[#31372B] text-white"
-                      : "border border-[#31372B1F] hover:bg-[#F5F5F5]"
+                    ? "bg-[#31372B] text-white"
+                    : "border border-[#31372B1F] hover:bg-[#F5F5F5]"
                     }`}
                 >
                   {duration}

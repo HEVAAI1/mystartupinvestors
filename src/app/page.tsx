@@ -3,13 +3,39 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Search, Zap } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 
 
 export default function Home() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const supabase = createSupabaseBrowserClient();
+  const router = useRouter();
+
+  // Check for existing session on mount
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (user) {
+        // Check if user is admin
+        const { data: userData } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+
+        if (userData?.role === 'admin') {
+          router.push('/admin/dashboard');
+        } else {
+          router.push('/dashboard');
+        }
+      }
+    };
+
+    checkSession();
+  }, [router, supabase]);
 
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({

@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabaseClient";
 import UpgradeModal from "@/components/UpgradeModal";
 import InvestorDetailModal from "@/components/InvestorDetailModal";
 import { useCredits } from "@/context/CreditsContext"; // ✅ USE CONTEXT
+import Link from "next/link";
 
 interface Investor {
   id: number;
@@ -251,19 +252,20 @@ const Dashboard = () => {
               Credits Left: {credits}
             </span>
           </div>
+          <Link href="/pricing">
+            <button
 
-          <button
-            onClick={() => setShowUpgradeModal(true)}
-            className="flex items-center gap-2 bg-[#31372B] text-[#FAF7EE] rounded-md px-4 py-2 text-sm font-medium hover:opacity-90 cursor-pointer"
-          >
-            <Image
-              src="/GetCreditsLogoLight.svg"
-              alt="Get Credits Icon"
-              width={16}
-              height={16}
-            />
-            Get credits
-          </button>
+              className="flex items-center gap-2 bg-[#31372B] text-[#FAF7EE] rounded-md px-4 py-2 text-sm font-medium hover:opacity-90 cursor-pointer"
+            >
+              <Image
+                src="/GetCreditsLogoLight.svg"
+                alt="Get Credits Icon"
+                width={16}
+                height={16}
+              />
+              Get credits
+            </button>
+          </Link>
         </div>
       </div>
 

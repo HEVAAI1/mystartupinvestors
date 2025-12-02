@@ -60,8 +60,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <>
-      <AuthenticatedNavbar credits={credits} />
       <CreditsProvider value={{ credits, allocated, used, userId: user?.id || null }}>
+        <AuthenticatedNavbar />
         {children}
       </CreditsProvider>
     </>
