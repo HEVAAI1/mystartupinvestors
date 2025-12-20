@@ -22,8 +22,24 @@ const funnelDisplay = Funnel_Display({
 });
 
 export const metadata: Metadata = {
-  title: "MyFundingList",
-  description: "Startup Funding Platform",
+  metadataBase: new URL("https://myfundinglist.com"),
+
+  title: {
+    default: "MyFundingList",
+    template: "%s – MyFundingList",
+  },
+
+  description:
+    "MyFundingList is a startup funding platform providing access to a curated database of verified investors.",
+
+  openGraph: {
+    siteName: "MyFundingList",
+    type: "website",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export default function RootLayout({

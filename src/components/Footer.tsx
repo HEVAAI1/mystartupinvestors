@@ -9,15 +9,15 @@ export default function Footer() {
         <p>© 2025 MyFundingList. All rights reserved.</p>
 
         <div className="flex gap-6">
-          <a href="#" className="hover:underline">
+          <a href="/refund" className="hover:underline">
             Refund Policy
           </a>
-          <a href="#" className="hover:underline">
+          <Link href="/terms" className="hover:underline">
             Terms & Conditions
-          </a>
-          <a href="#" className="hover:underline">
+          </Link>
+          <Link href="/privacy" className="hover:underline">
             Privacy Policy
-          </a>
+          </Link>
           <Link href="/blog" className="hover:underline">
             Blog
           </Link>
