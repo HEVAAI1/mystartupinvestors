@@ -67,6 +67,12 @@ export default function SmartNavbar() {
                     </Link>
                     <Link
                         href="/"
+                        className="text-[#31372B] text-[14px] font-[Arial] font-bold hover:text-[#717182] transition cursor-pointer"
+                    >
+                        Add My Startup
+                    </Link>
+                    <Link
+                        href="/"
                         className="bg-[#31372B] text-[#FAF7EE] px-6 py-2 rounded-lg font-bold shadow hover:opacity-90 transition cursor-pointer"
                     >
                         Sign In

@@ -74,6 +74,12 @@ export default function Home() {
           >
             Tools for Founders
           </a>
+          <button
+            onClick={handleGoogleLogin}
+            className="text-[#717182] text-[14px] font-[Arial] hover:text-[#31372B] transition cursor-pointer"
+          >
+            Add My Startup
+          </button>
           <button className="bg-[#31372B] text-[#FAF7EE] px-6 py-2 rounded-lg font-bold shadow hover:opacity-90 transition cursor-pointer" onClick={handleGoogleLogin}>
             Sign In
           </button>
@@ -99,12 +105,12 @@ export default function Home() {
         </p>
 
         {/* CTA */}
-        <a
-          href="#"
-          className="mt-8 inline-flex items-center justify-center bg-gradient-to-r from-[#000] to-[#434343] text-white font-semibold text-[18px] rounded-[18px] px-8 py-4 shadow-md hover:opacity-90 transition"
+        <button
+          onClick={handleGoogleLogin}
+          className="mt-8 inline-flex items-center justify-center bg-gradient-to-r from-[#000] to-[#434343] text-white font-semibold text-[18px] rounded-[18px] px-8 py-4 shadow-md hover:opacity-90 transition cursor-pointer"
         >
           Start Connecting Today →
-        </a>
+        </button>
 
         {/* Stats */}
         {/* Stats */}
@@ -613,7 +619,7 @@ export default function Home() {
 
         {/* CTA Button */}
         <div className="relative z-10 flex flex-col items-center mt-16 gap-6">
-          <button className="bg-[#C6FF55] text-[#31372B] px-8 py-4 font-bold text-lg rounded-xl border border-[#31372B]/20 shadow-[0_0_34px_rgba(198,255,85,0.3)] flex items-center gap-2 hover:scale-105 transition-transform">
+          <button onClick={handleGoogleLogin} className="bg-[#C6FF55] text-[#31372B] px-8 py-4 font-bold text-lg rounded-xl border border-[#31372B]/20 shadow-[0_0_34px_rgba(198,255,85,0.3)] flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer">
             Explore Investor Database
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeWidth="2" d="M5 12h14M12 5l7 7-7 7" />
@@ -671,8 +677,8 @@ export default function Home() {
                 </li>
               ))}
             </ul>
-            <button className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-black hover:text-white transition-colors">
-              Get started
+            <button onClick={handleGoogleLogin} className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-black hover:text-white transition-colors cursor-pointer">
+              Get Started
             </button>
           </div>
 
@@ -704,8 +710,8 @@ export default function Home() {
                 </li>
               ))}
             </ul>
-            <button className="w-full bg-[#C6FF55] text-[#31372B] font-bold rounded-[10px] py-3 hover:brightness-110 transition-all">
-              Get started
+            <button onClick={handleGoogleLogin} className="w-full bg-[#C6FF55] text-[#31372B] font-bold rounded-[10px] py-3 hover:brightness-110 transition-all cursor-pointer">
+              Get Started
             </button>
           </div>
 
@@ -734,8 +740,8 @@ export default function Home() {
                 </li>
               ))}
             </ul>
-            <button className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-black hover:text-white transition-colors">
-              Get started
+            <button onClick={handleGoogleLogin} className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-black hover:text-white transition-colors cursor-pointer">
+              Get Started
             </button>
           </div>
 
@@ -766,8 +772,8 @@ export default function Home() {
                 </li>
               ))}
             </ul>
-            <button className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-black hover:text-white transition-colors">
-              Get started
+            <button onClick={handleGoogleLogin} className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-black hover:text-white transition-colors cursor-pointer">
+              Get Started
             </button>
           </div>
         </div>
@@ -1109,7 +1115,8 @@ export default function Home() {
           </p>
 
           <button
-            className="font-bold text-[#31372B] bg-[#C6FF55] shadow-[0_0_30px_rgba(198,255,85,0.3)] md:shadow-[0_0_1.98vw_rgba(198,255,85,0.3)] border border-[#31372B]/20 rounded-xl md:rounded-[1.05vw] hover:scale-105 transition px-8 py-3 md:px-[2.74vw] md:py-[1vw] text-base md:text-[1.18vw]"
+            onClick={handleGoogleLogin}
+            className="font-bold text-[#31372B] bg-[#C6FF55] shadow-[0_0_30px_rgba(198,255,85,0.3)] md:shadow-[0_0_1.98vw_rgba(198,255,85,0.3)] border border-[#31372B]/20 rounded-xl md:rounded-[1.05vw] hover:scale-105 transition px-8 py-3 md:px-[2.74vw] md:py-[1vw] text-base md:text-[1.18vw] cursor-pointer"
           >
             Start connecting with investors
           </button>
