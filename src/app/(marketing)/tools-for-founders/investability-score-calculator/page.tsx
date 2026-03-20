@@ -5,10 +5,10 @@ import Link from "next/link";
 import InvestabilityScoreCalculatorClient from "./investability-score-calculator-client";
 
 export const metadata: Metadata = {
-    title: "Investability Score Calculator | How Investors Evaluate Startups",
+    title: "Investability Score Calculator",
     description: "Score your startup across team, market, product-market fit, and moat to assess investor readiness.",
     openGraph: {
-        title: "Investability Score Calculator | How Investors Evaluate Startups",
+        title: "Investability Score Calculator",
         description: "Score your startup across team, market, product-market fit, and moat to assess investor readiness.",
         url: "/tools-for-founders/investability-score-calculator",
     },

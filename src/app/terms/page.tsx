@@ -3,7 +3,7 @@ import Image from "next/image";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-    title: "Terms of Service – MyFundingList",
+    title: "Terms of Service",
     description: "Terms of Service for MyFundingList - Read our terms and conditions for using our investor database platform.",
 };
 

@@ -2,7 +2,7 @@ import { fetchHashnodePosts } from "@/lib/hashnode";
 import BlogClient from "./BlogClient";
 
 export const metadata = {
-    title: "Blog – MyFundingList",
+    title: "Blog",
     description: "Insights, updates, and resources for startup founders and investors",
 };
 

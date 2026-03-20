@@ -5,10 +5,10 @@ import Link from "next/link";
 import IRRCalculatorClient from "./irr-calculator-client";
 
 export const metadata: Metadata = {
-    title: "IRR Calculator | Internal Rate of Return for VC Investments",
+    title: "IRR Calculator",
     description: "Calculate Internal Rate of Return for venture capital and startup investments using multiple cash flows.",
     openGraph: {
-        title: "IRR Calculator | Internal Rate of Return for VC Investments",
+        title: "IRR Calculator",
         description: "Calculate Internal Rate of Return for venture capital and startup investments using multiple cash flows.",
         url: "/tools-for-founders/irr-calculator",
     },

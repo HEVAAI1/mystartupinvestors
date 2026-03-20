@@ -4,10 +4,10 @@ import Image from "next/image";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-    title: "CAC & Unit Economics Tool | Tools for Founders",
+    title: "CAC & Unit Economics Tool",
     description: "Analyze customer acquisition costs and unit economics. Free tool for startup founders optimizing growth.",
     openGraph: {
-        title: "CAC & Unit Economics Tool | Tools for Founders",
+        title: "CAC & Unit Economics Tool",
         description: "Analyze customer acquisition costs and unit economics. Free tool for startup founders optimizing growth.",
         url: "/tools-for-founders/cac",
     },

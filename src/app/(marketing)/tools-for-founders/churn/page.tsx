@@ -4,10 +4,10 @@ import Image from "next/image";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-    title: "Churn Analysis Tool | Tools for Founders",
+    title: "Churn Analysis Tool",
     description: "Calculate and analyze customer churn rates. Free tool for startup founders tracking retention metrics.",
     openGraph: {
-        title: "Churn Analysis Tool | Tools for Founders",
+        title: "Churn Analysis Tool",
         description: "Calculate and analyze customer churn rates. Free tool for startup founders tracking retention metrics.",
         url: "/tools-for-founders/churn",
     },

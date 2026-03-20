@@ -5,10 +5,10 @@ import Link from "next/link";
 import DCFCalculatorClient from "./dcf-calculator-client";
 
 export const metadata: Metadata = {
-    title: "DCF Calculator | Discounted Cash Flow Valuation for Startups",
+    title: "DCF Calculator",
     description: "Calculate enterprise value using discounted cash flow methodology. Model cash flows, terminal value, and intrinsic valuation.",
     openGraph: {
-        title: "DCF Calculator | Discounted Cash Flow Valuation for Startups",
+        title: "DCF Calculator",
         description: "Calculate enterprise value using discounted cash flow methodology. Model cash flows, terminal value, and intrinsic valuation.",
         url: "/tools-for-founders/dcf-calculator",
     },

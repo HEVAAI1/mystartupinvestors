@@ -26,17 +26,17 @@ export default function AuthenticatedNavbar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const getButtonClasses = (path: string) => {
-    const isActive = pathname === path;
+    const isActive = pathname === path || (path === "/tools-for-founders" && pathname?.startsWith("/tools-for-founders"));
     return isActive
-      ? "flex justify-center items-center px-4 py-2 rounded-md bg-[#31372B] text-[#FAF7EE] font-[Arial] text-[14px] leading-[20px] cursor-pointer whitespace-nowrap transition"
-      : "flex justify-center items-center px-4 py-2 rounded-md hover:bg-[#F5F5F5] text-[#31372B] font-[Arial] text-[14px] leading-[20px] cursor-pointer whitespace-nowrap transition";
+      ? "flex justify-center items-center px-4 py-2 rounded-lg bg-[#31372B] text-[#FAF7EE] font-[Arial] text-[14px] font-bold cursor-pointer whitespace-nowrap shadow hover:opacity-90 transition"
+      : "flex justify-center items-center px-4 py-2 rounded-lg bg-[#F5F5F5] text-[#31372B] border border-[#E5E5E5] font-[Arial] text-[14px] font-medium cursor-pointer whitespace-nowrap hover:bg-[#EBEBEB] transition";
   };
 
   const getMobileButtonClasses = (path: string) => {
-    const isActive = pathname === path;
+    const isActive = pathname === path || (path === "/tools-for-founders" && pathname?.startsWith("/tools-for-founders"));
     return isActive
-      ? "w-full text-left px-4 py-3 bg-[#31372B] text-[#FAF7EE] rounded-md font-[Arial] text-[14px] transition"
-      : "w-full text-left px-4 py-3 hover:bg-[#F5F5F5] text-[#31372B] rounded-md font-[Arial] text-[14px] transition";
+      ? "w-full text-left px-4 py-3 rounded-md bg-[#31372B] text-[#FAF7EE] font-[Arial] text-[14px] font-bold shadow hover:opacity-90 transition mb-2"
+      : "w-full text-left px-4 py-3 rounded-md bg-[#F5F5F5] text-[#31372B] border border-[#E5E5E5] font-[Arial] text-[14px] font-medium hover:bg-[#EBEBEB] transition mb-2";
   };
 
   // Fetch user's startup form submission status

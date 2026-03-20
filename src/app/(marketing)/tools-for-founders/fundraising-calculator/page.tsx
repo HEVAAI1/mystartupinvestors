@@ -5,10 +5,10 @@ import Link from "next/link";
 import FundraisingCalculatorClient from "./fundraising-calculator-client";
 
 export const metadata: Metadata = {
-    title: "Fundraising Calculator | How Much Should Startups Raise?",
+    title: "Fundraising Calculator",
     description: "Calculate optimal fundraising amount, dilution impact, and runway extension for your next startup funding round.",
     openGraph: {
-        title: "Fundraising Calculator | How Much Should Startups Raise?",
+        title: "Fundraising Calculator",
         description: "Calculate optimal fundraising amount, dilution impact, and runway extension for your next startup funding round.",
         url: "/tools-for-founders/fundraising-calculator",
     },

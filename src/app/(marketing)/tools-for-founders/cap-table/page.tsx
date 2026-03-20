@@ -4,10 +4,10 @@ import Image from "next/image";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-    title: "Cap Table Modeling Tool | Tools for Founders",
+    title: "Cap Table Modeling Tool",
     description: "Model equity dilution and cap table scenarios. Free tool for startup founders planning fundraising rounds.",
     openGraph: {
-        title: "Cap Table Modeling Tool | Tools for Founders",
+        title: "Cap Table Modeling Tool",
         description: "Model equity dilution and cap table scenarios. Free tool for startup founders planning fundraising rounds.",
         url: "/tools-for-founders/cap-table",
     },

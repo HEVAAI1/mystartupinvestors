@@ -7,10 +7,12 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 import Footer from "@/components/Footer";
+import { FiMenu, FiX } from "react-icons/fi";
 
 
 export default function Home() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const supabase = createSupabaseBrowserClient();
   const router = useRouter();
 
@@ -55,7 +57,7 @@ export default function Home() {
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="w-full flex justify-between items-center px-8 py-4 bg-[#FFFFFE] border-b border-black/10 fixed top-0 z-50"
+        className="w-full flex justify-between items-center px-6 md:px-8 py-4 bg-[#FFFFFE] border-b border-black/10 fixed top-0 z-50"
       >
         <div className="flex items-center gap-2">
           <Image
@@ -67,41 +69,104 @@ export default function Home() {
           />
         </div>
 
-        <div className="flex items-center gap-4">
+        {/* Desktop Nav */}
+        <div className="hidden md:flex items-center gap-3">
           <a
             href="/tools-for-founders"
-            className="text-[#717182] text-[14px] font-[Arial] hover:text-[#31372B] transition cursor-pointer"
+            className="bg-[#F5F5F5] text-[#31372B] border border-[#E5E5E5] px-4 py-2 rounded-lg text-[14px] font-medium hover:bg-[#EBEBEB] transition cursor-pointer"
           >
             Tools for Founders
           </a>
           <button
             onClick={handleGoogleLogin}
-            className="text-[#717182] text-[14px] font-[Arial] hover:text-[#31372B] transition cursor-pointer"
+            className="bg-[#F5F5F5] text-[#31372B] border border-[#E5E5E5] px-4 py-2 rounded-lg text-[14px] font-medium hover:bg-[#EBEBEB] transition cursor-pointer"
           >
             Add My Startup
           </button>
-          <button className="bg-[#31372B] text-[#FAF7EE] px-6 py-2 rounded-lg font-bold shadow hover:opacity-90 transition cursor-pointer" onClick={handleGoogleLogin}>
+          <button
+            className="bg-[#31372B] text-[#FAF7EE] px-6 py-2 rounded-lg font-bold shadow hover:opacity-90 transition cursor-pointer"
+            onClick={handleGoogleLogin}
+          >
             Sign In
+          </button>
+        </div>
+
+        {/* Mobile: Sign In + Hamburger */}
+        <div className="flex md:hidden items-center gap-2">
+          <button
+            className="bg-[#31372B] text-[#FAF7EE] px-4 py-2 rounded-lg text-[14px] font-bold shadow hover:opacity-90 transition cursor-pointer"
+            onClick={handleGoogleLogin}
+          >
+            Sign In
+          </button>
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="flex justify-center items-center w-9 h-9 rounded-md hover:bg-[#EDF4E5] transition"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <FiX size={22} color="#31372B" /> : <FiMenu size={22} color="#31372B" />}
           </button>
         </div>
       </motion.nav>
 
+      {/* Mobile Sidebar */}
+      {mobileMenuOpen && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/40 z-40 md:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <div className="fixed top-0 right-0 h-full w-64 bg-white shadow-2xl z-50 md:hidden flex flex-col">
+            <div className="flex justify-between items-center p-4 border-b border-black/10">
+              <span className="font-bold text-[#31372B]">Menu</span>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2 hover:bg-[#EDF4E5] rounded-md transition"
+              >
+                <FiX size={20} color="#31372B" />
+              </button>
+            </div>
+            <div className="flex flex-col gap-2 p-4">
+              <a
+                href="/tools-for-founders"
+                className="w-full text-left px-4 py-3 bg-[#F5F5F5] text-[#31372B] border border-[#E5E5E5] rounded-md text-[14px] font-medium hover:bg-[#EBEBEB] transition"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Tools for Founders
+              </a>
+              <button
+                onClick={() => { setMobileMenuOpen(false); handleGoogleLogin(); }}
+                className="w-full text-left px-4 py-3 bg-[#F5F5F5] text-[#31372B] border border-[#E5E5E5] rounded-md text-[14px] font-medium hover:bg-[#EBEBEB] transition"
+              >
+                Add My Startup
+              </button>
+              <button
+                onClick={() => { setMobileMenuOpen(false); handleGoogleLogin(); }}
+                className="w-full text-left px-4 py-3 bg-[#31372B] text-[#FAF7EE] rounded-md text-[14px] font-bold mt-2 hover:opacity-90 transition"
+              >
+                Sign In
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+
       {/* Hero Section */}
 
-      <section className="bg-[#FAFAFA] flex flex-col items-center text-center px-6 md:px-12 lg:px-24 pt-28 pb-24 font-[var(--font-funnel-display)]">
+      <section className="bg-[#FAFAFA] flex flex-col items-center text-center px-6 md:px-12 lg:px-24 pt-28 pb-24">
         {/* Trusted Tag */}
         <div className="bg-[#1E1E1E]/10 border border-[#1E1E1E]/20] text-[#3C3C43] rounded-full px-5 py-2 text-sm font-medium mb-6 shadow-sm">
           Trusted by 500+ startups
         </div>
 
         {/* Heading */}
-        <h1 className="text-[40px] md:text-[48px] leading-tight font-bold text-[#000] tracking-[-1px] max-w-3xl">
-          4000+ Investors’ Access to get <br className="hidden md:block" /> your startup funded
+        <h1 className="text-[40px] md:text-[48px] leading-tight font-bold text-[#000] tracking-[-1px] max-w-3xl font-funnel-display">
+          4000+ Investors&apos; Access to get <br className="hidden md:block" /> your startup funded
         </h1>
 
         {/* Subtext */}
-        <p className="text-[#6B6B6B] text-lg md:text-[20px] leading-[32px] max-w-2xl mt-4">
-          Connect with investors across all sectors & geographies.
+        <p className="text-[#6B6B6B] text-lg md:text-[20px] leading-[32px] max-w-2xl mt-4 font-[Arial]">          Connect with investors across all sectors & geographies.
         </p>
 
         {/* CTA */}
@@ -170,12 +235,12 @@ export default function Home() {
 
             {/* ---- FIRST LOOP ---- */}
             {[
-              "/KhoslaLogo.png",
-              "/AntlerLogo.png",
-              "/TigerLogo.png",
-              "/CombinatorLogo.png",
-              "/LightspeedLogo.png",
-              "/BlumeLogo.png",
+              "/KhoslaLogo.svg",
+              "/AntlerLogo.svg",
+              "/TigerLogo.svg",
+              "/CombinatorLogo.svg",
+              "/LightspeedLogo.svg",
+              "/BlumeLogo.svg",
             ].map((src, i) => (
               <div
                 key={i}
@@ -230,10 +295,10 @@ export default function Home() {
       <section className="bg-[#1E1E1E] py-24 text-white">
         {/* Heading */}
         <div className="text-center mb-16">
-          <h2 className="text-[46px] font-bold leading-[54px]">
+          <h2 className="text-[46px] font-bold leading-[54px] font-funnel-display">
             We&apos;ve Fixed Fundraising Frustration
           </h2>
-          <p className="text-[18px] text-white/60 mt-3">
+          <p className="text-[18px] text-white/60 mt-3 font-[Arial]">
             Stop pitching blind. Start pitching smart.
           </p>
         </div>
@@ -352,10 +417,10 @@ export default function Home() {
 
         {/* Section Header */}
         <div className="relative z-10 mb-20">
-          <h2 className="text-[50px] font-bold leading-[68px] tracking-[-0.9px] text-[#31372B]">
+          <h2 className="text-[50px] font-bold leading-[68px] tracking-[-0.9px] text-[#31372B] font-funnel-display">
             From Idea to Investment
           </h2>
-          <p className="text-[20px] mt-3 text-[#31372B]">
+          <p className="text-[20px] mt-3 text-[#31372B] font-[Arial]">
             Everything you need to fuel your startup journey.
           </p>
         </div>
@@ -364,7 +429,7 @@ export default function Home() {
         <div className="relative z-10 grid md:grid-cols-3 gap-8 max-w-[1450px] mx-auto">
 
           {/* Card 1: The List You Need */}
-          <div className="bg-white border border-[rgba(49,55,43,0.12)] shadow-sm rounded-[24px] p-8 flex flex-col text-left h-full">
+          <div className="bg-white border border-[rgba(49,55,43,0.12)] shadow-sm rounded-[24px] p-8 flex flex-col text-left h-full transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08)] hover:border-black">
             <h3 className="text-[24px] font-bold text-[#31372B] mb-3">
               The List You Need
             </h3>
@@ -435,7 +500,7 @@ export default function Home() {
           </div>
 
           {/* Card 2: Connect directly via Email */}
-          <div className="bg-white border border-[rgba(49,55,43,0.12)] shadow-sm rounded-[24px] p-8 flex flex-col text-left h-full">
+          <div className="bg-white border border-[rgba(49,55,43,0.12)] shadow-sm rounded-[24px] p-8 flex flex-col text-left h-full transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08)] hover:border-black">
             <h3 className="text-[24px] font-bold text-[#31372B] mb-3">
               Connect directly via Email
             </h3>
@@ -487,7 +552,7 @@ export default function Home() {
           </div>
 
           {/* Card 3: Add your startup */}
-          <div className="bg-white border border-[rgba(49,55,43,0.12)] shadow-sm rounded-[24px] p-8 flex flex-col text-left h-full">
+          <div className="bg-white border border-[rgba(49,55,43,0.12)] shadow-sm rounded-[24px] p-8 flex flex-col text-left h-full transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08)] hover:border-black">
             <h3 className="text-[24px] font-bold text-[#31372B] mb-3">
               Add your startup
             </h3>
@@ -544,75 +609,64 @@ export default function Home() {
         <div className="relative z-10 flex flex-col items-center gap-4 text-center">
           <div className="px-5 py-1 rounded-full border border-[#EDF4E5]/30 bg-[#EDF4E5]/20 flex items-center gap-2">
             <div className="w-2.5 h-2.5 rounded-full bg-[#C6FF55]"></div>
-            <p className="font-bold text-sm">Global Investor Network</p>
+            <p className="font-bold text-sm font-[Arial]">Global Investor Network</p>
           </div>
 
-          <h2 className="text-[54px] font-bold leading-[1.3] max-w-[850px]">
+          <h2 className="text-[54px] font-bold leading-[1.3] max-w-[850px] font-funnel-display">
             Your Gateway to 5,000+ Investors
           </h2>
-          <p className="text-[20px] text-white/80">
+          <p className="text-[20px] text-white/80 font-[Arial]">
             Access verified investor contacts across industries and global locations
           </p>
         </div>
 
         {/* Stats Grid */}
         <div className="relative z-10 mt-16 grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Card 1 */}
+          {/* Card 1 - Verified Investors */}
           <div className="relative bg-white/10 border border-white/20 backdrop-blur-sm shadow-xl rounded-2xl p-8 flex flex-col justify-between w-[360px] sm:w-[500px] h-[220px] transition-transform hover:-translate-y-1 hover:bg-white/15">
             <div className="flex items-center justify-center w-[52px] h-[52px] bg-[#EDF4E5] rounded-xl border border-[#31372B]/10 shadow">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-[#31372B]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeWidth="1.6" d="M17 20v-2a4 4 0 00-3-3.87M9 9a4 4 0 110-8 4 4 0 010 8zm-6 11v-2a4 4 0 013-3.87" />
-              </svg>
+              <img src="/UsersIcon.svg" alt="Users" className="w-6 h-6" />
             </div>
             <div className="mt-4">
-              <h3 className="text-[48px] font-bold leading-none">5,000+</h3>
-              <p className="font-semibold text-[16px] mt-2">Verified Investors</p>
-              <p className="text-[14px] text-white/70">Worldwide</p>
+              <h3 className="text-[48px] font-bold leading-none font-funnel-display">5,000+</h3>
+              <p className="font-semibold text-[16px] mt-2 font-[Arial]">Verified Investors</p>
+              <p className="text-[14px] text-white/70 font-[Arial]">Worldwide</p>
             </div>
           </div>
 
-          {/* Card 2 */}
+          {/* Card 2 - Verified Emails */}
           <div className="relative bg-white/10 border border-white/20 backdrop-blur-sm shadow-xl rounded-2xl p-8 flex flex-col justify-between w-[360px] sm:w-[500px] h-[220px] transition-transform hover:-translate-y-1 hover:bg-white/15">
             <div className="flex items-center justify-center w-[52px] h-[52px] bg-[#EDF4E5] rounded-xl border border-[#31372B]/10 shadow">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-[#31372B]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <rect x="3" y="5" width="18" height="14" rx="2" />
-                <path d="M3 7l9 6 9-6" />
-              </svg>
+              <img src="/MailIcon.svg" alt="Mail" className="w-6 h-6" />
             </div>
             <div className="mt-4">
-              <h3 className="text-[48px] font-bold leading-none">4,850</h3>
-              <p className="font-semibold text-[16px] mt-2">Verified Emails</p>
-              <p className="text-[14px] text-white/70">Direct contacts</p>
+              <h3 className="text-[48px] font-bold leading-none font-funnel-display">4,850</h3>
+              <p className="font-semibold text-[16px] mt-2 font-[Arial]">Verified Emails</p>
+              <p className="text-[14px] text-white/70 font-[Arial]">Direct contacts</p>
             </div>
           </div>
 
-          {/* Card 3 */}
+          {/* Card 3 - Global Locations */}
           <div className="relative bg-white/10 border border-white/20 backdrop-blur-sm shadow-xl rounded-2xl p-8 flex flex-col justify-between w-[360px] sm:w-[500px] h-[220px] transition-transform hover:-translate-y-1 hover:bg-white/15">
             <div className="flex items-center justify-center w-[52px] h-[52px] bg-[#EDF4E5] rounded-xl border border-[#31372B]/10 shadow">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-[#31372B]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeWidth="1.6" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
-                <circle cx="12" cy="9" r="2.5" />
-              </svg>
+              <img src="/MapPinIcon.svg" alt="Map" className="w-6 h-6" />
             </div>
             <div className="mt-4">
-              <h3 className="text-[48px] font-bold leading-none">120+</h3>
-              <p className="font-semibold text-[16px] mt-2">Global Locations</p>
-              <p className="text-[14px] text-white/70">Cities covered</p>
+              <h3 className="text-[48px] font-bold leading-none font-funnel-display">120+</h3>
+              <p className="font-semibold text-[16px] mt-2 font-[Arial]">Global Locations</p>
+              <p className="text-[14px] text-white/70 font-[Arial]">Cities covered</p>
             </div>
           </div>
 
-          {/* Card 4 */}
+          {/* Card 4 - Investment Fields */}
           <div className="relative bg-white/10 border border-white/20 backdrop-blur-sm shadow-xl rounded-2xl p-8 flex flex-col justify-between w-[360px] sm:w-[500px] h-[220px] transition-transform hover:-translate-y-1 hover:bg-white/15">
             <div className="flex items-center justify-center w-[52px] h-[52px] bg-[#EDF4E5] rounded-xl border border-[#31372B]/10 shadow">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-[#31372B]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <rect x="2" y="7" width="20" height="14" rx="2" />
-                <path d="M16 3h2a2 2 0 012 2v2H4V5a2 2 0 012-2h2" />
-              </svg>
+              <img src="/BriefCaseIcon.svg" alt="Briefcase" className="w-6 h-6" />
             </div>
             <div className="mt-4">
-              <h3 className="text-[48px] font-bold leading-none">25+</h3>
-              <p className="font-semibold text-[16px] mt-2">Investment Fields</p>
-              <p className="text-[14px] text-white/70">Industries</p>
+              <h3 className="text-[48px] font-bold leading-none font-funnel-display">25+</h3>
+              <p className="font-semibold text-[16px] mt-2 font-[Arial]">Investment Fields</p>
+              <p className="text-[14px] text-white/70 font-[Arial]">Industries</p>
             </div>
           </div>
         </div>
@@ -646,22 +700,22 @@ export default function Home() {
       {/* Pricing Section */}
       <section className="relative bg-[#F5F5F5] py-28 text-[#31372B] overflow-hidden">
         <div className="text-center mb-20">
-          <h2 className="text-[46px] font-bold leading-[68px] tracking-[-0.5px]">Simple, Transparent Pricing</h2>
-          <p className="text-[18px] text-[#717182] mt-2">
+          <h2 className="text-[46px] font-bold leading-[68px] tracking-[-0.5px] font-funnel-display">Simple, Transparent Pricing</h2>
+          <p className="text-[18px] text-[#717182] mt-2 font-[Arial]">
             Choose the plan that fits your fundraising needs
           </p>
         </div>
 
         {/* Pricing Grid */}
-        <div className="max-w-[1300px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-4">
+        <div className="max-w-[1300px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-4 items-stretch">
           {/* Starter */}
-          <div className="bg-white border border-[#D8D8D8]/60 rounded-[20px] p-10 text-center shadow-[0_10px_15px_-5px_rgba(0,0,0,0.05)] hover:-translate-y-2 transition-transform duration-300 flex flex-col h-full">
-            <h3 className="text-[20px] font-bold mb-3">Starter</h3>
-            <h4 className="text-[48px] font-bold mb-1">Free</h4>
-            <p className="text-[16px] text-[#717182] mb-6 leading-[24px]">
+          <div className="bg-white border border-[#D8D8D8]/60 rounded-[20px] p-8 text-left shadow-[0_10px_15px_-5px_rgba(0,0,0,0.05)] hover:-translate-y-2 transition-transform duration-300 flex flex-col">
+            <h3 className="text-[18px] font-bold mb-2 font-[Arial]">Starter</h3>
+            <h4 className="text-[44px] font-bold mb-1 font-funnel-display">Free</h4>
+            <p className="text-[14px] text-[#717182] mb-5 leading-[22px] font-[Arial] min-h-[44px]">
               Get started with basics<br />Perfect for exploring our investor database
             </p>
-            <ul className="text-left text-[16px] text-[#31372B]/90 mb-10 space-y-2 flex-1">
+            <ul className="text-left text-[15px] text-[#31372B]/90 mb-8 space-y-2 flex-1 font-[Arial]">
               {[
                 "Access to 100 investors",
                 "Basic search filters",
@@ -670,30 +724,32 @@ export default function Home() {
                 "Email support",
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" strokeWidth="2.5" stroke="#C6FF55" fill="none">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
+                  <div className="w-[22px] h-[22px] bg-[#EDF4E5] rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" strokeWidth="3" stroke="#31372B" fill="none" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                      <path d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
                   {item}
                 </li>
               ))}
             </ul>
-            <button onClick={handleGoogleLogin} className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-black hover:text-white transition-colors cursor-pointer">
+            <button onClick={handleGoogleLogin} className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-black hover:text-white transition-colors cursor-pointer font-[Arial] mt-auto">
               Get Started
             </button>
           </div>
 
           {/* Professional */}
-          <div className="relative bg-white border border-[#31372B]/20 rounded-[20px] p-10 text-center shadow-[0_10px_15px_-5px_rgba(0,0,0,0.1)] hover:-translate-y-2 transition-transform duration-300 flex flex-col h-full">
+          <div className="relative bg-white border-2 border-black rounded-[20px] p-8 text-left shadow-[0_10px_15px_-5px_rgba(0,0,0,0.1)] hover:-translate-y-2 transition-transform duration-300 flex flex-col">
             {/* Tag */}
             <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#C6FF55] text-[#31372B] text-xs font-bold px-5 py-1.5 rounded-full border border-[#31372B]/20 shadow-md">
               MOST POPULAR
             </div>
-            <h3 className="text-[20px] font-bold mb-3">Professional</h3>
-            <div className="flex justify-center items-end gap-1 mb-1">
-              <h4 className="text-[48px] font-bold leading-[1]">$15</h4>
+            <h3 className="text-[18px] font-bold mb-2 font-[Arial]">Professional</h3>
+            <div className="flex justify-start items-end gap-1 mb-1">
+              <h4 className="text-[44px] font-bold leading-[1] font-funnel-display">$15</h4>
             </div>
-            <p className="text-[16px] text-[#717182] mb-6">60 credits<br />Unlock verified investor contacts</p>
-            <ul className="text-left text-[16px] text-[#31372B]/90 mb-10 space-y-2 flex-1">
+            <p className="text-[14px] text-[#717182] mb-5 font-[Arial] min-h-[44px]">60 credits<br />Unlock verified investor contacts</p>
+            <ul className="text-left text-[15px] text-[#31372B]/90 mb-8 space-y-2 flex-1 font-[Arial]">
               {[
                 "Everything in Starter",
                 "60 investor contact unlocks",
@@ -703,26 +759,28 @@ export default function Home() {
                 "Priority email support",
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" strokeWidth="2.5" stroke="#C6FF55" fill="none">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
+                  <div className="w-[22px] h-[22px] bg-[#EDF4E5] rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" strokeWidth="3" stroke="#31372B" fill="none" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                      <path d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
                   {item}
                 </li>
               ))}
             </ul>
-            <button onClick={handleGoogleLogin} className="w-full bg-[#C6FF55] text-[#31372B] font-bold rounded-[10px] py-3 hover:brightness-110 transition-all cursor-pointer">
+            <button onClick={handleGoogleLogin} className="w-full bg-[#C6FF55] text-[#31372B] font-bold rounded-[10px] py-3 hover:brightness-110 transition-all cursor-pointer font-[Arial] mt-auto">
               Get Started
             </button>
           </div>
 
           {/* Growth */}
-          <div className="bg-white border border-[#D8D8D8]/60 rounded-[20px] p-10 text-center shadow-[0_10px_15px_-5px_rgba(0,0,0,0.05)] hover:-translate-y-2 transition-transform duration-300 flex flex-col h-full">
-            <h3 className="text-[20px] font-bold mb-3">Growth</h3>
-            <div className="flex justify-center items-end gap-1 mb-1">
-              <h4 className="text-[48px] font-bold leading-[1]">$49</h4>
+          <div className="bg-white border border-[#D8D8D8]/60 rounded-[20px] p-8 text-left shadow-[0_10px_15px_-5px_rgba(0,0,0,0.05)] hover:-translate-y-2 transition-transform duration-300 flex flex-col">
+            <h3 className="text-[18px] font-bold mb-2 font-[Arial]">Growth</h3>
+            <div className="flex justify-start items-end gap-1 mb-1">
+              <h4 className="text-[44px] font-bold leading-[1] font-funnel-display">$49</h4>
             </div>
-            <p className="text-[16px] text-[#717182] mb-6">300 credits<br />Scale your fundraising outreach</p>
-            <ul className="text-left text-[16px] text-[#31372B]/90 mb-10 space-y-2 flex-1">
+            <p className="text-[14px] text-[#717182] mb-5 font-[Arial] min-h-[44px]">300 credits<br />Scale your fundraising outreach</p>
+            <ul className="text-left text-[15px] text-[#31372B]/90 mb-8 space-y-2 flex-1 font-[Arial]">
               {[
                 "Everything in Professional",
                 "300 investor contact unlocks",
@@ -733,28 +791,30 @@ export default function Home() {
                 "API access",
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" strokeWidth="2.5" stroke="#C6FF55" fill="none">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
+                  <div className="w-[22px] h-[22px] bg-[#EDF4E5] rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" strokeWidth="3" stroke="#31372B" fill="none" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                      <path d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
                   {item}
                 </li>
               ))}
             </ul>
-            <button onClick={handleGoogleLogin} className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-black hover:text-white transition-colors cursor-pointer">
+            <button onClick={handleGoogleLogin} className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-black hover:text-white transition-colors cursor-pointer font-[Arial] mt-auto">
               Get Started
             </button>
           </div>
 
           {/* Enterprise */}
-          <div className="bg-white border border-[#D8D8D8]/60 rounded-[20px] p-10 text-center shadow-[0_10px_15px_-5px_rgba(0,0,0,0.05)] hover:-translate-y-2 transition-transform duration-300 flex flex-col h-full">
-            <h3 className="text-[20px] font-bold mb-3">Enterprise</h3>
-            <div className="flex justify-center items-end gap-1 mb-1">
-              <h4 className="text-[48px] font-bold leading-[1]">$999</h4>
+          <div className="bg-white border border-[#D8D8D8]/60 rounded-[20px] p-8 text-left shadow-[0_10px_15px_-5px_rgba(0,0,0,0.05)] hover:-translate-y-2 transition-transform duration-300 flex flex-col">
+            <h3 className="text-[18px] font-bold mb-2 font-[Arial]">Enterprise</h3>
+            <div className="flex justify-start items-end gap-1 mb-1">
+              <h4 className="text-[44px] font-bold leading-[1] font-funnel-display">$999</h4>
             </div>
-            <p className="text-[16px] text-[#717182] mb-6 leading-[24px]">
+            <p className="text-[14px] text-[#717182] mb-5 leading-[22px] font-[Arial] min-h-[44px]">
               Unlimited credits<br />For serious fundraisers
             </p>
-            <ul className="text-left text-[16px] text-[#31372B]/90 mb-10 space-y-2 flex-1">
+            <ul className="text-left text-[15px] text-[#31372B]/90 mb-8 space-y-2 flex-1 font-[Arial]">
               {[
                 "Everything in Growth",
                 "Unlimited contact unlocks",
@@ -765,14 +825,16 @@ export default function Home() {
                 "Custom contract terms",
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" strokeWidth="2.5" stroke="#C6FF55" fill="none">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
+                  <div className="w-[22px] h-[22px] bg-[#EDF4E5] rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" strokeWidth="3" stroke="#31372B" fill="none" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                      <path d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
                   {item}
                 </li>
               ))}
             </ul>
-            <button onClick={handleGoogleLogin} className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-black hover:text-white transition-colors cursor-pointer">
+            <button onClick={handleGoogleLogin} className="w-full bg-[#EDF4E5] text-[#31372B] font-bold rounded-[10px] py-3 hover:bg-black hover:text-white transition-colors cursor-pointer font-[Arial] mt-auto">
               Get Started
             </button>
           </div>
@@ -808,15 +870,15 @@ export default function Home() {
         {/* Headings */}
         <div className="text-center w-full mt-4 md:mt-[2vw]">
           <h2
-            className="font-bold text-[#31372B] text-3xl md:text-[2.89vw] leading-tight md:leading-[4.35vw]"
+            className="font-bold text-[#31372B] text-3xl md:text-[2.89vw] leading-tight md:leading-[4.35vw] font-funnel-display"
           >
             Trusted by Indian Founders
           </h2>
           <p
-            className="text-[#717182] text-base md:text-[1.18vw] leading-relaxed md:leading-[1.9vw] mt-2 md:mt-[0.7vw]"
+            className="text-[#717182] text-base md:text-[1.18vw] leading-relaxed md:leading-[1.9vw] mt-2 md:mt-[0.7vw] font-[Arial]"
           >
             See how founders are accelerating their fundraising journey with
-            <span className="font-semibold text-[#31372B]"> MyFundingList</span>
+            <span className="font-semibold text-[#31372B] font-[Arial]"> MyFundingList</span>
           </p>
         </div>
 
@@ -826,7 +888,7 @@ export default function Home() {
         >
           {/* Left Large Card */}
           <div
-            className="flex flex-col justify-between bg-white border border-[#31372B]/10 shadow-md rounded-2xl md:rounded-[1.58vw] p-6 md:p-[2.7vw] md:row-span-2"
+            className="flex flex-col justify-between bg-white border border-[#31372B]/10 shadow-md rounded-2xl md:rounded-[1.58vw] p-6 md:p-[2.7vw] md:row-span-2 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:border-[#31372B]/30"
           >
             <div
               className="w-10 h-8 md:w-[2.63vw] md:h-[2.1vw] bg-gradient-to-r from-[rgba(198,255,85,0.3)] to-[rgba(198,255,85,0.3)] mb-4 md:mb-[1.6vw]"
@@ -857,7 +919,7 @@ export default function Home() {
           </div>
 
           {/* Right Top */}
-          <div className="bg-white border border-[#31372B]/10 shadow-md rounded-2xl md:rounded-[1.58vw] p-6 md:p-[2.7vw] flex flex-col justify-between">
+          <div className="bg-white border border-[#31372B]/10 shadow-md rounded-2xl md:rounded-[1.58vw] p-6 md:p-[2.7vw] flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:border-[#31372B]/30">
             <h3
               className="font-bold text-[#31372B] text-lg md:text-[1.58vw] leading-snug md:leading-[2vw]"
             >
@@ -886,7 +948,7 @@ export default function Home() {
           </div>
 
           {/* Right Middle (Green) */}
-          <div className="bg-[#EDF4E5] border border-[#31372B]/10 shadow-md rounded-2xl md:rounded-[1.58vw] p-6 md:p-[2.7vw]">
+          <div className="bg-[#EDF4E5] border border-[#31372B]/10 shadow-md rounded-2xl md:rounded-[1.58vw] p-6 md:p-[2.7vw] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_8px_30px_rgba(0,0,0,0.10)] hover:border-[#31372B]/30">
             <h3
               className="font-bold text-[#31372B] text-base md:text-[1.32vw] leading-snug md:leading-[2vw]"
             >
@@ -905,7 +967,7 @@ export default function Home() {
           className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-[1.1vw] w-full mt-0 md:mt-[-3vw]"
         >
           {/* Bottom Left */}
-          <div className="bg-white border border-[#31372B]/10 shadow-md rounded-2xl md:rounded-[1.58vw] p-6 md:p-[2.7vw] flex flex-col justify-between">
+          <div className="bg-white border border-[#31372B]/10 shadow-md rounded-2xl md:rounded-[1.58vw] p-6 md:p-[2.7vw] flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:border-[#31372B]/30">
             <p
               className="text-[#31372B] text-base md:text-[1.1vw] leading-relaxed md:leading-[1.8vw]"
             >
@@ -932,7 +994,7 @@ export default function Home() {
           </div>
 
           {/* Bottom Middle */}
-          <div className="bg-white border border-[#31372B]/10 shadow-md rounded-2xl md:rounded-[1.58vw] p-6 md:p-[2.7vw] flex flex-col justify-between">
+          <div className="bg-white border border-[#31372B]/10 shadow-md rounded-2xl md:rounded-[1.58vw] p-6 md:p-[2.7vw] flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:border-[#31372B]/30">
             <p
               className="font-bold text-[#31372B] text-base md:text-[1.18vw] leading-relaxed md:leading-[1.8vw]"
             >
@@ -958,7 +1020,7 @@ export default function Home() {
           </div>
 
           {/* Bottom Right */}
-          <div className="bg-white border border-[#31372B]/10 shadow-md rounded-2xl md:rounded-[1.58vw] p-6 md:p-[2.7vw] flex flex-col justify-between">
+          <div className="bg-white border border-[#31372B]/10 shadow-md rounded-2xl md:rounded-[1.58vw] p-6 md:p-[2.7vw] flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:border-[#31372B]/30">
             <h3
               className="font-bold text-[#31372B] text-lg md:text-[1.58vw] leading-snug md:leading-[2vw]"
             >
@@ -1004,7 +1066,7 @@ export default function Home() {
       >
         {/* Title */}
         <h2
-          className="font-bold text-[#31372B] text-3xl md:text-[2.4vw] mb-4 md:mb-[1vw]"
+          className="font-bold text-[#31372B] text-3xl md:text-[2.4vw] mb-4 md:mb-[1vw] font-funnel-display"
         >
           FAQs
         </h2>
@@ -1102,16 +1164,16 @@ export default function Home() {
 
         <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-4xl md:w-[59vw] text-center">
           <h2
-            className="font-bold text-white text-3xl md:text-[3.68vw] leading-tight md:leading-[4.06vw] mb-6 md:mb-[2vw]"
+            className="font-bold text-white text-3xl md:text-[3.68vw] leading-tight md:leading-[4.06vw] mb-6 md:mb-[2vw] font-funnel-display"
           >
             Ready to accelerate your fundraising?
           </h2>
 
           <p
-            className="text-white/80 text-base md:text-[1.32vw] leading-relaxed md:leading-[2.08vw] mb-8 md:mb-[3vw] max-w-2xl md:max-w-[44vw]"
+            className="text-white/80 text-base md:text-[1.32vw] leading-relaxed md:leading-[2.08vw] mb-8 md:mb-[3vw] max-w-2xl md:max-w-[44vw] font-[Arial]"
           >
             Join hundreds of founders who&apos;ve successfully raised funding <br className="hidden md:block" />
-            with <span className="font-semibold text-white">MyFundingList</span>
+            with <span className="font-semibold text-white font-[Arial]">MyFundingList</span>
           </p>
 
           <button
