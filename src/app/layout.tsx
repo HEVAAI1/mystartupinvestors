@@ -25,22 +25,25 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://myfundinglist.com"),
 
   title: {
-    default: "MyFundingList",
-    template: "%s – MyFundingList",
+    default: "Home | MyFundingList",
+    template: "%s | MyFundingList",
   },
 
   description:
-    "MyFundingList is a startup funding platform providing access to a curated database of verified investors.",
+    "Connect with 5,000+ verified investors. MyFundingList is the fastest way for founders to find, filter, and reach the right investors across sectors and geographies.",
 
   openGraph: {
     siteName: "MyFundingList",
     type: "website",
+    description: "Connect with 5,000+ verified investors. Find, filter, and reach the right investors for your startup.",
   },
 
   twitter: {
     card: "summary_large_image",
+    description: "Connect with 5,000+ verified investors on MyFundingList.",
   },
 };
+
 
 export default function RootLayout({
   children,

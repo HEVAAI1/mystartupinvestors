@@ -1,6 +1,7 @@
 import AuthenticatedNavbar from "@/components/Navbar";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import CreditsProvider from "@/context/CreditsContext";
+import { CalculationCreditsProvider } from "@/context/CalculationCreditsContext";
 import { redirect } from "next/navigation";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -61,8 +62,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <>
       <CreditsProvider value={{ credits, allocated, used, userId: user?.id || null }}>
-        <AuthenticatedNavbar />
-        {children}
+        <CalculationCreditsProvider>
+          <AuthenticatedNavbar />
+          {children}
+        </CalculationCreditsProvider>
       </CreditsProvider>
     </>
   );

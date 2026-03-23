@@ -1,12 +1,17 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, Building2, Database, LogOut, Download } from "lucide-react";
+import { LayoutDashboard, Users, Building2, Database, LogOut, Download, Menu, X } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 import * as XLSX from "xlsx";
 import { useState } from "react";
 
-export default function AdminSidebar() {
+interface AdminSidebarProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
+
+export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
     const pathname = usePathname();
     const router = useRouter();
     const [exporting, setExporting] = useState(false);
@@ -105,68 +110,95 @@ export default function AdminSidebar() {
         },
     ];
 
+    const handleNavigation = (path: string) => {
+        router.push(path);
+        onClose(); // Close sidebar on mobile after navigation
+    };
+
     return (
-        <div className="w-64 bg-white border-r border-[#31372B1F] flex flex-col">
-            {/* Header */}
-            <div className="p-6 border-b border-[#31372B1F]">
-                <h1 className="text-[20px] font-bold text-[#31372B]">Admin Panel</h1>
-                <p className="text-[12px] text-[#717182] mt-1">MyFundingList</p>
-            </div>
+        <>
+            {/* Mobile Overlay */}
+            {isOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+                    onClick={onClose}
+                ></div>
+            )}
 
-            {/* Navigation */}
-            <nav className="flex-1 p-4">
-                {menuItems.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = pathname === item.path;
-
-                    return (
-                        <button
-                            key={item.path}
-                            onClick={() => router.push(item.path)}
-                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition ${isActive
-                                ? "bg-[#31372B] text-white"
-                                : "text-[#31372B] hover:bg-[#F5F5F5]"
-                                }`}
-                        >
-                            <Icon size={20} />
-                            <span className="text-[14px] font-medium">{item.name}</span>
-                        </button>
-                    );
-                })}
-
-                {/* Export Data Button */}
-                <div className="mt-6 pt-6 border-t border-[#31372B1F]">
+            {/* Sidebar */}
+            <div className={`
+                w-64 bg-white border-r border-[#31372B1F] flex flex-col h-screen overflow-y-auto
+                fixed left-0 top-0 z-50 transition-transform duration-300
+                ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            `}>
+                {/* Header */}
+                <div className="p-6 border-b border-[#31372B1F] flex-shrink-0 flex justify-between items-center">
+                    <div>
+                        <h1 className="text-[20px] font-bold text-[#31372B]">Admin Panel</h1>
+                        <p className="text-[12px] text-[#717182] mt-1">MyFundingList</p>
+                    </div>
+                    {/* Close button for mobile */}
                     <button
-                        onClick={handleExportData}
-                        disabled={exporting}
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-green-600 text-white hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={onClose}
+                        className="lg:hidden p-2 hover:bg-[#F5F5F5] rounded-md transition"
                     >
-                        <Download size={20} />
-                        <span className="text-[14px] font-medium">
-                            {exporting ? "Exporting..." : "Export All Data"}
-                        </span>
+                        <X size={20} />
                     </button>
                 </div>
-            </nav>
 
-            {/* Logout */}
-            <div className="p-4 border-t border-[#31372B1F]">
-                <button
-                    onClick={handleLogout}
-                    disabled={loggingOut}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    {loggingOut ? (
-                        <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                    ) : (
-                        <LogOut size={20} />
-                    )}
-                    <span className="text-[14px] font-medium">{loggingOut ? "Logging out..." : "Logout"}</span>
-                </button>
+                {/* Navigation */}
+                <nav className="flex-1 p-4 overflow-y-auto">
+                    {menuItems.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = pathname === item.path;
+
+                        return (
+                            <button
+                                key={item.path}
+                                onClick={() => handleNavigation(item.path)}
+                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition ${isActive
+                                    ? "bg-[#31372B] text-white"
+                                    : "text-[#31372B] hover:bg-[#F5F5F5]"
+                                    }`}
+                            >
+                                <Icon size={20} />
+                                <span className="text-[14px] font-medium">{item.name}</span>
+                            </button>
+                        );
+                    })}
+
+                    {/* Export Data Button */}
+                    <div className="mt-6 pt-6 border-t border-[#31372B1F]">
+                        <button
+                            onClick={handleExportData}
+                            disabled={exporting}
+                            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-green-600 text-white hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed mb-2"
+                        >
+                            <Download size={20} />
+                            <span className="text-[14px] font-medium">
+                                {exporting ? "Exporting..." : "Export All Data"}
+                            </span>
+                        </button>
+
+                        {/* Logout Button */}
+                        <button
+                            onClick={handleLogout}
+                            disabled={loggingOut}
+                            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {loggingOut ? (
+                                <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            ) : (
+                                <LogOut size={20} />
+                            )}
+                            <span className="text-[14px] font-medium">{loggingOut ? "Logging out..." : "Logout"}</span>
+                        </button>
+                    </div>
+                </nav>
             </div>
-        </div>
+        </>
     );
 }

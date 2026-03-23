@@ -21,6 +21,7 @@ export default function AddInvestorModal({ open, onClose, onSuccess }: AddInvest
         country: "",
         preference_sector: "",
         about: "",
+        type: "",
     });
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
@@ -56,6 +57,7 @@ export default function AddInvestorModal({ open, onClose, onSuccess }: AddInvest
                 country: "",
                 preference_sector: "",
                 about: "",
+                type: "",
             });
 
             onSuccess();
@@ -138,6 +140,20 @@ export default function AddInvestorModal({ open, onClose, onSuccess }: AddInvest
                                             onChange={handleChange}
                                             className="w-full px-4 py-2 border border-[#31372B1F] rounded-md outline-none focus:ring-2 focus:ring-[#31372B] text-[14px]"
                                             placeholder="Acme Ventures"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-[14px] font-semibold text-[#31372B] mb-2">
+                                            Type
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="type"
+                                            value={formData.type}
+                                            onChange={handleChange}
+                                            className="w-full px-4 py-2 border border-[#31372B1F] rounded-md outline-none focus:ring-2 focus:ring-[#31372B] text-[14px]"
+                                            placeholder="Angel Investor, VC Firm, etc."
                                         />
                                     </div>
 

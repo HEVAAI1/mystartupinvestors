@@ -21,6 +21,7 @@ interface InvestorRow {
     country?: string;
     preference_sector?: string;
     about?: string;
+    type?: string;
 }
 
 export default function AddInvestorExcelModal({ open, onClose, onSuccess }: AddInvestorExcelModalProps) {
@@ -34,6 +35,7 @@ export default function AddInvestorExcelModal({ open, onClose, onSuccess }: AddI
             {
                 name: "John Doe",
                 firm_name: "Acme Ventures",
+                type: "VC Firm",
                 email: "john@example.com",
                 linkedin: "https://linkedin.com/in/johndoe",
                 city: "San Francisco",
@@ -48,7 +50,7 @@ export default function AddInvestorExcelModal({ open, onClose, onSuccess }: AddI
         XLSX.utils.book_append_sheet(workbook, worksheet, "Investors");
 
         worksheet['!cols'] = [
-            { wch: 20 }, { wch: 25 }, { wch: 30 }, { wch: 40 },
+            { wch: 20 }, { wch: 25 }, { wch: 20 }, { wch: 30 }, { wch: 40 },
             { wch: 20 }, { wch: 20 }, { wch: 30 }, { wch: 50 },
         ];
 
@@ -87,6 +89,7 @@ export default function AddInvestorExcelModal({ open, onClose, onSuccess }: AddI
             const investors = jsonData.map((row: InvestorRow) => ({
                 name: row.name || "",
                 firm_name: row.firm_name || "",
+                type: row.type || "",
                 email: row.email || "",
                 linkedin: row.linkedin || "",
                 city: row.city || "",
@@ -178,6 +181,7 @@ export default function AddInvestorExcelModal({ open, onClose, onSuccess }: AddI
                                                 <tr className="bg-gray-200">
                                                     <th className="border border-gray-300 px-2 py-1 text-left">name</th>
                                                     <th className="border border-gray-300 px-2 py-1 text-left">firm_name</th>
+                                                    <th className="border border-gray-300 px-2 py-1 text-left">type</th>
                                                     <th className="border border-gray-300 px-2 py-1 text-left">email</th>
                                                     <th className="border border-gray-300 px-2 py-1 text-left">city</th>
                                                     <th className="border border-gray-300 px-2 py-1 text-left">country</th>
@@ -187,6 +191,7 @@ export default function AddInvestorExcelModal({ open, onClose, onSuccess }: AddI
                                                 <tr>
                                                     <td className="border border-gray-300 px-2 py-1 text-[#717182]">John Doe</td>
                                                     <td className="border border-gray-300 px-2 py-1 text-[#717182]">Acme Ventures</td>
+                                                    <td className="border border-gray-300 px-2 py-1 text-[#717182]">VC Firm</td>
                                                     <td className="border border-gray-300 px-2 py-1 text-[#717182]">john@example.com</td>
                                                     <td className="border border-gray-300 px-2 py-1 text-[#717182]">San Francisco</td>
                                                     <td className="border border-gray-300 px-2 py-1 text-[#717182]">United States</td>

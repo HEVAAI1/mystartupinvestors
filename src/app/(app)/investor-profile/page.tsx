@@ -99,7 +99,7 @@ const InvestorProfilePage = () => {
     return (
         <div className="min-h-screen bg-[#FAF7EE] font-[Arial] text-[#31372B]">
             {/* Breadcrumb */}
-            <div className="max-w-[1200px] mx-auto pt-[92px] px-6">
+            <div className="max-w-[1200px] mx-auto pt-[92px] px-4 sm:px-6">
                 <div className="flex items-center gap-2 text-sm text-[#717182] mb-6">
                     <Link href="/dashboard" className="hover:text-[#31372B]">
                         Investor database
@@ -109,9 +109,9 @@ const InvestorProfilePage = () => {
                 </div>
 
                 {/* Main Content */}
-                <div className="bg-white border border-[#31372B1F] rounded-2xl p-8 shadow-sm">
+                <div className="bg-white border border-[#31372B1F] rounded-2xl p-4 sm:p-8 shadow-sm">
                     {/* Header Section */}
-                    <div className="flex items-start gap-6 mb-6">
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-6">
                         {/* Avatar */}
                         <div className="flex justify-center items-center w-16 h-16 bg-[#F5F5F5] rounded-full font-bold text-2xl flex-shrink-0">
                             {investor.name.charAt(0).toUpperCase()}
@@ -142,24 +142,7 @@ const InvestorProfilePage = () => {
                             </div>
 
                             {/* About */}
-                            <div className="flex items-start gap-2 mb-3">
-                                <svg
-                                    className="w-5 h-5 text-[#717182] mt-0.5 flex-shrink-0"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                                    />
-                                </svg>
-                                <p className="text-[15px] text-[#31372B] leading-relaxed">
-                                    {investor.about}
-                                </p>
-                            </div>
+
 
                             {/* Location */}
                             <div className="flex items-center gap-2 text-[#717182]">
@@ -188,10 +171,10 @@ const InvestorProfilePage = () => {
                     </div>
 
                     {/* Contact Buttons */}
-                    <div className="flex gap-3 mb-8">
+                    <div className="flex flex-col sm:flex-row gap-3 mb-8">
                         <a
                             href={`mailto:${investor.email}`}
-                            className="flex items-center gap-2 bg-white border border-[#31372B] text-[#31372B] rounded-md px-4 py-2 text-sm font-medium hover:bg-[#31372B] hover:text-[#FAF7EE] transition-colors"
+                            className="flex w-full sm:w-auto justify-center sm:justify-start items-center gap-2 bg-white border border-[#31372B] text-[#31372B] rounded-md px-4 py-2 text-sm font-medium hover:bg-[#31372B] hover:text-[#FAF7EE] transition-colors"
                         >
                             <svg
                                 className="w-4 h-4"
@@ -206,14 +189,14 @@ const InvestorProfilePage = () => {
                                     d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                                 />
                             </svg>
-                            {investor.email}
+                            <span className="truncate">{investor.email}</span>
                         </a>
 
                         <a
                             href={investor.linkedin}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 bg-[#31372B] text-[#FAF7EE] rounded-md px-4 py-2 text-sm font-medium hover:opacity-90"
+                            className="flex w-full sm:w-auto justify-center sm:justify-start items-center gap-2 bg-[#31372B] text-[#FAF7EE] rounded-md px-4 py-2 text-sm font-medium hover:opacity-90"
                         >
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />

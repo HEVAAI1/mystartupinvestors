@@ -3,7 +3,7 @@ import Image from "next/image";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-    title: "Privacy Policy – MyFundingList",
+    title: "Privacy Policy",
     description: "Privacy Policy for MyFundingList - Learn how we collect, use, and protect your personal data.",
 };
 

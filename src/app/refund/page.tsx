@@ -3,7 +3,7 @@ import Image from "next/image";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-    title: "Refund Policy – MyFundingList",
+    title: "Refund Policy",
     description: "Refund Policy for MyFundingList - Learn about our refund terms and conditions for subscription payments.",
 };
 

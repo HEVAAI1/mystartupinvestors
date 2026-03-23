@@ -66,6 +66,16 @@ export default function InvestorDetailsModal({ investor, open, onClose }: Invest
                                             <p className="text-[14px] text-[#31372B] font-medium">{investor.firm_name || "N/A"}</p>
                                         </div>
                                         <div>
+                                            <p className="text-[12px] text-[#717182] mb-1">Type</p>
+                                            {investor.type ? (
+                                                <span className="bg-[#F5F5F5] border border-[#31372B1F] text-[#31372B] text-xs px-2 py-0.5 rounded-md whitespace-nowrap">
+                                                    {investor.type}
+                                                </span>
+                                            ) : (
+                                                <p className="text-[14px] text-[#31372B] font-medium">N/A</p>
+                                            )}
+                                        </div>
+                                        <div>
                                             <p className="text-[12px] text-[#717182] mb-1">Email</p>
                                             <p className="text-[14px] text-[#31372B] font-medium">{investor.email || "N/A"}</p>
                                         </div>

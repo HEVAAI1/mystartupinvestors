@@ -53,7 +53,7 @@ export default function AdminLoginPage() {
                     <form onSubmit={handleLogin}>
                         <div className="mb-4">
                             <label className="block text-[14px] font-semibold text-[#31372B] mb-2">
-                                Username
+                                Email
                             </label>
                             <input
                                 type="text"

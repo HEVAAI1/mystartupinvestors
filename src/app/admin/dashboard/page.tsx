@@ -353,13 +353,13 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-start mb-8">
+    <div className="px-4 md:px-6 py-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-8">
         <div>
-          <h1 className="text-[32px] font-bold text-[#31372B] mb-2">
+          <h1 className="text-2xl md:text-[32px] font-bold text-[#31372B] mb-2">
             Data Dashboard
           </h1>
-          <p className="text-[16px] text-[#717182]">
+          <p className="text-sm md:text-[16px] text-[#717182]">
             Overview of platform statistics
           </p>
         </div>
@@ -542,17 +542,17 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Visualization Chart */}
-      <div className="mt-8 bg-white rounded-xl border border-[#31372B1F] p-6 shadow-sm">
-        <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
-          <h2 className="text-[20px] font-bold text-[#31372B]">
+      <div className="mt-8 bg-white rounded-xl border border-[#31372B1F] p-4 md:p-6 shadow-sm">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+          <h2 className="text-lg md:text-[20px] font-bold text-[#31372B]">
             Visualization
           </h2>
-          <div className="flex gap-3 flex-wrap">
+          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
             {/* Metric Selector */}
             <select
               value={selectedMetric}
               onChange={(e) => setSelectedMetric(e.target.value as MetricType)}
-              className="px-4 py-2 rounded-lg text-[14px] font-medium border border-[#31372B1F] bg-white hover:bg-[#F5F5F5] transition cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#31372B]"
+              className="w-full sm:w-auto px-4 py-2 rounded-lg text-[14px] font-medium border border-[#31372B1F] bg-white hover:bg-[#F5F5F5] transition cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#31372B]"
             >
               <option value="revenue">Revenue</option>
               <option value="creditsUsed">Credits Used</option>
@@ -561,12 +561,12 @@ export default function AdminDashboardPage() {
             </select>
 
             {/* Duration Selector */}
-            <div className="flex gap-2">
+            <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0">
               {(["1D", "7D", "28D", "90D", "1Y"] as DurationType[]).map((duration) => (
                 <button
                   key={duration}
                   onClick={() => setSelectedDuration(duration)}
-                  className={`px-4 py-2 rounded-lg text-[14px] font-medium transition ${selectedDuration === duration
+                  className={`px-3 md:px-4 py-2 rounded-lg text-[14px] font-medium transition whitespace-nowrap ${selectedDuration === duration
                     ? "bg-[#31372B] text-white"
                     : "border border-[#31372B1F] hover:bg-[#F5F5F5]"
                     }`}
