@@ -1,7 +1,7 @@
 // Hashnode GraphQL API utilities
 
 const HASHNODE_API_URL = "https://gql.hashnode.com";
-const PUBLICATION_HOST = "codewars.hashnode.dev"; // Remove https:// and trailing slash
+const PUBLICATION_HOST = "myfundinglist.hashnode.dev"; // Remove https:// and trailing slash
 
 export interface HashnodePost {
   id: string;
