@@ -76,7 +76,7 @@ export async function fetchHashnodePosts(): Promise<HashnodePost[]> {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ query }),
-      next: { revalidate: 3600 }, // Revalidate every hour
+      next: { revalidate: 60 }, // Revalidate every hour
     });
 
     console.log("📡 Response status:", response.status, response.statusText);
