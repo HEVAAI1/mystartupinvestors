@@ -234,7 +234,7 @@ export default function TermsOfService() {
                         <p>
                             <strong>MyFundingList</strong><br />
                             Website: <a href="https://myfundinglist.com">https://myfundinglist.com</a><br />
-                            Email: <a href="mailto:fazal@heva.ai">fazal@heva.ai</a>
+                            Email: <a href="mailto:hi@eaglegrowthpartners.com">hi@eaglegrowthpartners.com</a>
                         </p>
 
                         <div className="mt-8 p-6 bg-[#EDF4E5] border border-[#31372B1F] rounded-xl">

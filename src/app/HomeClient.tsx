@@ -59,7 +59,7 @@ export default function HomeClient() {
       >
         <div className="flex items-center gap-2">
           <Image
-            src="/Logo.png"
+            src="/Logo.svg"
             alt="Logo"
             width={100}
             height={40}

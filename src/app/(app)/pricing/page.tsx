@@ -15,27 +15,27 @@ export default function PricingPage() {
     {
       id: "professional",
       title: "Professional",
-      price: "$15",
+      price: "$19",
       credits: "60 Credits",
       description: "Unlock verified contacts",
       popular: true,
-      product_id: "pdt_UQVM7C1CCtMCSP1MFCx9m",
+      product_id: "pdt_0NbbbqCdfuGTpxX9KDNwm",
     },
     {
       id: "growth",
       title: "Growth",
-      price: "$49",
+      price: "$99",
       credits: "300 Credits",
       description: "Scale your outreach",
-      product_id: "pdt_cPLJVSbDTlp397NpGKoS4",
+      product_id: "pdt_0NbbbrHJcVDJqitCUkpjt",
     },
     {
       id: "enterprise",
       title: "Enterprise",
       price: "$999",
-      credits: "Unlimited",
+      credits: "4,000 Credits",
       description: "For serious fundraisers",
-      product_id: "pdt_vNXSWmxxgNRt1TzHQZDni",
+      product_id: "pdt_0NbbbqfeSmy9PD46q3jf3",
     },
   ];
 

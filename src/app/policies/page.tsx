@@ -132,8 +132,8 @@ export default function PoliciesPage() {
                 <div className="mt-10 p-6 bg-white border border-[#31372B1F] rounded-2xl shadow-sm">
                     <p className="text-sm text-[#717182] leading-relaxed">
                         Have questions about any of our policies? Reach out to us at{" "}
-                        <a href="mailto:fazal@heva.ai" className="text-[#31372B] font-semibold hover:underline">
-                            fazal@heva.ai
+                        <a href="mailto:hi@eaglegrowthpartners.com" className="text-[#31372B] font-semibold hover:underline">
+                            hi@eaglegrowthpartners.com
                         </a>{" "}
                         and we&apos;ll be happy to help.
                     </p>

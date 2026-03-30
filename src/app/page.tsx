@@ -61,7 +61,7 @@ export default function Home() {
       >
         <div className="flex items-center gap-2">
           <Image
-            src="/Logo.png"
+            src="/Logo.svg"
             alt="Logo"
             width={100}
             height={40}
@@ -162,7 +162,7 @@ export default function Home() {
 
         {/* Heading */}
         <h1 className="text-[40px] md:text-[48px] leading-tight font-bold text-[#000] tracking-[-1px] max-w-3xl font-funnel-display">
-          4000+ Investors&apos; Access to get <br className="hidden md:block" /> your startup funded
+          5000+ Investors&apos; Access to get <br className="hidden md:block" /> your startup funded
         </h1>
 
         {/* Subtext */}
@@ -182,14 +182,14 @@ export default function Home() {
         <div className="flex gap-16 md:gap-24 mt-10">
           {/* Stat 1 */}
           <div className="flex flex-col items-center">
-            <h3 className="text-[32px] md:text-[40px] font-bold text-black">4000+</h3>
+            <h3 className="text-[32px] md:text-[40px] font-bold text-black">5000+</h3>
             <p className="text-[#6B6B6B] text-sm md:text-base mt-1">Verified Investors</p>
           </div>
 
           {/* Stat 2 */}
           <div className="flex flex-col items-center">
-            <h3 className="text-[32px] md:text-[40px] font-bold text-black">$2.5B+</h3>
-            <p className="text-[#6B6B6B] text-sm md:text-base mt-1">Funding Raised</p>
+            <h3 className="text-[32px] md:text-[40px] font-bold text-black">$25Bn+</h3>
+            <p className="text-[#6B6B6B] text-sm md:text-base mt-1">Investable Capital</p>
           </div>
         </div>
 
@@ -713,15 +713,14 @@ export default function Home() {
             <h3 className="text-[18px] font-bold mb-2 font-[Arial]">Starter</h3>
             <h4 className="text-[44px] font-bold mb-1 font-funnel-display">Free</h4>
             <p className="text-[14px] text-[#717182] mb-5 leading-[22px] font-[Arial] min-h-[44px]">
-              Get started with basics<br />Perfect for exploring our investor database
+              Get started with basics<br />Explore our investor database
             </p>
             <ul className="text-left text-[15px] text-[#31372B]/90 mb-8 space-y-2 flex-1 font-[Arial]">
               {[
-                "Access to 100 investors",
+                "Access 5 investors per month",
                 "Basic search filters",
                 "View investor profiles",
-                "Limited to 5 searches/day",
-                "Email support",
+                "Basic Email Support",
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-2">
                   <div className="w-[22px] h-[22px] bg-[#EDF4E5] rounded-full flex items-center justify-center shrink-0 mt-0.5">
@@ -746,13 +745,14 @@ export default function Home() {
             </div>
             <h3 className="text-[18px] font-bold mb-2 font-[Arial]">Professional</h3>
             <div className="flex justify-start items-end gap-1 mb-1">
-              <h4 className="text-[44px] font-bold leading-[1] font-funnel-display">$15</h4>
+              <h4 className="text-[44px] font-bold leading-[1] font-funnel-display">$19</h4>
             </div>
             <p className="text-[14px] text-[#717182] mb-5 font-[Arial] min-h-[44px]">60 credits<br />Unlock verified investor contacts</p>
             <ul className="text-left text-[15px] text-[#31372B]/90 mb-8 space-y-2 flex-1 font-[Arial]">
               {[
                 "Everything in Starter",
                 "60 investor contact unlocks",
+                "60 startup tool credits",
                 "Verified email addresses",
                 "Advanced search filters",
                 "Export to CSV",
@@ -777,18 +777,17 @@ export default function Home() {
           <div className="bg-white border border-[#D8D8D8]/60 rounded-[20px] p-8 text-left shadow-[0_10px_15px_-5px_rgba(0,0,0,0.05)] hover:-translate-y-2 transition-transform duration-300 flex flex-col">
             <h3 className="text-[18px] font-bold mb-2 font-[Arial]">Growth</h3>
             <div className="flex justify-start items-end gap-1 mb-1">
-              <h4 className="text-[44px] font-bold leading-[1] font-funnel-display">$49</h4>
+              <h4 className="text-[44px] font-bold leading-[1] font-funnel-display">$99</h4>
             </div>
             <p className="text-[14px] text-[#717182] mb-5 font-[Arial] min-h-[44px]">300 credits<br />Scale your fundraising outreach</p>
             <ul className="text-left text-[15px] text-[#31372B]/90 mb-8 space-y-2 flex-1 font-[Arial]">
               {[
                 "Everything in Professional",
                 "300 investor contact unlocks",
+                "300 startup tool credits",
                 "Unlimited searches",
                 "Save investor lists",
-                "Track outreach activity",
-                "Dedicated account manager",
-                "API access",
+                "Dedicated Investment Banking service (add-on $499)",
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-2">
                   <div className="w-[22px] h-[22px] bg-[#EDF4E5] rounded-full flex items-center justify-center shrink-0 mt-0.5">
@@ -812,17 +811,15 @@ export default function Home() {
               <h4 className="text-[44px] font-bold leading-[1] font-funnel-display">$999</h4>
             </div>
             <p className="text-[14px] text-[#717182] mb-5 leading-[22px] font-[Arial] min-h-[44px]">
-              Unlimited credits<br />For serious fundraisers
+              4,000 credits<br />For serious fundraisers
             </p>
             <ul className="text-left text-[15px] text-[#31372B]/90 mb-8 space-y-2 flex-1 font-[Arial]">
               {[
                 "Everything in Growth",
-                "Unlimited contact unlocks",
-                "Multi-user accounts",
-                "Custom integrations",
-                "White-label options",
+                "4,000 investor contact unlocks",
+                "4,000 startup tool credits",
                 "Dedicated support team",
-                "Custom contract terms",
+                "Dedicated Investment Banking service (add-on $499)",
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-2">
                   <div className="w-[22px] h-[22px] bg-[#EDF4E5] rounded-full flex items-center justify-center shrink-0 mt-0.5">
@@ -896,23 +893,22 @@ export default function Home() {
             <p
               className="font-bold text-[#31372B] text-lg md:text-[1.58vw] leading-relaxed md:leading-[2.38vw]"
             >
-              MyFundingList connected us with 15 VCs in our first month. The verified
-              emails and direct contact info saved us months of cold outreach.
+              MyFundingList connected us with the right investors almost instantly. The verified contacts and detailed profiles made our outreach incredibly targeted and effective.
             </p>
             <div className="flex items-center gap-3 md:gap-[1.05vw] mt-4 md:mt-[1.3vw]">
               <div
                 className="flex items-center justify-center bg-[#31372B] text-[#FAF7EE] font-bold rounded-full w-12 h-12 md:w-[3.16vw] md:h-[3.16vw] text-sm md:text-[0.92vw]"
               >
-                PS
+                SD
               </div>
               <div>
                 <p
                   className="font-bold text-[#31372B] text-base md:text-[1.05vw]"
                 >
-                  Priya Sharma
+                  Soumyajit Dasgupta
                 </p>
                 <p className="text-[#717182] text-sm md:text-[0.92vw]">
-                  CEO, TechFlow
+                  Founder, Hexstar Universe
                 </p>
               </div>
             </div>
@@ -932,32 +928,41 @@ export default function Home() {
               <div
                 className="flex items-center justify-center bg-[#31372B] text-[#FAF7EE] font-bold rounded-full w-12 h-12 md:w-[3.16vw] md:h-[3.16vw] text-sm md:text-[0.92vw]"
               >
-                RV
+                DC
               </div>
               <div>
                 <p
                   className="font-bold text-[#31372B] text-base md:text-[1.05vw]"
                 >
-                  Rahul Verma
+                  Deep Chakraborty
                 </p>
                 <p className="text-[#717182] text-sm md:text-[0.92vw]">
-                  Founder, FinNext
+                  Founder, Hive Dynamics
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Right Middle (Green) */}
-          <div className="bg-[#EDF4E5] border border-[#31372B]/10 shadow-md rounded-2xl md:rounded-[1.58vw] p-6 md:p-[2.7vw] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_8px_30px_rgba(0,0,0,0.10)] hover:border-[#31372B]/30">
-            <h3
-              className="font-bold text-[#31372B] text-base md:text-[1.32vw] leading-snug md:leading-[2vw]"
-            >
-              How GrowthLabs raised $2M in 90 days
-            </h3>
+          {/* Right Middle — CTA */}
+          <div className="bg-[#31372B] border border-[#31372B]/10 shadow-md rounded-2xl md:rounded-[1.58vw] p-6 md:p-[2.7vw] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_8px_30px_rgba(0,0,0,0.20)] flex flex-col justify-between">
+            <div>
+              <div className="w-8 h-8 rounded-full bg-[#C6FF55] flex items-center justify-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#31372B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </div>
+              <h3 className="font-bold text-white text-base md:text-[1.32vw] leading-snug md:leading-[2vw] mb-2">
+                Ready to find your investors?
+              </h3>
+              <p className="text-white/60 text-sm md:text-[0.92vw]">
+                Join 500+ founders already using MyFundingList to raise smarter.
+              </p>
+            </div>
             <button
-              className="mt-4 md:mt-[1.3vw] px-4 py-2 md:px-[1.5vw] md:py-[0.5vw] rounded-full font-bold text-[#31372B] shadow-sm border border-[#31372B]/20 hover:scale-105 transition text-sm md:text-[0.92vw] bg-[#C6FF55]"
+              onClick={handleGoogleLogin}
+              className="mt-4 md:mt-[1.3vw] px-4 py-2 md:px-[1.5vw] md:py-[0.5vw] rounded-full font-bold text-[#31372B] shadow-sm border border-[#C6FF55]/40 hover:scale-105 transition text-sm md:text-[0.92vw] bg-[#C6FF55] cursor-pointer"
             >
-              Read the case study here →
+              Get started free →
             </button>
           </div>
         </div>
@@ -966,84 +971,53 @@ export default function Home() {
         <div
           className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-[1.1vw] w-full mt-0 md:mt-[-3vw]"
         >
-          {/* Bottom Left */}
+          {/* Bottom Left — Deepak Kumar */}
           <div className="bg-white border border-[#31372B]/10 shadow-md rounded-2xl md:rounded-[1.58vw] p-6 md:p-[2.7vw] flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:border-[#31372B]/30">
-            <p
-              className="text-[#31372B] text-base md:text-[1.1vw] leading-relaxed md:leading-[1.8vw]"
-            >
-              &quot;Before MyFundingList, our team spent weeks researching investors. Now
-              we focus on what matters — building our product.&quot;
+            <p className="text-[#31372B] text-base md:text-[1.1vw] leading-relaxed md:leading-[1.8vw]">
+              &quot;Closed our seed round in 60 days. The database is comprehensive and always up-to-date.&quot;
             </p>
             <div className="flex items-center gap-3 md:gap-[1.05vw] mt-4 md:mt-[1.3vw]">
-              <div
-                className="flex items-center justify-center bg-[#31372B] text-[#FAF7EE] font-bold rounded-full w-12 h-12 md:w-[3.16vw] md:h-[3.16vw] text-sm md:text-[0.92vw]"
-              >
-                AM
-              </div>
-              <div>
-                <p
-                  className="font-bold text-[#31372B] text-base md:text-[1.05vw]"
-                >
-                  Anjali Mehta
-                </p>
-                <p className="text-[#717182] text-sm md:text-[0.92vw]">
-                  Co-founder, HealthTech Solutions
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Middle */}
-          <div className="bg-white border border-[#31372B]/10 shadow-md rounded-2xl md:rounded-[1.58vw] p-6 md:p-[2.7vw] flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:border-[#31372B]/30">
-            <p
-              className="font-bold text-[#31372B] text-base md:text-[1.18vw] leading-relaxed md:leading-[1.8vw]"
-            >
-              &quot;MyFundingList landed us some of our top investor partnerships!&quot;
-            </p>
-            <div className="flex items-center gap-3 md:gap-[1.05vw] mt-4 md:mt-[1.3vw]">
-              <div
-                className="flex items-center justify-center bg-[#31372B] text-[#FAF7EE] font-bold rounded-full w-12 h-12 md:w-[3.16vw] md:h-[3.16vw] text-sm md:text-[0.92vw]"
-              >
-                VS
-              </div>
-              <div>
-                <p
-                  className="font-bold text-[#31372B] text-base md:text-[1.05vw]"
-                >
-                  Vikram Singh
-                </p>
-                <p className="text-[#717182] text-sm md:text-[0.92vw]">
-                  CEO, E-commerce startup
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Right */}
-          <div className="bg-white border border-[#31372B]/10 shadow-md rounded-2xl md:rounded-[1.58vw] p-6 md:p-[2.7vw] flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:border-[#31372B]/30">
-            <h3
-              className="font-bold text-[#31372B] text-lg md:text-[1.58vw] leading-snug md:leading-[2vw]"
-            >
-              Closed our seed round in 60 days
-            </h3>
-            <p className="text-[#717182] text-sm md:text-[0.99vw]">
-              The database is comprehensive and always up-to-date.
-            </p>
-            <div className="flex items-center gap-3 md:gap-[1.05vw] mt-4 md:mt-[1.3vw]">
-              <div
-                className="flex items-center justify-center bg-[#31372B] text-[#FAF7EE] font-bold rounded-full w-12 h-12 md:w-[3.16vw] md:h-[3.16vw] text-sm md:text-[0.92vw]"
-              >
+              <div className="flex items-center justify-center bg-[#31372B] text-[#FAF7EE] font-bold rounded-full w-12 h-12 md:w-[3.16vw] md:h-[3.16vw] text-sm md:text-[0.92vw]">
                 DK
               </div>
               <div>
-                <p
-                  className="font-bold text-[#31372B] text-base md:text-[1.05vw]"
-                >
-                  Deepak Kumar
-                </p>
-                <p className="text-[#717182] text-sm md:text-[0.92vw]">
-                  Founder, AI Innovations
-                </p>
+                <p className="font-bold text-[#31372B] text-base md:text-[1.05vw]">Deepak Kumar</p>
+                <p className="text-[#717182] text-sm md:text-[0.92vw]">Founder, Wah Puchka</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Middle — Marcus Thompson */}
+          <div className="bg-white border border-[#31372B]/10 shadow-md rounded-2xl md:rounded-[1.58vw] p-6 md:p-[2.7vw] flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:border-[#31372B]/30">
+            <p className="font-bold text-[#31372B] text-base md:text-[1.18vw] leading-relaxed md:leading-[1.8vw]">
+              &quot;The investor data is more accurate than anything we found elsewhere. We booked 8 meetings in our first week of outreach.&quot;
+            </p>
+            <div className="flex items-center gap-3 md:gap-[1.05vw] mt-4 md:mt-[1.3vw]">
+              <div className="flex items-center justify-center bg-[#31372B] text-[#FAF7EE] font-bold rounded-full w-12 h-12 md:w-[3.16vw] md:h-[3.16vw] text-sm md:text-[0.92vw]">
+                MT
+              </div>
+              <div>
+                <p className="font-bold text-[#31372B] text-base md:text-[1.05vw]">Marcus Thompson</p>
+                <p className="text-[#717182] text-sm md:text-[0.92vw]">CEO, Stackr Labs</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Right — Ashley Rivera */}
+          <div className="bg-white border border-[#31372B]/10 shadow-md rounded-2xl md:rounded-[1.58vw] p-6 md:p-[2.7vw] flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:border-[#31372B]/30">
+            <h3 className="font-bold text-[#31372B] text-lg md:text-[1.58vw] leading-snug md:leading-[2vw]">
+              This is the unfair advantage every founder needs
+            </h3>
+            <p className="text-[#717182] text-sm md:text-[0.99vw]">
+              We raised our pre-seed in under 45 days. Couldn&apos;t have done it without this platform.
+            </p>
+            <div className="flex items-center gap-3 md:gap-[1.05vw] mt-4 md:mt-[1.3vw]">
+              <div className="flex items-center justify-center bg-[#31372B] text-[#FAF7EE] font-bold rounded-full w-12 h-12 md:w-[3.16vw] md:h-[3.16vw] text-sm md:text-[0.92vw]">
+                AR
+              </div>
+              <div>
+                <p className="font-bold text-[#31372B] text-base md:text-[1.05vw]">Ashley Rivera</p>
+                <p className="text-[#717182] text-sm md:text-[0.92vw]">Co-founder, NovaBridge</p>
               </div>
             </div>
           </div>

@@ -177,7 +177,7 @@ export default function AuthenticatedNavbar() {
               {open && (
                 <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg border border-[#31372B1F] rounded-md text-sm font-[Arial] py-2 animate-fadeIn z-50">
                   <a
-                    href="mailto:fazal@heva.ai"
+                    href="mailto:hi@eaglegrowthpartners.com"
                     className="w-full text-left px-4 py-2 text-[#31372B] hover:bg-[#F5F5F5] transition flex items-center gap-2 block"
                   >
                     Contact Us

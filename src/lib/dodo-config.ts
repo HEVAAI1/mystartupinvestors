@@ -1,17 +1,17 @@
 export const DODO_PRODUCT_MAP = {
-    'pdt_UQVM7C1CCtMCSP1MFCx9m': {
+    'pdt_0NbbbqCdfuGTpxX9KDNwm': {
         plan: 'professional',
         credits: 60,
-        price: 15,
+        price: 19,
     },
-    'pdt_cPLJVSbDTlp397NpGKoS4': {
+    'pdt_0NbbbrHJcVDJqitCUkpjt': {
         plan: 'growth',
         credits: 300,
         price: 49,
     },
-    'pdt_vNXSWmxxgNRt1TzHQZDni': {
+    'pdt_0NbbbqfeSmy9PD46q3jf3': {
         plan: 'enterprise',
-        credits: 999999,
+        credits: 4000,
         price: 999,
     },
 } as const;

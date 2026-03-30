@@ -21,7 +21,7 @@ export default function ChurnToolPage() {
                 <div className="max-w-[1400px] mx-auto flex justify-between items-center">
                     <Link href="/" className="flex items-center gap-2">
                         <Image
-                            src="/Logo.png"
+                            src="/Logo.svg"
                             alt="Logo"
                             width={100}
                             height={40}
