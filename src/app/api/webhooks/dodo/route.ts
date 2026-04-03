@@ -160,6 +160,46 @@ export async function POST(request: NextRequest) {
                 `✅ ✅ ✅ Credits updated for user ${userId}: +${planDetails.credits}`
             );
 
+            // ✅ Affiliate commission: 25% on every successful payment
+            try {
+                const { data: referral } = await supabaseAdmin
+                    .from('referrals')
+                    .select('affiliate_id')
+                    .eq('referred_user_id', userId)
+                    .maybeSingle();
+
+                if (referral?.affiliate_id) {
+                    const commissionAmount = Math.round(amount * 0.25 * 100) / 100;
+
+                    await supabaseAdmin.from('commissions').insert({
+                        affiliate_id: referral.affiliate_id,
+                        user_id: userId,
+                        payment_id: transactionId,
+                        amount,
+                        commission_amount: commissionAmount,
+                        status: 'pending',
+                    });
+
+                    // Increment total_earned on the affiliate
+                    const { data: aff } = await supabaseAdmin
+                        .from('affiliates')
+                        .select('total_earned')
+                        .eq('id', referral.affiliate_id)
+                        .single();
+
+                    if (aff) {
+                        await supabaseAdmin.from('affiliates').update({
+                            total_earned: Number(aff.total_earned) + commissionAmount,
+                        }).eq('id', referral.affiliate_id);
+                    }
+
+                    console.log(`💰 Affiliate commission of $${commissionAmount} created for affiliate ${referral.affiliate_id}`);
+                }
+            } catch (commErr) {
+                // Non-fatal: log but don't fail the payment webhook
+                console.error('⚠️ Affiliate commission error (non-fatal):', commErr);
+            }
+
             return NextResponse.json({ received: true });
         }
 

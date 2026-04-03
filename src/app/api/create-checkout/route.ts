@@ -2,48 +2,103 @@ import { NextRequest, NextResponse } from 'next/server';
 import DodoPayments from 'dodopayments';
 
 export async function POST(request: NextRequest) {
+    const requestId = crypto.randomUUID();
+    type LogEntry = { step: string; data?: unknown; time: string };
+    const logs: LogEntry[] = [];
+
+    const log = (step: string, data?: unknown) => {
+        logs.push({
+            step,
+            data,
+            time: new Date().toISOString(),
+        });
+    };
+
+    type CheckoutRequestBody = {
+        product_id: string;
+        user_id: string;
+    };
+
+    const isCheckoutRequestBody = (value: unknown): value is CheckoutRequestBody => {
+        if (typeof value !== 'object' || value === null) return false;
+        const record = value as Record<string, unknown>;
+        return typeof record.product_id === 'string' && typeof record.user_id === 'string';
+    };
+
     try {
-        const { product_id, user_id } = await request.json();
-        console.log('Received create-checkout request:', { product_id, user_id });
+        log("START");
+
+        // 🔍 Read raw body
+        let rawBody = '';
+        try {
+            rawBody = await request.text();
+            log("RAW BODY", rawBody);
+        } catch {
+            log("FAILED TO READ RAW BODY");
+        }
+
+        // 🔍 Parse JSON safely
+        let parsed: unknown = {};
+        try {
+            parsed = JSON.parse(rawBody);
+            log("PARSED BODY", parsed);
+        } catch (e) {
+            log("JSON PARSE FAILED", e);
+            throw new Error("Invalid JSON body");
+        }
+
+        const product_id = isCheckoutRequestBody(parsed) ? parsed.product_id : undefined;
+        const user_id = isCheckoutRequestBody(parsed) ? parsed.user_id : undefined;
 
         if (!product_id || !user_id) {
+            log("MISSING FIELDS", parsed);
             return NextResponse.json(
-                { error: 'Missing required fields: product_id and user_id' },
+                {
+                    error: 'Missing required fields',
+                    logs,
+                    requestId,
+                },
                 { status: 400 }
             );
         }
 
-        // ✅ Make sure you're using the right environment
+        // 🔐 ENV CHECK
         const apiKey = process.env.DODO_PAYMENTS_API_KEY;
         const environment =
             (process.env.DODO_PAYMENTS_ENVIRONMENT as 'test_mode' | 'live_mode') ??
             'live_mode';
 
-        if (!apiKey) {
-            console.error('DODO_PAYMENTS_API_KEY is not set');
-            return NextResponse.json(
-                { error: 'Server misconfigured: missing API key' },
-                { status: 500 }
-            );
-        }
-
-        console.log(
-            'Initializing Dodo client',
-            { environment, keyPreview: apiKey.substring(0, 8) + '****' }
-        );
-
-        const client = new DodoPayments({
-            bearerToken: apiKey,
-            environment, // 👈 THIS is the important part
+        log("ENV CHECK", {
+            hasKey: !!apiKey,
+            keyLength: apiKey?.length,
+            environment,
+            nodeEnv: process.env.NODE_ENV,
         });
 
-        // Ensure we have a valid return URL with port
+        if (!apiKey) {
+            throw new Error("Missing DODO API key");
+        }
+
+        // 💳 Init client
+        const client = new DodoPayments({
+            bearerToken: apiKey,
+            environment,
+        });
+
+        log("CLIENT INITIALIZED");
+
+        // 🌍 App URL
         let appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
         if (appUrl === 'http://localhost' && process.env.NODE_ENV === 'development') {
             appUrl = 'http://localhost:3000';
         }
-        console.log('Using appUrl for return_url:', appUrl);
 
+        const returnUrl = `${appUrl}/payment-success`;
+
+        log("RETURN URL", returnUrl);
+
+        // 📦 Payload
         const payload = {
             product_cart: [
                 {
@@ -54,51 +109,85 @@ export async function POST(request: NextRequest) {
             metadata: {
                 user_id,
             },
-            return_url: `${appUrl}/payment-success`,
+            return_url: returnUrl,
         };
 
-        console.log('Sending payload to DodoPayments:', JSON.stringify(payload, null, 2));
+        log("PAYLOAD", payload);
 
-        const checkoutSession = await client.checkoutSessions.create(payload);
+        // ⏱️ Call API
+        const start = Date.now();
 
-        console.log('Checkout session created successfully:', checkoutSession);
+        type CheckoutSession = {
+            checkout_url: string;
+            session_id: string;
+        };
 
+        let checkoutSession: CheckoutSession | null = null;
+        try {
+            checkoutSession = await client.checkoutSessions.create(payload);
+            log("DODO SUCCESS", {
+                duration: Date.now() - start,
+                session_id: checkoutSession?.session_id,
+            });
+        } catch (err: unknown) {
+            const errRecord =
+                typeof err === 'object' && err !== null ? (err as Record<string, unknown>) : undefined;
+
+            const message = errRecord?.message;
+            const name = errRecord?.name;
+            const stack = errRecord?.stack;
+
+            const keys =
+                typeof err === 'object' && err !== null ? Object.keys(errRecord ?? {}) : [];
+
+            const full =
+                typeof err === 'object' && err !== null
+                    ? JSON.stringify(err, Object.getOwnPropertyNames(err as object))
+                    : undefined;
+
+            log("DODO FAILED", {
+                duration: Date.now() - start,
+                message,
+                name,
+                stack,
+                keys,
+                full,
+            });
+
+            throw err;
+        }
+
+        // ✅ Success response
+        if (!checkoutSession) {
+            throw new Error('Dodo returned an empty checkout session');
+        }
         return NextResponse.json({
             checkout_url: checkoutSession.checkout_url,
             session_id: checkoutSession.session_id,
+            logs,
+            requestId,
         });
+
     } catch (error: unknown) {
-        console.error('Error creating checkout session FULL OBJECT:', error);
+        const errorRecord =
+            typeof error === 'object' && error !== null ? (error as Record<string, unknown>) : undefined;
+        const message =
+            error instanceof Error ? error.message : typeof errorRecord?.message === 'string' ? errorRecord.message : undefined;
+        const stack = error instanceof Error ? error.stack : typeof errorRecord?.stack === 'string' ? errorRecord.stack : undefined;
 
-        let debug = 'Unknown error';
-
-        if (error instanceof Error) {
-            console.error('Error message:', error.message);
-            debug = error.message;
-        }
-        else {
-            try {
-                debug = JSON.stringify(error);
-            } catch { }
-        }
-
-        const err = error as {
-            body?: unknown;
-            response?: unknown;
-        };
-
-        if (err?.body) console.error('Error body:', JSON.stringify(err.body, null, 2));
-        if (err?.response) console.error('Error response:', JSON.stringify(err.response, null, 2));
+        log("FINAL ERROR", {
+            message,
+            stack,
+        });
 
         return NextResponse.json(
             {
                 error: 'Failed to create checkout session',
-                debug,
-
+                debug: message,
+                logs,
+                requestId,
             },
-
             { status: 500 }
         );
     }
-
 }

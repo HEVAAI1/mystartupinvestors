@@ -40,6 +40,17 @@ export default function Home() {
     checkSession();
   }, [router, supabase]);
 
+  // Capture ?ref= from URL and save to localStorage with 24h expiry
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref) {
+      const expiry = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+      localStorage.setItem("mfl_ref_code", ref);
+      localStorage.setItem("mfl_ref_expiry", String(expiry));
+    }
+  }, []);
+
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",

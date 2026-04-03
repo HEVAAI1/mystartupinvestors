@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import CreditsProvider from "@/context/CreditsContext";
 import { CalculationCreditsProvider } from "@/context/CalculationCreditsContext";
 import { redirect } from "next/navigation";
+import ReferralLinker from "@/components/ReferralLinker";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   console.log("------ APP LAYOUT START ------");
@@ -63,6 +64,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <>
       <CreditsProvider value={{ credits, allocated, used, userId: user?.id || null }}>
         <CalculationCreditsProvider>
+          <ReferralLinker />
           <AuthenticatedNavbar />
           {children}
         </CalculationCreditsProvider>

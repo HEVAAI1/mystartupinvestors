@@ -12,6 +12,9 @@ export default function Footer() {
           <Link href="/policies" className="hover:underline">
             Policies
           </Link>
+          <Link href="/affiliate" className="hover:underline">
+            Affiliate Program
+          </Link>
           <Link href="/blog" className="hover:underline">
             Blog
           </Link>

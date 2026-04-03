@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, Building2, Database, LogOut, Download, Menu, X } from "lucide-react";
+import { LayoutDashboard, Users, Building2, Database, LogOut, Download, Menu, X, DollarSign } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 import * as XLSX from "xlsx";
 import { useState } from "react";
@@ -107,6 +107,11 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
             name: "Investor Table",
             path: "/admin/investor-list",
             icon: Database,
+        },
+        {
+            name: "Withdrawals",
+            path: "/admin/withdrawals",
+            icon: DollarSign,
         },
     ];
 

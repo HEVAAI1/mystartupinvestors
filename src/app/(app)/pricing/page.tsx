@@ -73,9 +73,12 @@ export default function PricingPage() {
       });
 
       const data = await response.json();
+      console.log("FULL BACKEND RESPONSE:", data);
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create checkout session');
+        throw new Error(
+          `${data.error}\nRequestId: ${data.requestId}\nLogs:\n${JSON.stringify(data.logs, null, 2)}`
+        );
       }
 
       // Redirect to Dodo Payments checkout
@@ -163,61 +166,13 @@ export default function PricingPage() {
 
           {/* Billing Details */}
           <div className="bg-white rounded-xl border border-[rgba(49,55,43,0.12)] w-full p-8 shadow-sm">
-            <h2 className="font-bold text-[28px] leading-[42px] text-[#31372B] mb-8 font-[Arial]">
-              Enter Your Billing Details
-            </h2>
+
 
             <form className="flex flex-col gap-6">
-              <div className="flex flex-col gap-2">
-                <label className="text-[#31372B] text-[14px] font-[Arial]">
-                  Street Address *
-                </label>
-                <input
-                  type="text"
-                  placeholder="123 Main Street"
-                  className="bg-[#F3F3F5] rounded-md px-3 py-2 text-[#717182] text-[14px] font-[Arial] outline-none"
-                />
-              </div>
 
-              {/* Row 1 */}
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex flex-col gap-2 w-full">
-                  <label className="text-[#31372B] text-[14px] font-[Arial]">City *</label>
-                  <input
-                    type="text"
-                    placeholder="Bangalore"
-                    className="bg-[#F3F3F5] rounded-md px-3 py-2 text-[#717182] text-[14px] font-[Arial] outline-none"
-                  />
-                </div>
-                <div className="flex flex-col gap-2 w-full">
-                  <label className="text-[#31372B] text-[14px] font-[Arial]">State *</label>
-                  <input
-                    type="text"
-                    placeholder="Karnataka"
-                    className="bg-[#F3F3F5] rounded-md px-3 py-2 text-[#717182] text-[14px] font-[Arial] outline-none"
-                  />
-                </div>
-              </div>
 
-              {/* Row 2 */}
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex flex-col gap-2 w-full">
-                  <label className="text-[#31372B] text-[14px] font-[Arial]">Pincode *</label>
-                  <input
-                    type="text"
-                    placeholder="560001"
-                    className="bg-[#F3F3F5] rounded-md px-3 py-2 text-[#717182] text-[14px] font-[Arial] outline-none"
-                  />
-                </div>
-                <div className="flex flex-col gap-2 w-full">
-                  <label className="text-[#31372B] text-[14px] font-[Arial]">Country *</label>
-                  <input
-                    type="text"
-                    placeholder="India"
-                    className="bg-[#F3F3F5] rounded-md px-3 py-2 text-[#717182] text-[14px] font-[Arial] outline-none"
-                  />
-                </div>
-              </div>
+
+
 
               {/* Error Message */}
               {error && (

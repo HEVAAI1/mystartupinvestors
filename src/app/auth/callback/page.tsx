@@ -11,6 +11,10 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const handleAuth = async () => {
       try {
+        let nextPath = new URLSearchParams(window.location.search).get("next");
+        if (!nextPath) {
+          nextPath = localStorage.getItem("mfl_next_path");
+        }
         const { data: { session } } = await supabase.auth.getSession();
 
         // If we have a session, ensure user exists in database before redirecting
@@ -76,8 +80,9 @@ export default function AuthCallbackPage() {
             console.log("Redirecting admin to /admin/dashboard");
             router.replace("/admin/dashboard");
           } else {
-            console.log("Redirecting user to /dashboard");
-            router.replace("/dashboard");
+            console.log("Redirecting user to", nextPath || "/dashboard");
+            if (localStorage.getItem("mfl_next_path")) localStorage.removeItem("mfl_next_path");
+            router.replace(nextPath || "/dashboard");
           }
         }
 
@@ -148,8 +153,9 @@ export default function AuthCallbackPage() {
                 console.log("Redirecting admin to /admin/dashboard");
                 router.replace("/admin/dashboard");
               } else {
-                console.log("Redirecting user to /dashboard");
-                router.replace("/dashboard");
+                console.log("Redirecting user to", nextPath || "/dashboard");
+                if (localStorage.getItem("mfl_next_path")) localStorage.removeItem("mfl_next_path");
+                router.replace(nextPath || "/dashboard");
               }
             }
           }
