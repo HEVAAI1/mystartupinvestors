@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { MIN_AFFILIATE_WITHDRAWAL_USD } from "@/lib/affiliate-constants";
 
 type Affiliate = {
   id: string;
@@ -9,6 +10,7 @@ type Affiliate = {
   total_earned: string;
   total_paid: string;
   pending_earnings: string;
+  awaiting_withdrawal: string;
   referral_count: number;
 };
 
@@ -63,6 +65,13 @@ export default function AffiliateDashboardPage() {
     ? `https://myfundinglist.com?ref=${affiliate.referral_code}`
     : "";
 
+  const pendingBalance = affiliate ? parseFloat(affiliate.pending_earnings || "0") : 0;
+  const awaitingWithdrawal = affiliate
+    ? parseFloat(affiliate.awaiting_withdrawal || "0")
+    : 0;
+  const availableToWithdraw = Math.max(0, pendingBalance - awaitingWithdrawal);
+  const canRequestWithdrawal = availableToWithdraw >= MIN_AFFILIATE_WITHDRAWAL_USD;
+
   const fetchDashboard = useCallback(async () => {
     setLoading(true);
     const [dashRes, commRes, wdRes] = await Promise.all([
@@ -110,9 +119,19 @@ export default function AffiliateDashboardPage() {
       showToast("Please enter a valid amount.", "error");
       return;
     }
-    const pending = parseFloat(affiliate?.pending_earnings || "0");
-    if (amount > pending) {
-      showToast(`Max you can withdraw is $${pending.toFixed(2)}`, "error");
+    if (availableToWithdraw < MIN_AFFILIATE_WITHDRAWAL_USD) {
+      showToast(
+        `You need at least $${MIN_AFFILIATE_WITHDRAWAL_USD} available to withdraw (after open requests).`,
+        "error"
+      );
+      return;
+    }
+    if (amount < MIN_AFFILIATE_WITHDRAWAL_USD) {
+      showToast(`Minimum withdrawal is $${MIN_AFFILIATE_WITHDRAWAL_USD}.`, "error");
+      return;
+    }
+    if (amount > availableToWithdraw) {
+      showToast(`Max you can withdraw is $${availableToWithdraw.toFixed(2)}`, "error");
       return;
     }
     setWithdrawing(true);
@@ -154,7 +173,7 @@ export default function AffiliateDashboardPage() {
     <div className="min-h-screen bg-[#FAF7EE]">
       {toast && <ToastNotification toast={toast} onDismiss={() => setToast(null)} />}
 
-      <div className="max-w-5xl mx-auto px-4 pt-28 pb-16">
+      <div className="max-w-5xl mx-auto px-4 pt-16 pb-16">
 
         {/* Header */}
         <div className="mb-10">
@@ -188,16 +207,22 @@ export default function AffiliateDashboardPage() {
         ) : (
           <>
             {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              {[
-                { label: "Total Earned", value: `$${Number(affiliate.total_earned).toFixed(2)}`, color: "text-[#31372B]" },
-                { label: "Pending", value: `$${Number(affiliate.pending_earnings).toFixed(2)}`, color: "text-amber-600" },
-                { label: "Paid Out", value: `$${Number(affiliate.total_paid).toFixed(2)}`, color: "text-green-600" },
-                { label: "Referrals", value: String(affiliate.referral_count), color: "text-blue-600" },
-              ].map((stat) => (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+              {(
+                [
+                  { label: "Total Earned", value: `$${Number(affiliate.total_earned).toFixed(2)}`, color: "text-[#31372B]" },
+                  { label: "Pending", value: `$${Number(affiliate.pending_earnings).toFixed(2)}`, color: "text-amber-600", hint: "Not yet paid out" },
+                  { label: "Awaiting Withdrawal", value: `$${awaitingWithdrawal.toFixed(2)}`, color: "text-violet-700", hint: "Pending / approved requests" },
+                  { label: "Paid Out", value: `$${Number(affiliate.total_paid).toFixed(2)}`, color: "text-green-600" },
+                  { label: "Referrals", value: String(affiliate.referral_count), color: "text-blue-600" },
+                ] as const
+              ).map((stat) => (
                 <div key={stat.label} className="bg-white border border-[#31372B]/10 rounded-2xl p-5 shadow-sm">
                   <p className="text-xs text-[#717182] font-medium mb-1">{stat.label}</p>
                   <p className={`text-2xl font-bold font-funnel-display ${stat.color}`}>{stat.value}</p>
+                  {"hint" in stat ? (
+                    <p className="text-[10px] text-[#717182] mt-1 leading-tight">{stat.hint}</p>
+                  ) : null}
                 </div>
               ))}
             </div>
@@ -225,22 +250,39 @@ export default function AffiliateDashboardPage() {
               {/* Withdrawal request */}
               <div className="bg-white border border-[#31372B]/10 rounded-2xl p-6 shadow-sm">
                 <h2 className="text-base font-bold text-[#31372B] mb-1">Request Withdrawal</h2>
-                <p className="text-xs text-[#717182] mb-4">
-                  Available: <span className="font-bold text-[#31372B]">${Number(affiliate.pending_earnings).toFixed(2)}</span>
+                <p className="text-xs text-[#717182] mb-2">
+                  Available to request:{" "}
+                  <span className="font-bold text-[#31372B]">${availableToWithdraw.toFixed(2)}</span>
+                  {awaitingWithdrawal > 0 && (
+                    <span className="block mt-1 text-[#717182]">
+                      (Pending balance ${pendingBalance.toFixed(2)} − ${awaitingWithdrawal.toFixed(2)} in open withdrawal
+                      {awaitingWithdrawal === 1 ? " request" : " requests"})
+                    </span>
+                  )}
                 </p>
+                <p className="text-xs text-[#717182] mb-4">
+                  Minimum withdrawal: <span className="font-bold text-[#31372B]">${MIN_AFFILIATE_WITHDRAWAL_USD}</span>
+                  {" "}— you need at least that much available, and each request must be for at least that amount.
+                </p>
+                {!canRequestWithdrawal && (
+                  <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-4">
+                    Reach <span className="font-bold">${MIN_AFFILIATE_WITHDRAWAL_USD}</span> in available balance to submit a withdrawal request.
+                  </p>
+                )}
                 <div className="flex gap-3">
                   <input
                     type="number"
-                    min="1"
+                    min={MIN_AFFILIATE_WITHDRAWAL_USD}
                     step="0.01"
                     value={withdrawAmount}
                     onChange={(e) => setWithdrawAmount(e.target.value)}
-                    placeholder="Amount in USD"
-                    className="flex-1 border border-[#31372B]/20 rounded-lg px-4 py-2.5 text-sm text-[#31372B] bg-[#FAF7EE] focus:outline-none focus:ring-2 focus:ring-[#31372B]/30"
+                    placeholder={`Min $${MIN_AFFILIATE_WITHDRAWAL_USD}`}
+                    disabled={!canRequestWithdrawal}
+                    className="flex-1 border border-[#31372B]/20 rounded-lg px-4 py-2.5 text-sm text-[#31372B] bg-[#FAF7EE] focus:outline-none focus:ring-2 focus:ring-[#31372B]/30 disabled:opacity-50"
                   />
                   <button
                     onClick={handleWithdraw}
-                    disabled={withdrawing || !withdrawAmount}
+                    disabled={withdrawing || !withdrawAmount || !canRequestWithdrawal}
                     className="bg-[#31372B] text-[#FAF7EE] font-bold px-4 py-2.5 rounded-lg text-sm hover:bg-black transition disabled:opacity-40 cursor-pointer"
                   >
                     {withdrawing ? "..." : "Withdraw"}

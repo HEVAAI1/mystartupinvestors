@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { MIN_AFFILIATE_WITHDRAWAL_USD } from '@/lib/affiliate-constants';
 import { createSupabaseServerClient, createSupabaseAdminClient } from '@/lib/supabaseServer';
 
 export async function POST(req: NextRequest) {
@@ -16,6 +17,13 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
     }
 
+    if (amount < MIN_AFFILIATE_WITHDRAWAL_USD) {
+        return NextResponse.json(
+            { error: `Minimum withdrawal is $${MIN_AFFILIATE_WITHDRAWAL_USD}` },
+            { status: 400 }
+        );
+    }
+
     const admin = createSupabaseAdminClient();
 
     // Get affiliate record
@@ -31,9 +39,30 @@ export async function POST(req: NextRequest) {
 
     const pending = Number(affiliate.total_earned) - Number(affiliate.total_paid);
 
-    if (amount > pending) {
+    const { data: openWithdrawals } = await admin
+        .from('withdrawal_requests')
+        .select('amount')
+        .eq('affiliate_id', affiliate.id)
+        .in('status', ['pending', 'approved']);
+
+    const awaitingWithdrawal =
+        openWithdrawals?.reduce((sum, row) => sum + Number(row.amount), 0) ?? 0;
+    const available = pending - awaitingWithdrawal;
+
+    if (available < MIN_AFFILIATE_WITHDRAWAL_USD) {
         return NextResponse.json(
-            { error: `Withdrawal amount exceeds pending balance of $${pending.toFixed(2)}` },
+            {
+                error: `You need at least $${MIN_AFFILIATE_WITHDRAWAL_USD} available to withdraw (after open requests). Available: $${available.toFixed(2)}`,
+            },
+            { status: 400 }
+        );
+    }
+
+    if (amount > available) {
+        return NextResponse.json(
+            {
+                error: `Withdrawal amount exceeds available balance of $${available.toFixed(2)} (pending $${pending.toFixed(2)} minus $${awaitingWithdrawal.toFixed(2)} in open requests)`,
+            },
             { status: 400 }
         );
     }

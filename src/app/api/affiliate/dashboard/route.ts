@@ -28,6 +28,15 @@ export async function GET(_req: NextRequest) {
     // Calculate pending earnings: total_earned - total_paid
     const pending = Number(affiliate.total_earned) - Number(affiliate.total_paid);
 
+    const { data: openWithdrawals } = await admin
+        .from('withdrawal_requests')
+        .select('amount')
+        .eq('affiliate_id', affiliate.id)
+        .in('status', ['pending', 'approved']);
+
+    const awaitingWithdrawal =
+        openWithdrawals?.reduce((sum, row) => sum + Number(row.amount), 0) ?? 0;
+
     // Count referred users
     const { count: referralCount } = await admin
         .from('referrals')
@@ -38,6 +47,7 @@ export async function GET(_req: NextRequest) {
         affiliate: {
             ...affiliate,
             pending_earnings: pending.toFixed(2),
+            awaiting_withdrawal: awaitingWithdrawal.toFixed(2),
             referral_count: referralCount ?? 0,
         }
     });

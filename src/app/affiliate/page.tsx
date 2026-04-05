@@ -2,8 +2,6 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 
 export default function AffiliateLandingPage() {
@@ -69,32 +67,15 @@ export default function AffiliateLandingPage() {
     {
       icon: "⚡",
       title: "Fast Manual Payouts",
-      description: "Request a withdrawal anytime. Our team processes payouts quickly.",
+      description:
+        "Request a withdrawal once you have at least $75 available. Our team processes payouts manually.",
     },
   ];
 
   return (
     <main className="min-h-screen bg-[#FAF7EE] font-[Arial]">
-      {/* Navbar */}
-      <nav className="fixed top-0 left-0 w-full z-50 bg-[rgba(250,247,238,0.95)] border-b border-[rgba(49,55,43,0.1)] backdrop-blur-md px-6 py-4 flex justify-between items-center">
-        <Link href="/">
-          <Image src="/Logo.svg" alt="MyFundingList" width={100} height={38} className="h-[38px] w-auto" />
-        </Link>
-        <div className="flex gap-3">
-          <Link href="/" className="text-sm font-medium text-[#31372B] hover:opacity-70 transition">
-            Back to Home
-          </Link>
-          <button
-            onClick={handleGetLink}
-            className="bg-[#31372B] text-[#FAF7EE] text-sm font-bold px-4 py-2 rounded-lg hover:bg-black transition cursor-pointer"
-          >
-            Get Your Link
-          </button>
-        </div>
-      </nav>
-
       {/* Hero */}
-      <section className="pt-32 pb-20 px-4 flex flex-col items-center text-center max-w-4xl mx-auto">
+      <section className="pt-20 pb-20 px-4 flex flex-col items-center text-center max-w-4xl mx-auto">
         <div className="inline-flex items-center gap-2 bg-[rgba(49,55,43,0.08)] border border-[rgba(49,55,43,0.1)] rounded-full px-4 py-2 mb-8">
           <div className="w-2 h-2 rounded-full bg-[#C6FF55]"></div>
           <span className="text-xs font-bold uppercase tracking-wide text-[#31372B]">Affiliate Program</span>

@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import { CheckCircle } from "lucide-react";
 import { useCredits } from "@/context/CreditsContext";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { creditsForPlanType } from "@/lib/dodo-config";
 
 export default function PaymentSuccessPage() {
   const router = useRouter();
@@ -52,13 +53,7 @@ export default function PaymentSuccessPage() {
           .single();
 
         if (transaction) {
-          // Map plan type to credits
-          const creditMap: { [key: string]: number } = {
-            'professional': 60,
-            'growth': 300,
-            'enterprise': 999999
-          };
-          setCreditsAdded(creditMap[transaction.plan_type] || 0);
+          setCreditsAdded(creditsForPlanType(transaction.plan_type));
         } else {
           setCreditsAdded(0);
         }

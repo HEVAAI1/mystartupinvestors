@@ -1,12 +1,13 @@
+import AdminLayoutClient from "./AdminLayoutClient";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "Admin Login",
-  description: "Restricted admin login for MyFundingList platform management.",
+  title: "Admin",
+  description: "Restricted admin area for MyFundingList platform management.",
   robots: { index: false, follow: false },
 };
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  return <>{children}</>;
+  return <AdminLayoutClient>{children}</AdminLayoutClient>;
 }

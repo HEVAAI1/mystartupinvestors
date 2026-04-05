@@ -66,7 +66,14 @@ export async function middleware(request: NextRequest) {
 
     // Define protected routes
     const userProtectedRoutes = ['/dashboard', '/add-startup', '/view-startup', '/pricing', '/payment-success', '/startup-details', '/affiliate/dashboard'];
-    const adminRoutes = ['/admin/dashboard', '/admin/user-list', '/admin/startup-list', '/admin/investor-list'];
+    const adminRoutes = [
+        '/admin/dashboard',
+        '/admin/user-list',
+        '/admin/startup-list',
+        '/admin/investor-list',
+        '/admin/withdrawals',
+        '/admin/affiliates',
+    ];
     const adminLoginRoute = '/admin';
 
     // Check if current path is a user protected route
