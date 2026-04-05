@@ -1,5 +1,5 @@
 export const DODO_PRODUCT_MAP = {
-    'pdt_0NbbbqCdfuGTpxX9KDNwm': {
+    'pdt_0Nc2Z6Y9wkRvcLWvpsetu': {
         plan: 'professional',
         credits: 60,
         price: 19,

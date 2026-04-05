@@ -19,7 +19,7 @@ export default function PricingPage() {
       credits: "60 Credits",
       description: "Unlock verified contacts",
       popular: true,
-      product_id: "pdt_0NbbbqCdfuGTpxX9KDNwm",
+      product_id: "pdt_0Nc2Z6Y9wkRvcLWvpsetu",
     },
     {
       id: "growth",
