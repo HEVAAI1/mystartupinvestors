@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, ChangeEvent, useCallback } from "react";
+import { useState, useEffect, ChangeEvent, useCallback, useMemo, useRef } from "react";
 import Image from "next/image";
-import { supabase } from "@/lib/supabaseClient";
+import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 import UpgradeModal from "@/components/UpgradeModal";
 import { useCredits } from "@/context/CreditsContext"; // ✅ USE CONTEXT
 import Link from "next/link";
@@ -21,7 +21,26 @@ interface Investor {
   type?: string;
 }
 
+interface FilterOptionsResponse {
+  data: Pick<Investor, "country" | "preference_sector">[] | null;
+  error: { message?: string } | null;
+}
+
+interface ViewedIdsResponse {
+  data: { investor_id: number }[] | null;
+  error: { message?: string } | null;
+}
+
+interface InvestorListResponse {
+  data: Investor[] | null;
+  count: number | null;
+  error: { message?: string } | null;
+}
+
 const Dashboard = () => {
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const latestFetchIdRef = useRef(0);
+
   // Server-side pagination state
   const [currentPageData, setCurrentPageData] = useState<Investor[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -65,6 +84,28 @@ const Dashboard = () => {
     setCurrentPage(1);
   };
 
+  const withTimeout = useCallback(
+  async function withTimeout<T>(
+    promise: PromiseLike<T>, // ✅ KEY FIX
+    message: string,
+    timeoutMs = 15000
+  ): Promise<T> {
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    try {
+      return await Promise.race([
+        promise,
+        new Promise<T>((_, reject) => {
+          timeoutId = setTimeout(() => reject(new Error(message)), timeoutMs);
+        }),
+      ]);
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
+    }
+  },
+  []
+);
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handleSearch();
@@ -75,10 +116,12 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchFilterOptions = async () => {
       try {
-        const { data, error } = await supabase
-          .from("investors")
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .select("country, preference_sector") as { data: Investor[] | null; error: any };
+        const { data, error } = await withTimeout(
+  supabase
+    .from("investors")
+    .select("country, preference_sector"),
+  "Loading filter options took too long."
+);
 
         if (error) throw error;
 
@@ -92,7 +135,7 @@ const Dashboard = () => {
                 .flatMap((item) =>
                   item.preference_sector
                     ?.split(",")
-                    .map((sector) => sector.trim())
+                    .map((sector: string) => sector.trim())
                 )
                 .filter(Boolean)
             )
@@ -107,15 +150,12 @@ const Dashboard = () => {
     };
 
     fetchFilterOptions();
-  }, []);
+  }, [supabase, withTimeout]);
 
-  // Fetch investors with server-side pagination and filters
-  useEffect(() => {
-    fetchInvestors();
-  }, [currentPage, debouncedSearch, selectedLocation, selectedIndustry, showViewed, userId]);
-
-  const fetchInvestors = async () => {
+  const fetchInvestors = useCallback(async () => {
+    const fetchId = ++latestFetchIdRef.current;
     setLoading(true);
+    setError("");
     try {
       const from = (currentPage - 1) * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
@@ -147,39 +187,66 @@ const Dashboard = () => {
       }
       // Viewed filter
       if (showViewed && userId) {
-        const { data: viewedIds } = await supabase
-          .from("user_investor_views")
-          .select("investor_id")
-          .eq("user_id", userId);
+        const { data: viewedIds, error: viewedIdsError } = await withTimeout<ViewedIdsResponse>(
+          supabase
+            .from("user_investor_views")
+            .select("investor_id")
+            .eq("user_id", userId),
+          "Loading viewed investors took too long."
+        );
+
+        if (viewedIdsError) throw viewedIdsError;
 
         if (viewedIds && viewedIds.length > 0) {
           query = query.in("id", viewedIds.map(v => v.investor_id));
         } else {
           // No viewed investors
+          if (fetchId !== latestFetchIdRef.current) return;
           setCurrentPageData([]);
           setTotalCount(0);
-          setLoading(false);
           return;
         }
       }
 
-      const { data, count, error } = await query
-        .range(from, to)
-        .order("id", { ascending: true });
+      const { data, count, error } = await withTimeout<InvestorListResponse>(
+        query
+          .range(from, to)
+          .order("id", { ascending: true }),
+        "Loading investor data timed out. Please try again."
+      );
 
       if (error) throw error;
+      if (fetchId !== latestFetchIdRef.current) return;
 
       setCurrentPageData(data || []);
       setTotalCount(count || 0);
     } catch (err) {
       console.error("Error fetching investors:", err);
+      if (fetchId !== latestFetchIdRef.current) return;
       setError("Failed to fetch investors");
       setCurrentPageData([]);
       setTotalCount(0);
     } finally {
-      setLoading(false);
+      if (fetchId === latestFetchIdRef.current) {
+        setLoading(false);
+      }
     }
-  };
+  }, [
+    PAGE_SIZE,
+    currentPage,
+    debouncedSearch,
+    selectedIndustry,
+    selectedLocation,
+    showViewed,
+    supabase,
+    userId,
+    withTimeout,
+  ]);
+
+  // Fetch investors with server-side pagination and filters
+  useEffect(() => {
+    fetchInvestors();
+  }, [fetchInvestors]);
 
   // Fetch viewed investors
   useEffect(() => {
@@ -197,7 +264,7 @@ const Dashboard = () => {
       }
     };
     fetchViewed();
-  }, [userId]);
+  }, [supabase, userId]);
 
 
 
@@ -329,7 +396,7 @@ const Dashboard = () => {
       console.log("No credits left. Showing upgrade modal.");
       setShowUpgradeModal(true);
     }
-  }, [credits, used, userId, viewedInvestorIds, decrementCredit]);
+  }, [credits, decrementCredit, supabase, used, userId, viewedInvestorIds]);
 
   return (
     <div className="min-h-screen bg-[#FAF7EE] font-[Arial] text-[#31372B]">
@@ -465,7 +532,15 @@ const Dashboard = () => {
         {loading ? (
           <p className="text-[#717182]">Loading investor data...</p>
         ) : error ? (
-          <p className="text-red-500">{error}</p>
+          <div className="flex items-center gap-3">
+            <p className="text-red-500">{error}</p>
+            <button
+              onClick={fetchInvestors}
+              className="bg-[#31372B] text-[#FAF7EE] rounded-md px-3 py-1.5 text-sm font-medium hover:opacity-90"
+            >
+              Retry
+            </button>
+          </div>
         ) : (
           <>
             {currentPageData.map((inv: Investor) => {

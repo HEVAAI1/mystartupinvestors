@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 import { Eye, Plus, FileSpreadsheet, Search, Pencil, Trash2 } from "lucide-react";
 import InvestorDetailsModal from "@/components/InvestorDetailsModal";
@@ -55,12 +55,7 @@ export default function InvestorListPage() {
     }
   };
 
-  // Fetch investors with server-side pagination and search
-  useEffect(() => {
-    fetchInvestors();
-  }, [currentPage, debouncedSearch]);
-
-  const fetchInvestors = async () => {
+  const fetchInvestors = useCallback(async () => {
     setLoading(true);
     try {
       const supabase = createSupabaseBrowserClient();
@@ -98,7 +93,12 @@ export default function InvestorListPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [PAGE_SIZE, currentPage, debouncedSearch]);
+
+  // Fetch investors with server-side pagination and search
+  useEffect(() => {
+    fetchInvestors();
+  }, [fetchInvestors]);
 
   const handleViewDetails = (investor: Investor) => {
     setSelectedInvestor(investor);

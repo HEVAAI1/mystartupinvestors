@@ -1,4 +1,4 @@
-import AuthenticatedNavbar from "@/components/Navbar";
+import SmartNavbar from "@/components/SmartNavbar";
 import ReferralLinker from "@/components/ReferralLinker";
 import CreditsProvider from "@/context/CreditsContext";
 import { CalculationCreditsProvider } from "@/context/CalculationCreditsContext";
@@ -35,7 +35,7 @@ export default async function AffiliateLayout({
     <CreditsProvider value={{ credits, allocated, used, userId: user?.id || null }}>
       <CalculationCreditsProvider>
         <ReferralLinker />
-        <AuthenticatedNavbar />
+        <SmartNavbar />
         {children}
       </CalculationCreditsProvider>
     </CreditsProvider>

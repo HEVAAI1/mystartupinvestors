@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createSupabaseServerClient, createSupabaseAdminClient } from '@/lib/supabaseServer';
 
 function generateReferralCode(): string {
@@ -10,7 +10,7 @@ function generateReferralCode(): string {
     return code;
 }
 
-export async function POST(_req: NextRequest) {
+export async function POST() {
     const supabase = await createSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
 

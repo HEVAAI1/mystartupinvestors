@@ -81,11 +81,19 @@ export default function AuthenticatedNavbar() {
     if (loggingOut) return; // Prevent double-clicks
 
     setLoggingOut(true);
+    setOpen(false);
+    setMobileMenuOpen(false);
     const supabase = createSupabaseBrowserClient();
 
     try {
       console.log("Logging out user...");
-      const { error } = await supabase.auth.signOut();
+      const signOutTimeout = new Promise<never>((_, reject) => {
+        window.setTimeout(() => reject(new Error("Logout timed out. Please try again.")), 10000);
+      });
+      const { error } = await Promise.race([
+        supabase.auth.signOut(),
+        signOutTimeout,
+      ]);
 
       if (error) {
         console.error("Error during logout:", error);
@@ -93,14 +101,11 @@ export default function AuthenticatedNavbar() {
       }
 
       console.log("Logout successful, redirecting...");
-      // Small delay to ensure session is cleared
-      await new Promise(resolve => setTimeout(resolve, 100));
-      router.push("/");
+      window.location.assign("/");
     } catch (error) {
       console.error("Logout failed:", error);
       setLoggingOut(false);
-      // Optionally show error to user
-      alert("Logout failed. Please try again.");
+      alert(error instanceof Error ? error.message : "Logout failed. Please try again.");
     }
   };
 

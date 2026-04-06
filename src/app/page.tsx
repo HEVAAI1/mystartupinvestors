@@ -636,7 +636,7 @@ export default function Home() {
           {/* Card 1 - Verified Investors */}
           <div className="relative bg-white/10 border border-white/20 backdrop-blur-sm shadow-xl rounded-2xl p-8 flex flex-col justify-between w-[360px] sm:w-[500px] h-[220px] transition-transform hover:-translate-y-1 hover:bg-white/15">
             <div className="flex items-center justify-center w-[52px] h-[52px] bg-[#EDF4E5] rounded-xl border border-[#31372B]/10 shadow">
-              <img src="/UsersIcon.svg" alt="Users" className="w-6 h-6" />
+              <Image src="/UsersIcon.svg" alt="Users" width={24} height={24} className="w-6 h-6" />
             </div>
             <div className="mt-4">
               <h3 className="text-[48px] font-bold leading-none font-funnel-display">5,000+</h3>
@@ -648,7 +648,7 @@ export default function Home() {
           {/* Card 2 - Verified Emails */}
           <div className="relative bg-white/10 border border-white/20 backdrop-blur-sm shadow-xl rounded-2xl p-8 flex flex-col justify-between w-[360px] sm:w-[500px] h-[220px] transition-transform hover:-translate-y-1 hover:bg-white/15">
             <div className="flex items-center justify-center w-[52px] h-[52px] bg-[#EDF4E5] rounded-xl border border-[#31372B]/10 shadow">
-              <img src="/MailIcon.svg" alt="Mail" className="w-6 h-6" />
+              <Image src="/MailIcon.svg" alt="Mail" width={24} height={24} className="w-6 h-6" />
             </div>
             <div className="mt-4">
               <h3 className="text-[48px] font-bold leading-none font-funnel-display">4,850</h3>
@@ -660,7 +660,7 @@ export default function Home() {
           {/* Card 3 - Global Locations */}
           <div className="relative bg-white/10 border border-white/20 backdrop-blur-sm shadow-xl rounded-2xl p-8 flex flex-col justify-between w-[360px] sm:w-[500px] h-[220px] transition-transform hover:-translate-y-1 hover:bg-white/15">
             <div className="flex items-center justify-center w-[52px] h-[52px] bg-[#EDF4E5] rounded-xl border border-[#31372B]/10 shadow">
-              <img src="/MapPinIcon.svg" alt="Map" className="w-6 h-6" />
+              <Image src="/MapPinIcon.svg" alt="Map" width={24} height={24} className="w-6 h-6" />
             </div>
             <div className="mt-4">
               <h3 className="text-[48px] font-bold leading-none font-funnel-display">120+</h3>
@@ -672,7 +672,7 @@ export default function Home() {
           {/* Card 4 - Investment Fields */}
           <div className="relative bg-white/10 border border-white/20 backdrop-blur-sm shadow-xl rounded-2xl p-8 flex flex-col justify-between w-[360px] sm:w-[500px] h-[220px] transition-transform hover:-translate-y-1 hover:bg-white/15">
             <div className="flex items-center justify-center w-[52px] h-[52px] bg-[#EDF4E5] rounded-xl border border-[#31372B]/10 shadow">
-              <img src="/BriefCaseIcon.svg" alt="Briefcase" className="w-6 h-6" />
+              <Image src="/BriefCaseIcon.svg" alt="Briefcase" width={24} height={24} className="w-6 h-6" />
             </div>
             <div className="mt-4">
               <h3 className="text-[48px] font-bold leading-none font-funnel-display">25+</h3>
