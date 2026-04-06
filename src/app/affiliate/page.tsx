@@ -75,7 +75,7 @@ export default function AffiliateLandingPage() {
   return (
     <main className="min-h-screen bg-[#FAF7EE] font-[Arial]">
       {/* Hero */}
-      <section className="pt-20 pb-20 px-4 flex flex-col items-center text-center max-w-4xl mx-auto">
+      <section className="pt-32 pb-20 px-4 flex flex-col items-center text-center max-w-4xl mx-auto">
         <div className="inline-flex items-center gap-2 bg-[rgba(49,55,43,0.08)] border border-[rgba(49,55,43,0.1)] rounded-full px-4 py-2 mb-8">
           <div className="w-2 h-2 rounded-full bg-[#C6FF55]"></div>
           <span className="text-xs font-bold uppercase tracking-wide text-[#31372B]">Affiliate Program</span>

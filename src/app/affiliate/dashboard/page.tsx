@@ -30,6 +30,17 @@ type Withdrawal = {
   created_at: string;
 };
 
+type WithdrawalForm = {
+  name: string;
+  account_number: string;
+  ifsc_code: string;
+  account_holder_name: string;
+  contact_number: string;
+  email_id: string;
+  country: string;
+  additional_details: string;
+};
+
 type Toast = { message: string; type: "success" | "error" };
 
 function ToastNotification({ toast, onDismiss }: { toast: Toast; onDismiss: () => void }) {
@@ -56,6 +67,16 @@ export default function AffiliateDashboardPage() {
   const [withdrawing, setWithdrawing] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
   const [copied, setCopied] = useState(false);
+  const [withdrawForm, setWithdrawForm] = useState<WithdrawalForm>({
+    name: "",
+    account_number: "",
+    ifsc_code: "",
+    account_holder_name: "",
+    contact_number: "",
+    email_id: "",
+    country: "",
+    additional_details: "",
+  });
 
   const showToast = useCallback((message: string, type: "success" | "error" = "success") => {
     setToast({ message, type });
@@ -134,16 +155,40 @@ export default function AffiliateDashboardPage() {
       showToast(`Max you can withdraw is $${availableToWithdraw.toFixed(2)}`, "error");
       return;
     }
+
+    if (
+      !withdrawForm.name.trim() ||
+      !withdrawForm.account_number.trim() ||
+      !withdrawForm.ifsc_code.trim() ||
+      !withdrawForm.account_holder_name.trim() ||
+      !withdrawForm.contact_number.trim() ||
+      !withdrawForm.email_id.trim() ||
+      !withdrawForm.country.trim()
+    ) {
+      showToast("Please fill all required withdrawal details.", "error");
+      return;
+    }
+
     setWithdrawing(true);
     const res = await fetch("/api/affiliate/withdraw", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount }),
+      body: JSON.stringify({ amount, ...withdrawForm }),
     });
     const json = await res.json();
     if (res.ok) {
       showToast("Withdrawal request submitted!");
       setWithdrawAmount("");
+      setWithdrawForm({
+        name: "",
+        account_number: "",
+        ifsc_code: "",
+        account_holder_name: "",
+        contact_number: "",
+        email_id: "",
+        country: "",
+        additional_details: "",
+      });
       await fetchDashboard();
     } else {
       showToast(json.error || "Failed to submit request.", "error");
@@ -173,7 +218,7 @@ export default function AffiliateDashboardPage() {
     <div className="min-h-screen bg-[#FAF7EE]">
       {toast && <ToastNotification toast={toast} onDismiss={() => setToast(null)} />}
 
-      <div className="max-w-5xl mx-auto px-4 pt-16 pb-16">
+      <div className="max-w-5xl mx-auto px-4 pt-32 pb-16">
 
         {/* Header */}
         <div className="mb-10">
@@ -269,23 +314,94 @@ export default function AffiliateDashboardPage() {
                     Reach <span className="font-bold">${MIN_AFFILIATE_WITHDRAWAL_USD}</span> in available balance to submit a withdrawal request.
                   </p>
                 )}
-                <div className="flex gap-3">
-                  <input
-                    type="number"
-                    min={MIN_AFFILIATE_WITHDRAWAL_USD}
-                    step="0.01"
-                    value={withdrawAmount}
-                    onChange={(e) => setWithdrawAmount(e.target.value)}
-                    placeholder={`Min $${MIN_AFFILIATE_WITHDRAWAL_USD}`}
-                    disabled={!canRequestWithdrawal}
-                    className="flex-1 border border-[#31372B]/20 rounded-lg px-4 py-2.5 text-sm text-[#31372B] bg-[#FAF7EE] focus:outline-none focus:ring-2 focus:ring-[#31372B]/30 disabled:opacity-50"
-                  />
+                <div className="grid grid-cols-1 gap-3">
+                  <div className="flex gap-3">
+                    <input
+                      type="number"
+                      min={MIN_AFFILIATE_WITHDRAWAL_USD}
+                      step="0.01"
+                      value={withdrawAmount}
+                      onChange={(e) => setWithdrawAmount(e.target.value)}
+                      placeholder={`Amount (min $${MIN_AFFILIATE_WITHDRAWAL_USD})`}
+                      disabled={!canRequestWithdrawal}
+                      className="flex-1 border border-[#31372B]/20 rounded-lg px-4 py-2.5 text-sm text-[#31372B] bg-[#FAF7EE] focus:outline-none focus:ring-2 focus:ring-[#31372B]/30 disabled:opacity-50"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input
+                      value={withdrawForm.name}
+                      onChange={(e) => setWithdrawForm((p) => ({ ...p, name: e.target.value }))}
+                      placeholder="Name *"
+                      disabled={!canRequestWithdrawal}
+                      className="border border-[#31372B]/20 rounded-lg px-4 py-2.5 text-sm bg-[#FAF7EE] focus:outline-none focus:ring-2 focus:ring-[#31372B]/30 disabled:opacity-50"
+                    />
+                    <input
+                      value={withdrawForm.account_holder_name}
+                      onChange={(e) =>
+                        setWithdrawForm((p) => ({ ...p, account_holder_name: e.target.value }))
+                      }
+                      placeholder="Account Holder Name *"
+                      disabled={!canRequestWithdrawal}
+                      className="border border-[#31372B]/20 rounded-lg px-4 py-2.5 text-sm bg-[#FAF7EE] focus:outline-none focus:ring-2 focus:ring-[#31372B]/30 disabled:opacity-50"
+                    />
+                    <input
+                      value={withdrawForm.account_number}
+                      onChange={(e) =>
+                        setWithdrawForm((p) => ({ ...p, account_number: e.target.value }))
+                      }
+                      placeholder="Account Number *"
+                      disabled={!canRequestWithdrawal}
+                      className="border border-[#31372B]/20 rounded-lg px-4 py-2.5 text-sm bg-[#FAF7EE] focus:outline-none focus:ring-2 focus:ring-[#31372B]/30 disabled:opacity-50"
+                    />
+                    <input
+                      value={withdrawForm.ifsc_code}
+                      onChange={(e) => setWithdrawForm((p) => ({ ...p, ifsc_code: e.target.value }))}
+                      placeholder="IFSC Code *"
+                      disabled={!canRequestWithdrawal}
+                      className="border border-[#31372B]/20 rounded-lg px-4 py-2.5 text-sm bg-[#FAF7EE] focus:outline-none focus:ring-2 focus:ring-[#31372B]/30 disabled:opacity-50"
+                    />
+                    <input
+                      value={withdrawForm.contact_number}
+                      onChange={(e) =>
+                        setWithdrawForm((p) => ({ ...p, contact_number: e.target.value }))
+                      }
+                      placeholder="Contact Number (WhatsApp preferred) *"
+                      disabled={!canRequestWithdrawal}
+                      className="border border-[#31372B]/20 rounded-lg px-4 py-2.5 text-sm bg-[#FAF7EE] focus:outline-none focus:ring-2 focus:ring-[#31372B]/30 disabled:opacity-50 sm:col-span-2"
+                    />
+                    <input
+                      value={withdrawForm.email_id}
+                      onChange={(e) => setWithdrawForm((p) => ({ ...p, email_id: e.target.value }))}
+                      placeholder="Email ID *"
+                      disabled={!canRequestWithdrawal}
+                      className="border border-[#31372B]/20 rounded-lg px-4 py-2.5 text-sm bg-[#FAF7EE] focus:outline-none focus:ring-2 focus:ring-[#31372B]/30 disabled:opacity-50"
+                    />
+                    <input
+                      value={withdrawForm.country}
+                      onChange={(e) => setWithdrawForm((p) => ({ ...p, country: e.target.value }))}
+                      placeholder="Country *"
+                      disabled={!canRequestWithdrawal}
+                      className="border border-[#31372B]/20 rounded-lg px-4 py-2.5 text-sm bg-[#FAF7EE] focus:outline-none focus:ring-2 focus:ring-[#31372B]/30 disabled:opacity-50"
+                    />
+                    <textarea
+                      value={withdrawForm.additional_details}
+                      onChange={(e) =>
+                        setWithdrawForm((p) => ({ ...p, additional_details: e.target.value }))
+                      }
+                      placeholder="Additional Details (optional)"
+                      disabled={!canRequestWithdrawal}
+                      rows={3}
+                      className="border border-[#31372B]/20 rounded-lg px-4 py-2.5 text-sm bg-[#FAF7EE] focus:outline-none focus:ring-2 focus:ring-[#31372B]/30 disabled:opacity-50 sm:col-span-2"
+                    />
+                  </div>
+
                   <button
                     onClick={handleWithdraw}
                     disabled={withdrawing || !withdrawAmount || !canRequestWithdrawal}
                     className="bg-[#31372B] text-[#FAF7EE] font-bold px-4 py-2.5 rounded-lg text-sm hover:bg-black transition disabled:opacity-40 cursor-pointer"
                   >
-                    {withdrawing ? "..." : "Withdraw"}
+                    {withdrawing ? "..." : "Submit Withdrawal Request"}
                   </button>
                 </div>
               </div>

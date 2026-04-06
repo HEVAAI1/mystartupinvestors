@@ -11,6 +11,14 @@ type WithdrawalRequest = {
   status: "pending" | "approved" | "rejected" | "paid";
   created_at: string;
   processed_at: string | null;
+  name?: string | null;
+  account_number?: string | null;
+  ifsc_code?: string | null;
+  account_holder_name?: string | null;
+  contact_number?: string | null;
+  email_id?: string | null;
+  country?: string | null;
+  additional_details?: string | null;
   affiliates: {
     referral_code: string;
     total_earned: number;
@@ -24,6 +32,8 @@ export default function AdminWithdrawalsPage() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selected, setSelected] = useState<WithdrawalRequest | null>(null);
 
   const fetchRequests = useCallback(async () => {
     setLoadError(null);
@@ -246,6 +256,16 @@ export default function AdminWithdrawalsPage() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelected(request);
+                            setDetailsOpen(true);
+                          }}
+                          className="px-3 py-2 text-[#31372B] bg-white border border-[#31372B1F] rounded-lg hover:bg-[#FAF7EE] transition text-[12px] font-bold"
+                        >
+                          Details
+                        </button>
                         {request.status === "pending" && (
                           <>
                             <button
@@ -296,6 +316,79 @@ export default function AdminWithdrawalsPage() {
           </table>
         </div>
       </div>
+
+      {detailsOpen && selected && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/50 z-40"
+            onClick={() => {
+              setDetailsOpen(false);
+              setSelected(null);
+            }}
+          />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="w-full max-w-xl bg-white rounded-2xl border border-[#31372B1F] shadow-xl overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-[#31372B1F] bg-[#FAF7EE]">
+                <div>
+                  <h3 className="text-[16px] font-bold text-[#31372B]">Withdrawal Details</h3>
+                  <p className="text-[12px] text-[#717182] mt-0.5">
+                    {selected.affiliates.referral_code} · ${Number(selected.amount).toFixed(2)} ·{" "}
+                    {selected.status.toUpperCase()}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDetailsOpen(false);
+                    setSelected(null);
+                  }}
+                  className="p-2 rounded-lg hover:bg-white/60 transition"
+                  aria-label="Close"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-[13px]">
+                <div>
+                  <div className="text-[11px] font-bold text-[#717182] uppercase">Name</div>
+                  <div className="text-[#31372B] mt-1">{selected.name || "—"}</div>
+                </div>
+                <div>
+                  <div className="text-[11px] font-bold text-[#717182] uppercase">Account Holder</div>
+                  <div className="text-[#31372B] mt-1">{selected.account_holder_name || "—"}</div>
+                </div>
+                <div>
+                  <div className="text-[11px] font-bold text-[#717182] uppercase">Account Number</div>
+                  <div className="text-[#31372B] mt-1 break-all">{selected.account_number || "—"}</div>
+                </div>
+                <div>
+                  <div className="text-[11px] font-bold text-[#717182] uppercase">IFSC Code</div>
+                  <div className="text-[#31372B] mt-1">{selected.ifsc_code || "—"}</div>
+                </div>
+                <div>
+                  <div className="text-[11px] font-bold text-[#717182] uppercase">Contact (WhatsApp)</div>
+                  <div className="text-[#31372B] mt-1">{selected.contact_number || "—"}</div>
+                </div>
+                <div>
+                  <div className="text-[11px] font-bold text-[#717182] uppercase">Email</div>
+                  <div className="text-[#31372B] mt-1 break-all">{selected.email_id || "—"}</div>
+                </div>
+                <div className="sm:col-span-2">
+                  <div className="text-[11px] font-bold text-[#717182] uppercase">Country</div>
+                  <div className="text-[#31372B] mt-1">{selected.country || "—"}</div>
+                </div>
+                <div className="sm:col-span-2">
+                  <div className="text-[11px] font-bold text-[#717182] uppercase">Additional details</div>
+                  <div className="text-[#31372B] mt-1 whitespace-pre-wrap">
+                    {selected.additional_details || "—"}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

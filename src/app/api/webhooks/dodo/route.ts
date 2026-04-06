@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
       // ============================================================
       const { data: userData } = await supabaseAdmin
         .from('users')
-        .select('credits_allocated')
+        .select('credits_allocated, plan, calculation_credits, weekly_calculation_credits, last_calculation_reset_at')
         .eq('id', userId)
         .single();
 
@@ -121,10 +121,23 @@ export async function POST(request: NextRequest) {
 
       await supabaseAdmin
         .from('users')
-        .update({ credits_allocated: newCredits })
+        .update({
+          // Investor/metadata credits shown in your app
+          credits_allocated: newCredits,
+
+          // Make sure check-credits uses the paid flow.
+          plan: planDetails.plan,
+
+          // Tool credits (used by tools-for-founders calculators).
+          // Migration uses NULL for enterprise=unlimited, but requirement here is
+          // to credit the equal number of Calculation Credits on success.
+          calculation_credits:
+            // If calculation_credits is NULL, treat as 0 and convert to finite credits.
+            Number(userData?.calculation_credits ?? 0) + planDetails.credits,
+        })
         .eq('id', userId);
 
-      console.log(`✅ Credits added: +${planDetails.credits}`);
+      console.log(`✅ Credits added: +${planDetails.credits} (credits_allocated + calculation_credits)`);
 
       // ============================================================
       // 💸 AFFILIATE COMMISSION (SAFE)

@@ -1,4 +1,3 @@
-import ReferralLinker from "@/components/ReferralLinker";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import { redirect } from "next/navigation";
 
@@ -26,10 +25,5 @@ export default async function AffiliateDashboardLayout({
     redirect("/admin/dashboard");
   }
 
-  return (
-    <>
-      <ReferralLinker />
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }
