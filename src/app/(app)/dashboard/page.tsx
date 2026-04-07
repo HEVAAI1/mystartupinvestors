@@ -21,10 +21,7 @@ interface Investor {
   type?: string;
 }
 
-interface FilterOptionsResponse {
-  data: Pick<Investor, "country" | "preference_sector">[] | null;
-  error: { message?: string } | null;
-}
+
 
 interface ViewedIdsResponse {
   data: { investor_id: number }[] | null;

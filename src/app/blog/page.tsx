@@ -1,4 +1,4 @@
-import { fetchHashnodePosts } from "@/lib/hashnode";
+import { fetchSanityPosts } from "@/lib/sanity";
 import BlogClient from "./BlogClient";
 
 export const metadata = {
@@ -9,7 +9,7 @@ export const metadata = {
 export const revalidate = 3600;
 
 export default async function BlogPage() {
-    const posts = await fetchHashnodePosts();
+    const posts = await fetchSanityPosts();
 
     return <BlogClient initialPosts={posts} />;
 }
