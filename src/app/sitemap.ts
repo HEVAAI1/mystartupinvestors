@@ -1,9 +1,10 @@
 import { fetchSanityPosts } from "@/lib/sanity";
+import { tools } from "@/lib/tools";
 
 export default async function sitemap() {
   const baseUrl = "https://myfundinglist.com";
 
-  // ✅ Fetch from Sanity
+  // Blogs
   const posts = await fetchSanityPosts();
 
   const blogPostUrls = posts.map((post) => ({
@@ -11,36 +12,28 @@ export default async function sitemap() {
     lastModified: new Date(post.publishedAt),
   }));
 
+  // Tools (AUTO)
+  const toolUrls = tools.map((tool) => ({
+    url: `${baseUrl}${tool.route}`,
+    lastModified: new Date(),
+  }));
+
   return [
-    // Core pages
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-    },
-    {
-      url: `${baseUrl}/pricing`,
-      lastModified: new Date(),
-    },
-    {
-      url: `${baseUrl}/blog`,
-      lastModified: new Date(),
-    },
+    // Core
+    { url: baseUrl, lastModified: new Date() },
+    { url: `${baseUrl}/pricing`, lastModified: new Date() },
+    { url: `${baseUrl}/blog`, lastModified: new Date() },
 
-    // Legal pages
-    {
-      url: `${baseUrl}/terms`,
-      lastModified: new Date(),
-    },
-    {
-      url: `${baseUrl}/privacy`,
-      lastModified: new Date(),
-    },
-    {
-      url: `${baseUrl}/refund`,
-      lastModified: new Date(),
-    },
+    // Tools hub
+    { url: `${baseUrl}/tools-for-founders`, lastModified: new Date() },
 
-    // Blog posts
+    // Legal
+    { url: `${baseUrl}/terms`, lastModified: new Date() },
+    { url: `${baseUrl}/privacy`, lastModified: new Date() },
+    { url: `${baseUrl}/refund`, lastModified: new Date() },
+
+    // Dynamic
     ...blogPostUrls,
+    ...toolUrls,
   ];
 }
