@@ -4,6 +4,9 @@ import BlogClient from "./BlogClient";
 export const metadata = {
     title: "Blog",
     description: "Insights, updates, and resources for startup founders and investors",
+    alternates: {
+    canonical: "https://myfundinglist.com/blog",
+  },
 };
 
 export const revalidate = 3600;

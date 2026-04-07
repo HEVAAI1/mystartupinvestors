@@ -25,6 +25,7 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
   return {
     title: `${post.title} – MyFundingList Blog`,
     description: post.brief,
+    
 
     openGraph: {
       title: post.title,

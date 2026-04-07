@@ -25,6 +25,10 @@ const funnelDisplay = Funnel_Display({
 export const metadata: Metadata = {
   metadataBase: new URL("https://myfundinglist.com"),
 
+  alternates: {
+    canonical: "/",
+  },
+
   title: {
     default: "Find 5000+ Verified Investors | MyFundingList",
     template: "%s | MyFundingList",
