@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     siteName: "MyFundingList",
     images: [
       {
-        url: "https://myfundinglist.com/og-preview.png", // 🔥 IMPORTANT
+        url: "https://myfundinglist.com/og-preview.jpg",
         width: 1200,
         height: 630,
       },
