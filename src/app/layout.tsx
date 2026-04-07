@@ -26,22 +26,35 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://myfundinglist.com"),
 
   title: {
-    default: "Home | MyFundingList",
+    default: "Find 5000+ Verified Investors | MyFundingList",
     template: "%s | MyFundingList",
   },
 
   description:
-    "Connect with 5,000+ verified investors. MyFundingList is the fastest way for founders to find, filter, and reach the right investors across sectors and geographies.",
+    "Connect with 5,000+ verified investors. MyFundingList helps founders find, filter, and reach the right investors across sectors and geographies.",
 
   openGraph: {
+    title: "Find & Connect with 5000+ Verified Investors",
+    description:
+      "Access 5,000+ active investors across sectors and geographies for your startup.",
+    url: "https://myfundinglist.com",
     siteName: "MyFundingList",
+    images: [
+      {
+        url: "https://myfundinglist.com/og-preview.png", // 🔥 IMPORTANT
+        width: 1200,
+        height: 630,
+      },
+    ],
     type: "website",
-    description: "Connect with 5,000+ verified investors. Find, filter, and reach the right investors for your startup.",
   },
 
   twitter: {
     card: "summary_large_image",
-    description: "Connect with 5,000+ verified investors on MyFundingList.",
+    title: "Find & Connect with 5000+ Verified Investors",
+    description:
+      "Access 5,000+ active investors across sectors and geographies.",
+    images: ["https://myfundinglist.com/og-preview.png"], // 🔥 IMPORTANT
   },
 };
 
