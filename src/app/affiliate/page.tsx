@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import Footer from "@/components/Footer";
 
 export default function AffiliateLandingPage() {
   const router = useRouter();
@@ -195,14 +196,7 @@ export default function AffiliateLandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#31372B] border-t border-white/10 py-6 px-4 text-center">
-        <p className="text-white/30 text-xs">
-          © 2024 MyFundingList · Questions?{" "}
-          <a href="mailto:hi@eaglegrowthpartners.com" className="hover:text-white/60 transition underline">
-            hi@eaglegrowthpartners.com
-          </a>
-        </p>
-      </footer>
+     <Footer/>
     </main>
   );
 }

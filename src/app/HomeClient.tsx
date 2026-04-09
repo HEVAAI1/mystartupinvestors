@@ -251,7 +251,7 @@ export default function HomeClient() {
             <div
               key={i}
               className="
-          group relative p-10 rounded-[24px]
+          group relative w-[90%] md:w-auto mx-auto p-10 rounded-[24px]
           bg-white/[0.10] border border-white/10
           transition-all duration-300
           hover:border-[#C6FF55]/40
@@ -347,7 +347,7 @@ export default function HomeClient() {
         <div className="relative z-10 grid md:grid-cols-3 gap-8 max-w-[1450px] mx-auto">
 
           {/* Card 1: The List You Need */}
-          <div className="bg-white border border-[rgba(49,55,43,0.12)] shadow-sm rounded-[24px] p-8 flex flex-col text-left h-full">
+          <div className="w-[90%] md:w-auto mx-auto bg-white border border-[rgba(49,55,43,0.12)] shadow-sm rounded-[24px] p-8 flex flex-col text-left h-full">
             <h3 className="text-[24px] font-bold text-[#31372B] mb-3">
               The List You Need
             </h3>
@@ -418,7 +418,7 @@ export default function HomeClient() {
           </div>
 
           {/* Card 2: Connect directly via Email */}
-          <div className="bg-white border border-[rgba(49,55,43,0.12)] shadow-sm rounded-[24px] p-8 flex flex-col text-left h-full">
+          <div className="w-[90%] md:w-auto mx-auto bg-white border border-[rgba(49,55,43,0.12)] shadow-sm rounded-[24px] p-8 flex flex-col text-left h-full">
             <h3 className="text-[24px] font-bold text-[#31372B] mb-3">
               Connect directly via Email
             </h3>
@@ -470,7 +470,7 @@ export default function HomeClient() {
           </div>
 
           {/* Card 3: Add your startup */}
-          <div className="bg-white border border-[rgba(49,55,43,0.12)] shadow-sm rounded-[24px] p-8 flex flex-col text-left h-full">
+          <div className="w-[90%] md:w-auto mx-auto bg-white border border-[rgba(49,55,43,0.12)] shadow-sm rounded-[24px] p-8 flex flex-col text-left h-full">
             <h3 className="text-[24px] font-bold text-[#31372B] mb-3">
               Add your startup
             </h3>
@@ -762,13 +762,13 @@ export default function HomeClient() {
         </div>
 
         {/* Footer Text */}
-        <p className="text-center text-[14px] text-[#717182] mt-10">
+        <p className="text-center text-[14px] text-[#717182] mt-10 mb-10">
           All plans include access to our verified investor database. <span className="font-bold text-[#31372B]">Credits never expire.</span>
         </p>
       </section>
       {/* ✅ Trusted by Indian Founders Section */}
       <section
-        className="relative mt-[-7vw] flex flex-col items-start isolate bg-[#FAF7EE]"
+        className="relative mt-[3vw] flex flex-col items-start isolate bg-[#FAF7EE]"
         style={{
           padding: "6.31vw 7.9vw 0 7.9vw",
           gap: "4.21vw",

@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { MIN_AFFILIATE_WITHDRAWAL_USD } from "@/lib/affiliate-constants";
+import Footer from "@/components/Footer";
 
 type Affiliate = {
   id: string;
@@ -495,6 +496,8 @@ export default function AffiliateDashboardPage() {
         }
         .animate-fade-in { animation: fade-in 0.25s ease-out; }
       `}</style>
+
+      <Footer/>
     </div>
   );
 }

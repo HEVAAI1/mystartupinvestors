@@ -167,8 +167,8 @@ export default function Home() {
 
       <section className="bg-[#FAFAFA] flex flex-col items-center text-center px-6 md:px-12 lg:px-24 pt-28 pb-24">
         {/* Trusted Tag */}
-        <div className="bg-[#1E1E1E]/10 border border-[#1E1E1E]/20] text-[#3C3C43] rounded-full px-5 py-2 text-sm font-medium mb-6 shadow-sm">
-          Trusted by 500+ startups
+        <div className="bg-[#1E1E1E]/10 border border-[#1E1E1E]/20] text-[#3C3C43] rounded-full font-bold px-5 py-2 text-sm mb-6 shadow-sm">
+          TRUSTED BY 500+ STARTUPS
         </div>
 
         {/* Heading */}
@@ -344,7 +344,7 @@ export default function Home() {
             <div
               key={i}
               className="
-          group relative p-10 rounded-[24px]
+          group relative w-[90%] md:w-auto mx-auto p-10 rounded-[24px]
           bg-white/[0.10] border border-white/10
           transition-all duration-300
           hover:border-[#C6FF55]/40
@@ -440,7 +440,7 @@ export default function Home() {
         <div className="relative z-10 grid md:grid-cols-3 gap-8 max-w-[1450px] mx-auto">
 
           {/* Card 1: The List You Need */}
-          <div className="bg-white border border-[rgba(49,55,43,0.12)] shadow-sm rounded-[24px] p-8 flex flex-col text-left h-full transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08)] hover:border-black">
+          <div className="w-[90%] md:w-auto mx-auto bg-white border border-[rgba(49,55,43,0.12)] shadow-sm rounded-[24px] p-8 flex flex-col text-left h-full transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08)] hover:border-black">
             <h3 className="text-[24px] font-bold text-[#31372B] mb-3">
               The List You Need
             </h3>
@@ -511,7 +511,7 @@ export default function Home() {
           </div>
 
           {/* Card 2: Connect directly via Email */}
-          <div className="bg-white border border-[rgba(49,55,43,0.12)] shadow-sm rounded-[24px] p-8 flex flex-col text-left h-full transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08)] hover:border-black">
+          <div className="w-[90%] md:w-auto mx-auto bg-white border border-[rgba(49,55,43,0.12)] shadow-sm rounded-[24px] p-8 flex flex-col text-left h-full transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08)] hover:border-black">
             <h3 className="text-[24px] font-bold text-[#31372B] mb-3">
               Connect directly via Email
             </h3>
@@ -563,7 +563,7 @@ export default function Home() {
           </div>
 
           {/* Card 3: Add your startup */}
-          <div className="bg-white border border-[rgba(49,55,43,0.12)] shadow-sm rounded-[24px] p-8 flex flex-col text-left h-full transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08)] hover:border-black">
+          <div className="w-[90%] md:w-auto mx-auto bg-white border border-[rgba(49,55,43,0.12)] shadow-sm rounded-[24px] p-8 flex flex-col text-left h-full transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.08)] hover:border-black">
             <h3 className="text-[24px] font-bold text-[#31372B] mb-3">
               Add your startup
             </h3>
@@ -620,7 +620,7 @@ export default function Home() {
         <div className="relative z-10 flex flex-col items-center gap-4 text-center">
           <div className="px-5 py-1 rounded-full border border-[#EDF4E5]/30 bg-[#EDF4E5]/20 flex items-center gap-2">
             <div className="w-2.5 h-2.5 rounded-full bg-[#C6FF55]"></div>
-            <p className="font-bold text-sm font-[Arial]">Global Investor Network</p>
+            <p className="font-bold text-sm font-[Arial]">GLOBAL INVESTOR NETWORK</p>
           </div>
 
           <h2 className="text-[54px] font-bold leading-[1.3] max-w-[850px] font-funnel-display">
@@ -709,7 +709,7 @@ export default function Home() {
       </section>
 
       {/* Pricing Section */}
-      <section className="relative bg-[#F5F5F5] py-28 text-[#31372B] overflow-hidden">
+      <section className="relative bg-[#FFFFFF] py-28 text-[#31372B] overflow-hidden">
         <div className="text-center mb-20">
           <h2 className="text-[46px] font-bold leading-[68px] tracking-[-0.5px] font-funnel-display">Simple, Transparent Pricing</h2>
           <p className="text-[18px] text-[#717182] mt-2 font-[Arial]">
@@ -849,7 +849,7 @@ export default function Home() {
         </div>
 
         {/* Footer Text */}
-        <p className="text-center text-[14px] text-[#717182] mt-10">
+        <p className="text-center text-[14px] text-[#717182] mt-10 mb-10">
           All plans include access to our verified investor database. <span className="font-bold text-[#31372B]">Credits never expire.</span>
         </p>
       </section>
