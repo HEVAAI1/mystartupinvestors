@@ -173,7 +173,7 @@ export default function Home() {
 
         {/* Heading */}
         <h1 className="text-[40px] md:text-[48px] leading-tight font-bold text-[#000] tracking-[-1px] max-w-3xl font-funnel-display">
-          5000+ Investors&apos; Access to get <br className="hidden md:block" /> your startup funded
+          30,000+ Investors&apos; Access to get <br className="hidden md:block" /> your startup funded
         </h1>
 
         {/* Subtext */}
