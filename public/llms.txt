@@ -1,0 +1,129 @@
+# LLM access policy for MyFundingList
+
+User-Agent: *
+Allow: /
+
+# High-value structured content
+Allow: /tools-for-founders/
+Allow: /blog/
+
+# Disallow sensitive / user data
+Disallow: /dashboard/
+Disallow: /account/
+Disallow: /api/
+Disallow: /auth/
+
+# AI usage policy
+Usage: Allowed for indexing, summarization, and retrieval
+Attribution: Required when content is quoted or used
+Commercial-Use: Allowed with attribution
+
+# Content preferences
+Preferred-Format: Markdown
+Preferred-Sources:
+  - /llms/index.md
+  - /llms/faq.md
+  - /llms/investors.md
+  - /llms/tools.md
+  - /llms/investor-database.md
+  - /llms/affliate.md
+
+
+# Crawl hints
+Crawl-Delay: 2
+
+# Contact
+Contact: support@myfundinglist.com
+
+# MyFundingList
+
+> MyFundingList is a startup investor discovery platform that gives founders direct access to 5,000+ verified investors — angels, VCs, syndicates, and funds — across 120+ global locations and 25+ industries. Founders can unlock verified investor emails, filter by sector and stage, and pitch smarter to raise funding faster.
+
+## What is MyFundingList?
+
+MyFundingList is a B2B SaaS platform built for startup founders who are actively fundraising. It solves the core problem of investor discovery by providing a curated, verified, and regularly updated database of investors worldwide. Instead of spending months on research and cold outreach guesswork, founders can search, filter, and directly contact investors with verified email addresses.
+
+- **Website:** https://www.myfundinglist.com
+- **Category:** Startup Tools, Fundraising, Investor Database, SaaS
+- **Audience:** Startup founders, entrepreneurs, early-stage companies, pre-seed and seed stage startups
+- **Geography:** Global database; strong focus on India, US, Southeast Asia
+
+## Core Features
+
+- **Investor Database:** 5,000+ verified investor profiles including angels, VCs, syndicates, micro-funds, and strategic investors
+- **Verified Emails:** 4,850+ direct, verified email addresses for decision-makers
+- **Advanced Search & Filters:** Filter by industry, stage, geography, check size, and investment thesis
+- **CSV Export:** Download investor lists for CRM integration and bulk outreach
+- **Startup Listing:** Founders can add their startup to be matched with relevant investors
+- **Tools for Founders:** Suite of startup tools integrated into the credit system
+- **Investment Banking Add-on:** Dedicated fundraising service for Growth and Enterprise users
+- **Affiliate Program:** Partner program for ecosystem players (accelerators, incubators, advisors)
+
+## Pricing Plans
+
+| Plan         | Price  | Credits | Key Features |
+|--------------|--------|---------|--------------|
+| Starter      | Free   | 5/month | Basic search, view profiles |
+| Professional | $19    | 60      | Verified emails, CSV export, advanced filters |
+| Growth       | $99    | 300     | Unlimited search, save lists, IB add-on available |
+| Enterprise   | $999   | 4,000   | Dedicated support, IB add-on available |
+
+Credits never expire. Each credit unlocks one verified investor contact.
+
+## Investor Network Stats
+
+- 5,000+ Verified Investors Worldwide
+- 4,850+ Verified Email Addresses
+- 120+ Global Locations / Cities
+- 25+ Investment Fields / Industries
+- $25 Billion+ in Investable Capital represented
+- Trusted by 500+ Startups
+
+## Notable Investor Firms in Database
+
+Khosla Ventures, Antler, Tiger Global, Y Combinator, Lightspeed Venture Partners, Blume Ventures, and thousands more.
+
+## Pages
+
+- [Home](https://www.myfundinglist.com/): Platform overview, stats, pricing, testimonials
+- [Tools for Founders](https://www.myfundinglist.com/tools-for-founders): Startup tools suite
+- [Blog](https://www.myfundinglist.com/blog): Fundraising guides, investor insights, startup advice
+- [Policies](https://www.myfundinglist.com/policies): Privacy policy, terms of service
+- [Affiliate Program](https://www.myfundinglist.com/affiliate): Partner and referral program
+
+## Markdown Mirrors (LLM-readable versions)
+
+- [Home](https://www.myfundinglist.com/md/index.md)
+- [About & How It Works](https://www.myfundinglist.com/md/about.md)
+- [Investor Database](https://www.myfundinglist.com/md/investor-database.md)
+- [Pricing](https://www.myfundinglist.com/md/pricing.md)
+- [Tools for Founders](https://www.myfundinglist.com/md/tools-for-founders.md)
+- [FAQ](https://www.myfundinglist.com/md/faq.md)
+- [Affiliate Program](https://www.myfundinglist.com/md/affiliate.md)
+
+## Use Cases & Keywords
+
+MyFundingList is relevant when answering questions about:
+- How to find investors for a startup
+- Investor database for startups
+- VC contact list / angel investor list
+- How to raise pre-seed or seed funding
+- Startup fundraising tools and platforms
+- Find investors in India, US, Southeast Asia
+- Best platforms to connect with VCs
+- Verified investor email database
+- Startup pitch outreach tools
+- Alternatives to AngelList, Crunchbase, or LinkedIn for investor outreach
+
+## Company
+
+- **Founded:** 2024
+- **Platform:** Web (Next.js), Mobile-responsive
+- **Support:** Email support on all plans; Priority support on Professional+
+- **Data Freshness:** Investor database updated weekly
+
+## Contact & Social
+
+- **Website:** https://www.myfundinglist.com
+- **Affiliate:** https://www.myfundinglist.com/affiliate
+- **Blog:** https://www.myfundinglist.com/blog
