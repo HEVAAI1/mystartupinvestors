@@ -108,11 +108,11 @@ export default function ViewStartupPage() {
 
     const renderReadOnlyField = (label: string, value: string) => {
         return (
-            <div className="mb-6">
-                <div className="flex items-center justify-between mb-2">
-                    <label className="text-[14px] font-semibold text-[#31372B]">{label}</label>
+            <div className="mb-5">
+                <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-[13px] font-inter font-semibold text-[#31372B]">{label}</label>
                 </div>
-                <p className="text-[14px] text-[#717182] bg-[#F3F3F5] px-3 py-2 rounded-md">
+                <p className="text-[13px] font-inter text-[#6B6B6B] bg-black/[0.04] px-4 py-2.5 rounded-2xl border border-black/[0.05]">
                     {value || "Not provided"}
                 </p>
             </div>
@@ -123,15 +123,15 @@ export default function ViewStartupPage() {
         const isEditing = editingField === field;
 
         return (
-            <div className="mb-6">
-                <div className="flex items-center justify-between mb-2">
-                    <label className="text-[14px] font-semibold text-[#31372B]">{label}</label>
+            <div className="mb-5">
+                <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-[13px] font-inter font-semibold text-[#31372B]">{label}</label>
                     {!isEditing && (
                         <button
                             onClick={() => handleEdit(field, value)}
-                            className="text-[#31372B] hover:text-[#717182] transition"
+                            className="text-[#6B6B6B] hover:text-[#31372B] transition p-1 rounded-lg hover:bg-black/[0.05]"
                         >
-                            <Edit2 size={16} />
+                            <Edit2 size={15} />
                         </button>
                     )}
                 </div>
@@ -142,25 +142,25 @@ export default function ViewStartupPage() {
                             type="text"
                             value={editValue}
                             onChange={(e) => setEditValue(e.target.value)}
-                            className="flex-1 rounded-md px-3 py-2 text-[14px] border border-[#31372B1F] outline-none focus:ring-1 focus:ring-[#31372B]"
+                            className="flex-1 rounded-2xl px-4 py-2.5 text-[13px] font-inter border border-black/[0.08] outline-none focus:ring-2 focus:ring-[#C6FF55]/40 focus:border-[#C6FF55]/60 transition"
                             autoFocus
                         />
                         <button
                             onClick={() => handleSave(field)}
                             disabled={saving}
-                            className="px-3 py-2 bg-[#31372B] text-white rounded-md hover:opacity-90 transition"
+                            className="px-3 py-2 bg-[#1E1E1E] text-white rounded-2xl hover:bg-[#333] transition disabled:opacity-50"
                         >
-                            <Save size={16} />
+                            <Save size={15} />
                         </button>
                         <button
                             onClick={handleCancel}
-                            className="px-3 py-2 border border-[#31372B1F] rounded-md hover:bg-[#F5F5F5] transition"
+                            className="px-3 py-2 border border-black/[0.10] rounded-2xl hover:bg-black/[0.04] transition"
                         >
-                            <X size={16} />
+                            <X size={15} />
                         </button>
                     </div>
                 ) : (
-                    <p className="text-[14px] text-[#717182] bg-[#F3F3F5] px-3 py-2 rounded-md">
+                    <p className="text-[13px] font-inter text-[#6B6B6B] bg-black/[0.04] px-4 py-2.5 rounded-2xl border border-black/[0.05]">
                         {value || "Not provided"}
                     </p>
                 )}
@@ -172,32 +172,33 @@ export default function ViewStartupPage() {
         const isEditing = editingField === field;
 
         return (
-            <div className="mb-6">
-                <div className="flex items-center justify-between mb-2">
-                    <label className="text-[14px] font-semibold text-[#31372B]">{label}</label>
+            <div className="mb-5">
+                <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-[13px] font-inter font-semibold text-[#31372B]">{label}</label>
                     {!isEditing && (
                         <button
                             onClick={() => handleEdit(field, value)}
-                            className="text-[#31372B] hover:text-[#717182] transition"
+                            className="text-[#6B6B6B] hover:text-[#31372B] transition p-1 rounded-lg hover:bg-black/[0.05]"
                         >
-                            <Edit2 size={16} />
+                            <Edit2 size={15} />
                         </button>
                     )}
                 </div>
 
                 {isEditing ? (
                     <div>
-                        <div className="flex flex-col gap-2 mb-2">
+                        <div className="flex flex-col gap-2 mb-3 bg-black/[0.03] rounded-2xl p-4 border border-black/[0.05]">
                             {options.map((option) => (
-                                <label key={option} className="flex items-center gap-2 cursor-pointer">
+                                <label key={option} className="flex items-center gap-2.5 cursor-pointer">
                                     <input
                                         type="radio"
                                         name={field}
                                         value={option}
                                         checked={editValue === option}
                                         onChange={(e) => setEditValue(e.target.value)}
+                                        className="accent-[#1E1E1E]"
                                     />
-                                    <span className="text-[14px]">{option}</span>
+                                    <span className="text-[13px] font-inter text-[#31372B]">{option}</span>
                                 </label>
                             ))}
                         </div>
@@ -205,20 +206,20 @@ export default function ViewStartupPage() {
                             <button
                                 onClick={() => handleSave(field)}
                                 disabled={saving}
-                                className="px-3 py-2 bg-[#31372B] text-white rounded-md hover:opacity-90 transition text-[14px]"
+                                className="px-4 py-2 bg-[#1E1E1E] text-white rounded-2xl hover:bg-[#333] transition text-[13px] font-inter font-semibold disabled:opacity-50"
                             >
                                 Save
                             </button>
                             <button
                                 onClick={handleCancel}
-                                className="px-3 py-2 border border-[#31372B1F] rounded-md hover:bg-[#F5F5F5] transition text-[14px]"
+                                className="px-4 py-2 border border-black/[0.10] rounded-2xl hover:bg-black/[0.04] transition text-[13px] font-inter"
                             >
                                 Cancel
                             </button>
                         </div>
                     </div>
                 ) : (
-                    <p className="text-[14px] text-[#717182] bg-[#F3F3F5] px-3 py-2 rounded-md">
+                    <p className="text-[13px] font-inter text-[#6B6B6B] bg-black/[0.04] px-4 py-2.5 rounded-2xl border border-black/[0.05]">
                         {value || "Not provided"}
                     </p>
                 )}
@@ -230,15 +231,15 @@ export default function ViewStartupPage() {
         const isEditing = editingField === field;
 
         return (
-            <div className="mb-6">
-                <div className="flex items-center justify-between mb-2">
-                    <label className="text-[14px] font-semibold text-[#31372B]">{label}</label>
+            <div className="mb-5">
+                <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-[13px] font-inter font-semibold text-[#31372B]">{label}</label>
                     {!isEditing && (
                         <button
                             onClick={() => handleEdit(field, value)}
-                            className="text-[#31372B] hover:text-[#717182] transition"
+                            className="text-[#6B6B6B] hover:text-[#31372B] transition p-1 rounded-lg hover:bg-black/[0.05]"
                         >
-                            <Edit2 size={16} />
+                            <Edit2 size={15} />
                         </button>
                     )}
                 </div>
@@ -249,27 +250,27 @@ export default function ViewStartupPage() {
                             value={editValue}
                             onChange={(e) => setEditValue(e.target.value)}
                             rows={4}
-                            className="w-full rounded-md px-3 py-2 text-[14px] border border-[#31372B1F] outline-none focus:ring-1 focus:ring-[#31372B] resize-none mb-2"
+                            className="w-full rounded-2xl px-4 py-3 text-[13px] font-inter border border-black/[0.08] outline-none focus:ring-2 focus:ring-[#C6FF55]/40 focus:border-[#C6FF55]/60 resize-none mb-2 transition"
                             autoFocus
                         />
                         <div className="flex gap-2">
                             <button
                                 onClick={() => handleSave(field)}
                                 disabled={saving}
-                                className="px-3 py-2 bg-[#31372B] text-white rounded-md hover:opacity-90 transition text-[14px]"
+                                className="px-4 py-2 bg-[#1E1E1E] text-white rounded-2xl hover:bg-[#333] transition text-[13px] font-inter font-semibold disabled:opacity-50"
                             >
                                 Save
                             </button>
                             <button
                                 onClick={handleCancel}
-                                className="px-3 py-2 border border-[#31372B1F] rounded-md hover:bg-[#F5F5F5] transition text-[14px]"
+                                className="px-4 py-2 border border-black/[0.10] rounded-2xl hover:bg-black/[0.04] transition text-[13px] font-inter"
                             >
                                 Cancel
                             </button>
                         </div>
                     </div>
                 ) : (
-                    <p className="text-[14px] text-[#717182] bg-[#F3F3F5] px-3 py-2 rounded-md whitespace-pre-wrap">
+                    <p className="text-[13px] font-inter text-[#6B6B6B] bg-black/[0.04] px-4 py-2.5 rounded-2xl border border-black/[0.05] whitespace-pre-wrap">
                         {value || "Not provided"}
                     </p>
                 )}
@@ -280,7 +281,10 @@ export default function ViewStartupPage() {
     if (loading) {
         return (
             <div className="min-h-screen bg-[#FAF7EE] flex items-center justify-center">
-                <p className="text-[#717182]">Loading...</p>
+                <div className="flex items-center gap-3">
+                    <div className="animate-spin h-5 w-5 rounded-full border-2 border-[#1E1E1E] border-t-transparent" />
+                    <p className="text-[#6B6B6B] font-inter text-sm">Loading...</p>
+                </div>
             </div>
         );
     }
@@ -289,10 +293,10 @@ export default function ViewStartupPage() {
         return (
             <div className="min-h-screen bg-[#FAF7EE] flex items-center justify-center">
                 <div className="text-center">
-                    <p className="text-[#717182] mb-4">No startup details found.</p>
+                    <p className="text-[#6B6B6B] font-inter mb-4">No startup details found.</p>
                     <button
                         onClick={() => router.push("/add-startup")}
-                        className="px-4 py-2 bg-[#31372B] text-white rounded-md hover:opacity-90"
+                        className="px-5 py-2.5 bg-[#1E1E1E] text-white rounded-full font-inter font-semibold text-sm hover:bg-[#333] transition cursor-pointer"
                     >
                         Add Your Startup
                     </button>
@@ -302,26 +306,26 @@ export default function ViewStartupPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#FAF7EE] pt-[92px] pb-20">
+        <div className="min-h-screen bg-[#FAF7EE] font-inter pt-[92px] pb-20">
             <div className="max-w-[900px] mx-auto px-6">
-                <h1 className="text-[32px] font-bold text-[#31372B] mb-2">My Startup Details</h1>
-                <p className="text-[16px] text-[#717182] mb-8">
+                <h1 className="font-space font-bold text-[28px] text-[#1E1E1E] mb-1 tracking-[-0.02em]">My Startup Details</h1>
+                <p className="text-[14px] font-inter text-[#6B6B6B] mb-8">
                     View and edit your startup information
                 </p>
 
-                <div className="bg-white rounded-xl border border-[#31372B1F] shadow-sm p-8">
+                <div className="bg-white/70 border border-black/[0.06] rounded-3xl shadow-sm p-7 md:p-8 backdrop-blur-sm">
                     {/* Personal Details Section */}
-                    <h2 className="text-[24px] font-bold text-[#31372B] mb-6">Personal Details</h2>
+                    <h2 className="font-space font-bold text-[20px] text-[#1E1E1E] mb-5 tracking-[-0.01em]">Personal Details</h2>
                     {renderReadOnlyField("Name", startupData.full_name)}
                     {renderReadOnlyField("Email", startupData.email)}
                     {renderReadOnlyField("Phone Number", startupData.phone)}
                     {renderReadOnlyField("LinkedIn URL", startupData.linkedin)}
                     {renderReadOnlyField("City", startupData.city)}
 
-                    <hr className="my-8 border-[#31372B1F]" />
+                    <hr className="my-7 border-black/[0.06]" />
 
                     {/* Startup Details Section */}
-                    <h2 className="text-[24px] font-bold text-[#31372B] mb-6">Startup Details</h2>
+                    <h2 className="font-space font-bold text-[20px] text-[#1E1E1E] mb-5 tracking-[-0.01em]">Startup Details</h2>
                     {renderField("Company Name", "company_name", startupData.company_name)}
                     {renderField("Designation", "designation", startupData.designation)}
                     {renderField("Company URL", "company_website", startupData.company_website)}
@@ -352,10 +356,10 @@ export default function ViewStartupPage() {
                     ])}
                     {renderField("Previous Funding Amount", "previous_funding_amount", startupData.previous_funding_amount)}
 
-                    <hr className="my-8 border-[#31372B1F]" />
+                    <hr className="my-7 border-black/[0.06]" />
 
                     {/* Additional Information Section */}
-                    <h2 className="text-[24px] font-bold text-[#31372B] mb-6">Additional Information</h2>
+                    <h2 className="font-space font-bold text-[20px] text-[#1E1E1E] mb-5 tracking-[-0.01em]">Additional Information</h2>
                     {renderRadioField("Referral Source", "referral_source", startupData.referral_source, [
                         "Linkedin",
                         "Twitter",
@@ -370,15 +374,15 @@ export default function ViewStartupPage() {
                     {renderTextareaField("Additional Notes", "additional_notes", startupData.additional_notes)}
 
                     {startupData.deck_url && (
-                        <div className="mb-6">
-                            <label className="text-[14px] font-semibold text-[#31372B] mb-2 block">Pitch Deck</label>
+                        <div className="mb-5">
+                            <label className="text-[13px] font-inter font-semibold text-[#31372B] mb-1.5 block">Pitch Deck</label>
                             <a
                                 href={startupData.deck_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-[14px] text-[#31372B] hover:underline bg-[#F3F3F5] px-3 py-2 rounded-md inline-block"
+                                className="inline-flex items-center gap-2 text-[13px] font-inter text-[#31372B] bg-[#C6FF55]/20 border border-[#C6FF55]/40 px-4 py-2 rounded-full hover:bg-[#C6FF55]/30 transition"
                             >
-                                View Uploaded Deck
+                                View Uploaded Deck →
                             </a>
                         </div>
                     )}

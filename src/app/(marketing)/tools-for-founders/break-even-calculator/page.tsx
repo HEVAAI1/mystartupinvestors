@@ -81,7 +81,7 @@ export default function BreakEvenCalculatorPage() {
         <>
             <SmartNavbar />
 
-            <main className="min-h-screen bg-[#FAF7EE] font-[Arial] text-[#31372B]">
+            <main className="min-h-screen bg-[#FAF7EE] font-inter text-[#31372B]">
                 <div className="max-w-[1200px] mx-auto pt-32 pb-16 px-6">
                     {/* Breadcrumb Navigation */}
                     <nav className="mb-8 text-sm text-[#717182]">
@@ -94,10 +94,10 @@ export default function BreakEvenCalculatorPage() {
 
                     {/* Hero Section */}
                     <div className="mb-12">
-                        <h1 className="text-[48px] font-bold text-[#31372B] mb-4 leading-tight">
+                        <h1 className="text-[clamp(36px,5vw,56px)] font-space font-bold text-[#31372B] mb-4 leading-[1.05] tracking-[-0.03em]">
                             Break-Even Calculator for Startups
                         </h1>
-                        <p className="text-[20px] text-[#717182] leading-relaxed max-w-[800px]">
+                        <p className="text-lg md:text-xl font-inter text-[#6B6B6B] leading-relaxed max-w-[800px]">
                             Calculate your startup&apos;s break-even point in units and revenue. Understand how pricing, costs, and volume impact your path to profitability.
                         </p>
                     </div>
@@ -131,7 +131,7 @@ export default function BreakEvenCalculatorPage() {
                     )}
 
                     {/* Calculator Section */}
-                    <div className="bg-white border border-[#31372B1F] rounded-xl p-8 shadow-sm mb-12">
+                    <div className="bg-white/60 backdrop-blur-sm border border-black/[0.06] rounded-3xl p-8 shadow-sm mb-12">
                         <h2 className="text-[24px] font-bold text-[#31372B] mb-6">Calculator</h2>
 
                         <div className="grid md:grid-cols-2 gap-8">
@@ -274,7 +274,7 @@ export default function BreakEvenCalculatorPage() {
                     </div>
 
                     {/* CTA Section */}
-                    <div className="bg-[#31372B] rounded-xl p-10 text-center mb-12">
+                    <div className="bg-[#1E1E1E] rounded-3xl p-10 text-center mb-12 shadow-2xl shadow-black/15">
                         <h2 className="text-[32px] font-bold text-[#FAF7EE] mb-4">
                             Founders who know their numbers raise faster.
                         </h2>
@@ -290,7 +290,7 @@ export default function BreakEvenCalculatorPage() {
                     </div>
 
                     {/* Methodology & Assumptions */}
-                    <div className="bg-white border border-[#31372B1F] rounded-xl p-8 shadow-sm mb-12">
+                    <div className="bg-white/60 backdrop-blur-sm border border-black/[0.06] rounded-3xl p-8 shadow-sm mb-12">
                         <h2 className="text-[28px] font-bold text-[#31372B] mb-6">Methodology & Assumptions</h2>
 
                         <div className="prose prose-lg max-w-none text-[#31372B]">
@@ -327,7 +327,7 @@ export default function BreakEvenCalculatorPage() {
                     </div>
 
                     {/* FAQs */}
-                    <div className="bg-white border border-[#31372B1F] rounded-xl p-8 shadow-sm mb-12">
+                    <div className="bg-white/60 backdrop-blur-sm border border-black/[0.06] rounded-3xl p-8 shadow-sm mb-12">
                         <h2 className="text-[28px] font-bold text-[#31372B] mb-6">Frequently Asked Questions</h2>
 
                         <div className="space-y-6">
@@ -370,13 +370,13 @@ export default function BreakEvenCalculatorPage() {
                     </div>
 
                     {/* Related Tools */}
-                    <div className="bg-white border border-[#31372B1F] rounded-xl p-8 shadow-sm">
+                    <div className="bg-white/60 backdrop-blur-sm border border-black/[0.06] rounded-3xl p-8 shadow-sm">
                         <h2 className="text-[24px] font-bold text-[#31372B] mb-6">Related Tools</h2>
 
                         <div className="grid md:grid-cols-3 gap-4">
                             <Link
                                 href="/tools-for-founders/advanced-valuation-engine"
-                                className="p-4 border border-[#31372B1F] rounded-lg hover:shadow-md transition"
+                                className="p-5 border border-black/[0.06] rounded-2xl bg-white/70 hover:shadow-md hover:border-[#C6FF55]/40 transition-all duration-300"
                             >
                                 <div className="text-[24px] mb-2">💰</div>
                                 <h3 className="font-bold text-[#31372B] mb-1">Valuation Engine</h3>
@@ -385,7 +385,7 @@ export default function BreakEvenCalculatorPage() {
 
                             <Link
                                 href="/tools-for-founders/burn-rate-calculator"
-                                className="p-4 border border-[#31372B1F] rounded-lg hover:shadow-md transition"
+                                className="p-5 border border-black/[0.06] rounded-2xl bg-white/70 hover:shadow-md hover:border-[#C6FF55]/40 transition-all duration-300"
                             >
                                 <div className="text-[24px] mb-2">🔥</div>
                                 <h3 className="font-bold text-[#31372B] mb-1">Burn Rate Calculator</h3>
@@ -394,7 +394,7 @@ export default function BreakEvenCalculatorPage() {
 
                             <Link
                                 href="/tools-for-founders/cap-table"
-                                className="p-4 border border-[#31372B1F] rounded-lg hover:shadow-md transition"
+                                className="p-5 border border-black/[0.06] rounded-2xl bg-white/70 hover:shadow-md hover:border-[#C6FF55]/40 transition-all duration-300"
                             >
                                 <div className="text-[24px] mb-2">📋</div>
                                 <h3 className="font-bold text-[#31372B] mb-1">Cap Table Model</h3>
@@ -417,3 +417,4 @@ export default function BreakEvenCalculatorPage() {
         </>
     );
 }
+

@@ -4,6 +4,8 @@ import {
   Geist_Mono,
   Noto_Sans,
   Funnel_Display,
+  Inter,
+  Space_Grotesk,
 } from "next/font/google";
 import "./globals.css"; 
 import Script from "next/script";
@@ -17,6 +19,18 @@ const notoSans = Noto_Sans({
 });
 const funnelDisplay = Funnel_Display({
   variable: "--font-funnel-display",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
@@ -76,6 +90,8 @@ export default function RootLayout({
           ${geistMono.variable}
           ${notoSans.variable}
           ${funnelDisplay.variable}
+          ${inter.variable}
+          ${spaceGrotesk.variable}
           antialiased
         `}
       >

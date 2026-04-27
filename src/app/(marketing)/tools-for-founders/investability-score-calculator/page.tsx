@@ -19,7 +19,7 @@ export default function InvestabilityScoreCalculatorPage() {
         <>
             <SmartNavbar />
 
-            <main className="min-h-screen bg-[#FAF7EE] font-[Arial] text-[#31372B]">
+            <main className="min-h-screen bg-[#FAF7EE] font-inter text-[#31372B]">
                 <div className="max-w-[1200px] mx-auto pt-32 pb-16 px-6">
                     {/* Breadcrumb Navigation */}
                     <nav className="mb-8 text-sm text-[#717182]">
@@ -32,10 +32,10 @@ export default function InvestabilityScoreCalculatorPage() {
 
                     {/* Hero Section */}
                     <div className="mb-12">
-                        <h1 className="text-[48px] font-bold text-[#31372B] mb-4 leading-tight">
+                        <h1 className="text-[clamp(36px,5vw,56px)] font-space font-bold text-[#31372B] mb-4 leading-[1.05] tracking-[-0.03em]">
                             Startup Investability Score
                         </h1>
-                        <p className="text-[20px] text-[#717182] leading-relaxed max-w-[800px]">
+                        <p className="text-lg md:text-xl font-inter text-[#6B6B6B] leading-relaxed max-w-[800px]">
                             Evaluate your startup from a VC&apos;s perspective. Identify strengths and weaknesses in your team, market, traction, and defensibility.
                         </p>
                     </div>
@@ -44,7 +44,7 @@ export default function InvestabilityScoreCalculatorPage() {
                     <InvestabilityScoreCalculatorClient />
 
                     {/* CTA Section */}
-                    <div className="bg-[#31372B] rounded-xl p-10 text-center mb-12">
+                    <div className="bg-[#1E1E1E] rounded-3xl p-10 text-center mb-12 shadow-2xl shadow-black/15">
                         <h2 className="text-[32px] font-bold text-[#FAF7EE] mb-4">
                             Investors back founders who understand their numbers.
                         </h2>
@@ -57,7 +57,7 @@ export default function InvestabilityScoreCalculatorPage() {
                     </div>
 
                     {/* Methodology & Assumptions */}
-                    <div className="bg-white border border-[#31372B1F] rounded-xl p-8 shadow-sm mb-12">
+                    <div className="bg-white/60 backdrop-blur-sm border border-black/[0.06] rounded-3xl p-8 shadow-sm mb-12">
                         <h2 className="text-[28px] font-bold text-[#31372B] mb-6">Methodology & Scoring</h2>
 
                         <div className="prose prose-lg max-w-none text-[#31372B]">
@@ -95,7 +95,7 @@ export default function InvestabilityScoreCalculatorPage() {
                     </div>
 
                     {/* FAQs */}
-                    <div className="bg-white border border-[#31372B1F] rounded-xl p-8 shadow-sm mb-12">
+                    <div className="bg-white/60 backdrop-blur-sm border border-black/[0.06] rounded-3xl p-8 shadow-sm mb-12">
                         <h2 className="text-[28px] font-bold text-[#31372B] mb-6">Frequently Asked Questions</h2>
 
                         <div className="space-y-6">
@@ -138,34 +138,34 @@ export default function InvestabilityScoreCalculatorPage() {
                     </div>
 
                     {/* Related Tools */}
-                    <div className="bg-white border border-[#31372B1F] rounded-xl p-8 shadow-sm">
+                    <div className="bg-white/60 backdrop-blur-sm border border-black/[0.06] rounded-3xl p-8 shadow-sm">
                         <h2 className="text-[24px] font-bold text-[#31372B] mb-6">Related Tools</h2>
                         <div className="grid md:grid-cols-3 gap-4">
-                            <Link href="/tools-for-founders/advanced-valuation-engine" className="p-4 border border-[#31372B1F] rounded-lg hover:shadow-md transition">
+                            <Link href="/tools-for-founders/advanced-valuation-engine" className="p-5 border border-black/[0.06] rounded-2xl bg-white/70 hover:shadow-md hover:border-[#C6FF55]/40 transition-all duration-300">
                                 <h3 className="font-bold text-[#31372B] mb-1">Valuation Engine</h3>
                             </Link>
-                            <Link href="/tools-for-founders/break-even-calculator" className="p-4 border border-[#31372B1F] rounded-lg hover:shadow-md transition">
+                            <Link href="/tools-for-founders/break-even-calculator" className="p-5 border border-black/[0.06] rounded-2xl bg-white/70 hover:shadow-md hover:border-[#C6FF55]/40 transition-all duration-300">
                                 <h3 className="font-bold text-[#31372B] mb-1">Break-Even Calculator</h3>
                             </Link>
-                            <Link href="/tools-for-founders/burn-rate-calculator" className="p-4 border border-[#31372B1F] rounded-lg hover:shadow-md transition">
+                            <Link href="/tools-for-founders/burn-rate-calculator" className="p-5 border border-black/[0.06] rounded-2xl bg-white/70 hover:shadow-md hover:border-[#C6FF55]/40 transition-all duration-300">
                                 <h3 className="font-bold text-[#31372B] mb-1">Burn Rate Calculator</h3>
                             </Link>
-                            <Link href="/tools-for-founders/cac-optimizer" className="p-4 border border-[#31372B1F] rounded-lg hover:shadow-md transition">
+                            <Link href="/tools-for-founders/cac-optimizer" className="p-5 border border-black/[0.06] rounded-2xl bg-white/70 hover:shadow-md hover:border-[#C6FF55]/40 transition-all duration-300">
                                 <h3 className="font-bold text-[#31372B] mb-1">CAC Optimizer</h3>
                             </Link>
-                            <Link href="/tools-for-founders/cap-table-model" className="p-4 border border-[#31372B1F] rounded-lg hover:shadow-md transition">
+                            <Link href="/tools-for-founders/cap-table-model" className="p-5 border border-black/[0.06] rounded-2xl bg-white/70 hover:shadow-md hover:border-[#C6FF55]/40 transition-all duration-300">
                                 <h3 className="font-bold text-[#31372B] mb-1">Cap Table Model</h3>
                             </Link>
-                            <Link href="/tools-for-founders/churn-rate-calculator" className="p-4 border border-[#31372B1F] rounded-lg hover:shadow-md transition">
+                            <Link href="/tools-for-founders/churn-rate-calculator" className="p-5 border border-black/[0.06] rounded-2xl bg-white/70 hover:shadow-md hover:border-[#C6FF55]/40 transition-all duration-300">
                                 <h3 className="font-bold text-[#31372B] mb-1">Churn Rate Calculator</h3>
                             </Link>
-                            <Link href="/tools-for-founders/dcf-calculator" className="p-4 border border-[#31372B1F] rounded-lg hover:shadow-md transition">
+                            <Link href="/tools-for-founders/dcf-calculator" className="p-5 border border-black/[0.06] rounded-2xl bg-white/70 hover:shadow-md hover:border-[#C6FF55]/40 transition-all duration-300">
                                 <h3 className="font-bold text-[#31372B] mb-1">DCF Calculator</h3>
                             </Link>
-                            <Link href="/tools-for-founders/fundraising-calculator" className="p-4 border border-[#31372B1F] rounded-lg hover:shadow-md transition">
+                            <Link href="/tools-for-founders/fundraising-calculator" className="p-5 border border-black/[0.06] rounded-2xl bg-white/70 hover:shadow-md hover:border-[#C6FF55]/40 transition-all duration-300">
                                 <h3 className="font-bold text-[#31372B] mb-1">Fundraising Calculator</h3>
                             </Link>
-                            <Link href="/tools-for-founders/irr-calculator" className="p-4 border border-[#31372B1F] rounded-lg hover:shadow-md transition">
+                            <Link href="/tools-for-founders/irr-calculator" className="p-5 border border-black/[0.06] rounded-2xl bg-white/70 hover:shadow-md hover:border-[#C6FF55]/40 transition-all duration-300">
                                 <h3 className="font-bold text-[#31372B] mb-1">IRR Calculator</h3>
                             </Link>
                         </div>
@@ -176,3 +176,4 @@ export default function InvestabilityScoreCalculatorPage() {
         </>
     );
 }
+

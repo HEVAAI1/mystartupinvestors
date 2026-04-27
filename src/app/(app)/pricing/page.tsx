@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-import AuthenticatedNavbar from "@/components/Navbar";
 import { useState } from "react";
 import Footer from "@/components/Footer";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
@@ -92,91 +90,71 @@ export default function PricingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF7EE] flex flex-col">
-      {/* Navbar */}
-      <AuthenticatedNavbar />
+    <div className="min-h-screen bg-[#FAF7EE] flex flex-col font-inter">
+      {/* Navbar rendered by layout */}
 
       {/* Main Content */}
       <main className="flex flex-col items-center w-full mt-24 px-6 md:px-0 mb-20">
-        <div className="max-w-[1200px] flex flex-col items-center gap-12 w-full">
+        <div className="max-w-[1100px] flex flex-col items-center gap-12 w-full">
           {/* Heading */}
           <div className="text-center">
-            <h1 className="font-bold text-[40px] leading-[60px] text-[#31372B] -tracking-[1px] font-[Arial]">
+            <h1 className="font-space font-bold text-[36px] md:text-[42px] leading-tight text-[#1E1E1E] tracking-[-0.03em]">
               Choose Your Credit Pack
             </h1>
-            <p className="text-[#717182] text-[18px] leading-[27px] font-[Arial] mt-2">
+            <p className="text-[#6B6B6B] text-[17px] font-inter mt-3">
               Pay once, use credits anytime. No subscriptions, no hidden fees.
             </p>
           </div>
 
           {/* Plan Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full justify-items-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
             {plans.map((plan) => (
               <div
                 key={plan.id}
                 onClick={() => setSelectedPlan(plan.id as "professional" | "growth" | "enterprise")}
-                className={`relative flex flex-col justify-between bg-white rounded-xl border ${selectedPlan === plan.id
-                  ? "border-[#31372B] shadow-lg"
-                  : "border-[rgba(49,55,43,0.12)]"
-                  } p-6 w-full cursor-pointer transition-all duration-150 min-h-[280px]`}
+                className={`relative flex flex-col justify-between rounded-3xl border p-7 w-full cursor-pointer transition-all duration-200 ${
+                  selectedPlan === plan.id
+                    ? "border-[#C6FF55] bg-white shadow-xl shadow-[#C6FF55]/10"
+                    : "border-black/[0.06] bg-white/60 backdrop-blur-sm hover:border-[#C6FF55]/30 hover:shadow-lg"
+                }`}
               >
                 {/* Most Popular Badge */}
                 {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-[#31372B] text-[#FAF7EE] text-[12px] rounded-full px-3 py-1 font-[Arial] whitespace-nowrap">
-                    <Image
-                      src="/GetCreditsLogoLight.svg"
-                      alt="Popular"
-                      width={12}
-                      height={12}
-                    />
-                    <span>Most Popular</span>
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#C6FF55] text-[#1E1E1E] text-[11px] rounded-full px-4 py-1 font-inter font-bold whitespace-nowrap flex items-center gap-1">
+                    ⚡ MOST POPULAR
                   </div>
                 )}
 
-                {/* Title & Price */}
-                <div>
-                  <h3 className="font-bold text-[20px] leading-[30px] text-[#31372B] tracking-[-0.6px] font-[Arial]">
-                    {plan.title}
-                  </h3>
-                  <p className="font-bold text-[32px] leading-[48px] text-[#31372B] tracking-[-0.8px] mt-1 font-[Arial]">
-                    {plan.price}
-                  </p>
-                  <p className="text-[#717182] text-[14px] mt-1 font-[Arial]">
-                    {plan.description}
-                  </p>
-                  <span className="inline-block bg-[rgba(49,55,43,0.1)] border border-[rgba(49,55,43,0.2)] text-[#31372B] text-[12px] px-2 py-[2px] rounded-md mt-4 font-[Arial]">
-                    {plan.credits}
-                  </span>
+                {/* Radio circle */}
+                <div
+                  className={`absolute top-5 right-5 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                    selectedPlan === plan.id ? "bg-[#1E1E1E] border-[#1E1E1E]" : "border-black/[0.15]"
+                  }`}
+                >
+                  {selectedPlan === plan.id && <div className="w-2 h-2 bg-white rounded-full" />}
                 </div>
 
-                {/* Radio Circle */}
-                <div
-                  className={`w-5 h-5 rounded-full border flex items-center justify-center ${selectedPlan === plan.id
-                    ? "bg-[#31372B] border-[#31372B]"
-                    : "border-[rgba(49,55,43,0.12)]"
-                    } absolute top-6 right-6`}
-                >
-                  {selectedPlan === plan.id && (
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                  )}
+                {/* Title & Price */}
+                <div>
+                  <p className="font-inter font-semibold text-sm text-[#6B6B6B]">{plan.title}</p>
+                  <p className="font-space font-bold text-[36px] text-[#1E1E1E] mt-2 tracking-[-0.02em]">
+                    {plan.price}
+                  </p>
+                  <p className="text-[#6B6B6B] font-inter text-[13px] mt-1">{plan.description}</p>
+                  <span className="inline-block bg-black/[0.05] border border-black/[0.06] text-[#31372B] text-[11px] font-inter px-3 py-1 rounded-full mt-4">
+                    {plan.credits}
+                  </span>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Billing Details */}
-          <div className="bg-white rounded-xl border border-[rgba(49,55,43,0.12)] w-full p-8 shadow-sm">
-
-
+          {/* Checkout Card */}
+          <div className="bg-white/70 border border-black/[0.06] rounded-3xl w-full p-8 shadow-sm backdrop-blur-sm">
             <form className="flex flex-col gap-6">
-
-
-
-
-
               {/* Error Message */}
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-[14px] font-[Arial]">
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-[14px] font-inter">
                   {error}
                 </div>
               )}
@@ -186,27 +164,19 @@ export default function PricingPage() {
                 type="button"
                 onClick={handleCheckout}
                 disabled={loading}
-                className="bg-[#31372B] text-[#FAF7EE] py-3 rounded-md mt-6 text-[14px] font-[Arial] flex items-center justify-center gap-2 hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-[#1E1E1E] text-white py-3.5 rounded-2xl text-[15px] font-inter font-semibold flex items-center justify-center gap-2 hover:bg-[#333] transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-lg shadow-black/10"
               >
                 {loading ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     Processing...
                   </>
                 ) : (
-                  <>
-                    <Image
-                      src="/CheckoutIconLight.svg"
-                      alt="Proceed Icon"
-                      width={16}
-                      height={16}
-                    />
-                    Proceed to Checkout
-                  </>
+                  <>Proceed to Checkout →</>
                 )}
               </button>
 
-              <p className="text-center text-[#717182] text-[14px] font-[Arial] mt-3">
+              <p className="text-center text-[#6B6B6B] text-[13px] font-inter">
                 Your payment is secure and encrypted
               </p>
             </form>

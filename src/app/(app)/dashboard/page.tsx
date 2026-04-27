@@ -396,32 +396,21 @@ const Dashboard = () => {
   }, [credits, decrementCredit, supabase, used, userId, viewedInvestorIds]);
 
   return (
-    <div className="min-h-screen bg-[#FAF7EE] font-[Arial] text-[#31372B]">
+    <div className="min-h-screen bg-[#FAF7EE] font-inter text-[#31372B]">
       {/* Header */}
       <div className="max-w-[1400px] mx-auto mt-16 md:mt-[92px] px-4 md:px-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0">
-        <h1 className="text-2xl md:text-[32px] font-bold">Investor database</h1>
+        <h1 className="text-2xl md:text-[32px] font-space font-bold text-[#1E1E1E] tracking-[-0.02em]">Investor database</h1>
 
         <div className="flex items-center gap-3 w-full md:w-auto">
-          <div className="flex items-center gap-2 bg-white border border-[#31372B1F] rounded-lg px-3 py-1.5">
-            <div className="w-2 h-2 bg-[#F0B100] rounded-full"></div>
-
-            {/* ⭐⭐⭐ THE ONLY CHANGE ⭐⭐⭐ */}
-            <span className="text-sm font-bold text-[#31372B]">
-              Credits Left: {credits}
+          <div className="flex items-center gap-1.5 bg-black/[0.05] border border-black/[0.06] rounded-full px-3 py-1.5">
+            <div className="w-2 h-2 bg-[#C6FF55] rounded-full"></div>
+            <span className="text-sm font-inter font-medium text-[#31372B]">
+              {credits} credits
             </span>
           </div>
           <Link href="/pricing">
-            <button
-
-              className="flex items-center gap-2 bg-[#31372B] text-[#FAF7EE] rounded-md px-4 py-2 text-sm font-medium hover:opacity-90 cursor-pointer"
-            >
-              <Image
-                src="/GetCreditsLogoLight.svg"
-                alt="Get Credits Icon"
-                width={16}
-                height={16}
-              />
-              Get credits
+            <button className="flex items-center gap-2 bg-[#1E1E1E] text-white rounded-full px-5 py-2 text-sm font-inter font-semibold hover:bg-[#333] transition shadow-lg shadow-black/10 cursor-pointer">
+              Get Credits
             </button>
           </Link>
         </div>
@@ -437,15 +426,15 @@ const Dashboard = () => {
               value={searchTerm}
               onChange={handleSearchChange}
               onKeyDown={handleKeyDown}
-              className="w-full bg-white border border-[#31372B1F] rounded-md pl-4 pr-4 py-2 placeholder-[#717182] text-[#31372B] focus:ring-1 focus:ring-[#717182] outline-none"
+              className="w-full bg-white border border-black/[0.08] rounded-2xl pl-4 pr-4 py-2.5 font-inter placeholder-[#9ca3af] text-[#31372B] focus:ring-2 focus:ring-[#C6FF55]/40 focus:border-[#C6FF55]/60 outline-none transition"
             />
           </div>
           <button
             onClick={handleSearch}
-            className="bg-[#31372B] text-white p-2 rounded-md hover:opacity-90 transition flex items-center justify-center shrink-0"
+            className="bg-[#1E1E1E] text-white p-2.5 rounded-2xl hover:bg-[#333] transition flex items-center justify-center shrink-0"
             aria-label="Search"
           >
-            <Search size={20} />
+            <Search size={18} />
           </button>
         </div>
 
@@ -464,12 +453,12 @@ const Dashboard = () => {
                 setSelectedLocation("All");
               }
             }}
-            className="w-full bg-white border border-[#31372B1F] rounded-md px-3 py-2 text-sm text-[#31372B] focus:ring-1 focus:ring-[#717182] outline-none"
+            className="w-full bg-white border border-black/[0.08] rounded-2xl px-3 py-2.5 text-sm font-inter text-[#31372B] focus:ring-2 focus:ring-[#C6FF55]/40 outline-none transition"
           />
           {locationSearch && (
-            <div className="absolute z-10 w-full mt-1 bg-white border border-[#31372B1F] rounded-md shadow-lg max-h-60 overflow-y-auto">
+            <div className="absolute z-10 w-full mt-1 bg-white border border-black/[0.08] rounded-2xl shadow-xl max-h-60 overflow-y-auto">
               <div
-                className="px-3 py-2 text-sm hover:bg-[#F5F5F5] cursor-pointer"
+                className="px-3 py-2 text-sm font-inter hover:bg-black/[0.04] cursor-pointer rounded-t-2xl"
                 onClick={() => {
                   setSelectedLocation("All");
                   setLocationSearch("");
@@ -482,7 +471,7 @@ const Dashboard = () => {
                 .map((location) => (
                   <div
                     key={location}
-                    className="px-3 py-2 text-sm hover:bg-[#F5F5F5] cursor-pointer"
+                    className="px-3 py-2 text-sm font-inter hover:bg-black/[0.04] cursor-pointer"
                     onClick={() => {
                       setSelectedLocation(location);
                       setLocationSearch("");
@@ -498,7 +487,7 @@ const Dashboard = () => {
         <select
           value={selectedIndustry}
           onChange={handleIndustryChange}
-          className="bg-white border border-[#31372B1F] rounded-md px-3 py-2 text-sm text-[#31372B] w-full md:w-44"
+          className="bg-white border border-black/[0.08] rounded-2xl px-3 py-2.5 text-sm font-inter text-[#31372B] w-full md:w-44 focus:ring-2 focus:ring-[#C6FF55]/40 outline-none"
           size={1}
         >
           <option value="All">All Industries</option>
@@ -508,32 +497,33 @@ const Dashboard = () => {
         </select>
 
         <div
-          className="flex items-center bg-white border border-[#31372B1F] rounded-md px-3 py-2 text-sm gap-3 cursor-pointer select-none"
+          className="flex items-center bg-white border border-black/[0.08] rounded-2xl px-4 py-2.5 text-sm font-inter gap-3 cursor-pointer select-none hover:bg-black/[0.02] transition"
           onClick={handleToggleViewed}
         >
-          <span>Show Viewed Only</span>
+          <span className="text-[#31372B]">Show Viewed Only</span>
           <div
-            className={`w-8 h-4 rounded-full flex items-center p-0.5 transition-all duration-300 ${showViewed ? "bg-[#31372B]" : "bg-[#CBCED4]"
-              }`}
+            className={`w-8 h-4 rounded-full flex items-center p-0.5 transition-all duration-300 ${showViewed ? "bg-[#1E1E1E]" : "bg-[#CBCED4]"}`}
           >
             <div
-              className={`w-3.5 h-3.5 bg-white rounded-full transform transition-transform duration-300 ${showViewed ? "translate-x-4" : ""
-                }`}
-            ></div>
+              className={`w-3.5 h-3.5 bg-white rounded-full transform transition-transform duration-300 ${showViewed ? "translate-x-4" : ""}`}
+            />
           </div>
         </div>
       </div>
 
       {/* Investor List */}
-      <div className="max-w-[1400px] mx-auto mt-6 md:mt-8 space-y-4 md:space-y-6 px-4 md:px-6 pb-8">
+      <div className="max-w-[1400px] mx-auto mt-6 md:mt-8 space-y-3 md:space-y-4 px-4 md:px-6 pb-8">
         {loading ? (
-          <p className="text-[#717182]">Loading investor data...</p>
+          <div className="flex items-center gap-3 py-8">
+            <div className="animate-spin h-5 w-5 rounded-full border-2 border-[#1E1E1E] border-t-transparent" />
+            <p className="text-[#6B6B6B] font-inter text-sm">Loading investor data...</p>
+          </div>
         ) : error ? (
           <div className="flex items-center gap-3">
-            <p className="text-red-500">{error}</p>
+            <p className="text-red-500 font-inter text-sm">{error}</p>
             <button
               onClick={fetchInvestors}
-              className="bg-[#31372B] text-[#FAF7EE] rounded-md px-3 py-1.5 text-sm font-medium hover:opacity-90"
+              className="bg-[#1E1E1E] text-white rounded-full px-4 py-1.5 text-sm font-inter font-medium hover:bg-[#333] transition"
             >
               Retry
             </button>
@@ -544,20 +534,20 @@ const Dashboard = () => {
               return (
                 <div
                   key={inv.id}
-                  className="flex flex-col md:flex-row justify-between items-start bg-white border border-[#31372B1F] rounded-xl p-4 md:p-5 shadow-sm gap-4 md:gap-0"
+                  className="flex flex-col md:flex-row justify-between items-start bg-white/70 border border-black/[0.06] rounded-3xl p-4 md:p-5 shadow-sm gap-4 md:gap-0 hover:border-[#C6FF55]/30 hover:shadow-md transition-all duration-300 backdrop-blur-sm"
                 >
                   {/* Avatar + Name */}
-                  <div className="flex items-start gap-3 md:gap-4 w-full md:w-[250px]">
-                    <div className="flex justify-center items-center w-10 h-10 md:w-12 md:h-12 bg-[#F5F5F5] rounded-full font-bold text-sm md:text-base shrink-0">
+                  <div className="flex items-start gap-3 md:gap-4 w-full md:w-[260px]">
+                    <div className="flex justify-center items-center w-10 h-10 md:w-12 md:h-12 bg-[#1E1E1E] text-white rounded-full font-space font-bold text-sm md:text-base shrink-0">
                       {inv.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="font-bold text-[15px] leading-5">
+                      <p className="font-inter font-bold text-[15px] leading-5 text-[#1E1E1E]">
                         {maskName(inv.name, inv.id)}
                       </p>
-                      <p className="text-[14px] text-[#717182]">{inv.firm_name}</p>
+                      <p className="font-inter text-[13px] text-[#6B6B6B] mt-0.5">{inv.firm_name}</p>
                       {inv.type && (
-                        <span className="inline-block mt-1 bg-[#F5F5F5] border border-[#31372B1F] text-[#31372B] text-xs px-2 py-0.5 rounded-md whitespace-nowrap">
+                        <span className="inline-block mt-1 bg-black/[0.05] border border-black/[0.06] text-[#31372B] text-[11px] font-inter px-2.5 py-0.5 rounded-full whitespace-nowrap">
                           {inv.type}
                         </span>
                       )}
@@ -567,25 +557,21 @@ const Dashboard = () => {
                   {/* About + Tags */}
                   <div className="flex flex-col flex-1 w-full md:w-auto">
                     {viewedInvestorIds.includes(inv.id) ? (
-                      // Full about text for unlocked investors
-                      <p className="text-[14px] mb-2">{inv.about}</p>
+                      <p className="text-[13px] font-inter text-[#31372B] mb-2 leading-relaxed">{inv.about}</p>
                     ) : (
-                      // Censored preview for locked investors with masked names
                       <div className="relative mb-2">
-                        <p className="text-[14px] text-[#717182]">
+                        <p className="text-[13px] font-inter text-[#6B6B6B]">
                           {maskDescription(inv.about, inv.name, inv.id).substring(0, 100)}...
                         </p>
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-white pointer-events-none"></div>
-                        <p className="text-xs text-[#717182] italic mt-1">
-                          🔒 Unlock to view full description
-                        </p>
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-white pointer-events-none" />
+                        <p className="text-xs font-inter text-[#6B6B6B] mt-1">🔒 Unlock to view full description</p>
                       </div>
                     )}
-                    <div className="flex gap-2 flex-wrap">
+                    <div className="flex gap-1.5 flex-wrap">
                       {inv.preference_sector.split(",").map((tag) => (
                         <span
                           key={tag}
-                          className="bg-[#F5F5F5] border border-[#31372B1F] text-[#31372B] text-xs px-2 py-0.5 rounded-md"
+                          className="bg-black/[0.05] border border-black/[0.06] text-[#31372B] text-[11px] font-inter px-2.5 py-0.5 rounded-full"
                         >
                           {tag.trim()}
                         </span>
@@ -595,20 +581,19 @@ const Dashboard = () => {
 
                   {/* Actions */}
                   <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-start gap-3 w-full md:w-[150px]">
-                    <p className="text-[14px] text-[#717182] text-right pr-2">
+                    <p className="text-[13px] font-inter text-[#6B6B6B] text-right">
                       {inv.country}
                     </p>
-
                     <button
                       onClick={() => handleViewProfile(inv)}
                       disabled={loadingInvestorId === inv.id}
-                      className="bg-[#31372B] text-[#FAF7EE] rounded-md px-4 py-2 md:py-1.5 text-sm font-bold hover:opacity-90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 justify-center w-full md:w-auto md:min-w-[120px]"
+                      className="bg-[#1E1E1E] text-white rounded-full px-5 py-2 text-sm font-inter font-semibold hover:bg-[#333] transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 justify-center w-full md:w-auto"
                     >
                       {loadingInvestorId === inv.id ? (
                         <>
-                          <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          <svg className="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                           </svg>
                           Loading...
                         </>
@@ -627,21 +612,19 @@ const Dashboard = () => {
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1 || loading}
-                  className="px-3 py-1 rounded border border-[#31372B1F] text-sm disabled:opacity-50 hover:bg-[#F5F5F5] disabled:cursor-not-allowed"
+                  className="px-4 py-2 rounded-full border border-black/[0.08] text-sm font-inter disabled:opacity-40 hover:bg-black/[0.04] disabled:cursor-not-allowed transition"
                 >
-                  Previous
+                  ← Previous
                 </button>
-
-                <span className="text-sm text-[#717182]">
+                <span className="text-sm font-inter text-[#6B6B6B] px-3">
                   Page {currentPage} of {Math.ceil(totalCount / PAGE_SIZE)}
                 </span>
-
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(Math.ceil(totalCount / PAGE_SIZE), p + 1))}
                   disabled={currentPage >= Math.ceil(totalCount / PAGE_SIZE) || loading}
-                  className="px-3 py-1 rounded border border-[#31372B1F] text-sm disabled:opacity-50 hover:bg-[#F5F5F5] disabled:cursor-not-allowed"
+                  className="px-4 py-2 rounded-full border border-black/[0.08] text-sm font-inter disabled:opacity-40 hover:bg-black/[0.04] disabled:cursor-not-allowed transition"
                 >
-                  Next
+                  Next →
                 </button>
               </div>
             )}

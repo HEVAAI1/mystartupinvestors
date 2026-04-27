@@ -79,13 +79,25 @@ export default function ToolsForFoundersClient() {
       />
       <SmartNavbar />
 
-      <main className="min-h-screen bg-[#FAF7EE] font-[Arial] text-[#31372B]">
-        <section className="max-w-[1200px] mx-auto pt-32 pb-16 px-6">
+      <main className="min-h-screen bg-[#FAF7EE] font-inter text-[#31372B] relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-24 left-[8%] h-72 w-72 rounded-full bg-[#C6FF55]/18 blur-[110px]" />
+          <div className="absolute top-[28rem] right-[10%] h-80 w-80 rounded-full bg-white/35 blur-[120px]" />
+        </div>
+
+        <section className="relative z-10 max-w-[1200px] mx-auto pt-32 pb-16 px-6">
           <div className="text-center mb-12">
-            <h1 className="text-[48px] font-bold text-[#31372B] mb-4 leading-tight">
+            <div className="inline-flex items-center gap-2 rounded-full border border-black/[0.08] bg-white/70 px-5 py-2 mb-8 shadow-sm backdrop-blur-sm">
+              <div className="h-2 w-2 rounded-full bg-[#C6FF55]" />
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#31372B]">
+                Built for Founders
+              </span>
+            </div>
+
+            <h1 className="text-[clamp(40px,6vw,68px)] font-space font-bold text-[#31372B] mb-4 leading-[1.02] tracking-[-0.03em]">
               Tools for Startup Founders
             </h1>
-            <p className="text-[20px] text-[#717182] max-w-[800px] mx-auto leading-relaxed">
+            <p className="text-lg md:text-xl text-[#6B6B6B] max-w-[800px] mx-auto leading-relaxed">
               Free tools for founders to understand valuation, burn rate, runway, dilution,
               customer economics, and growth before raising capital.
             </p>
@@ -97,7 +109,7 @@ export default function ToolsForFoundersClient() {
               placeholder="Search calculators (e.g., 'burn rate', 'valuation')..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 rounded-xl border border-[#31372B1F] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#31372B]/20 text-lg"
+              className="w-full rounded-2xl border border-black/[0.08] bg-white/80 pl-12 pr-4 py-4 text-lg shadow-sm backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-[#31372B]/20"
             />
             <svg
               className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-[#717182]"
@@ -120,9 +132,11 @@ export default function ToolsForFoundersClient() {
                 <Link
                   key={tool.route}
                   href={tool.route}
-                  className="group bg-white border border-[#31372B1F] rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col"
+                  className="group flex flex-col rounded-3xl border border-black/[0.06] bg-white/70 p-7 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-[#C6FF55]/40 hover:shadow-lg"
                 >
-                  <div className="text-[40px] mb-4">{tool.icon}</div>
+                  <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EDF4E5] text-[32px] shadow-sm">
+                    {tool.icon}
+                  </div>
 
                   <div className="mb-3">
                     <span
@@ -132,16 +146,16 @@ export default function ToolsForFoundersClient() {
                     </span>
                   </div>
 
-                  <h2 className="text-[20px] font-bold text-[#31372B] mb-2 group-hover:text-[#717182] transition-colors">
+                  <h2 className="text-[22px] font-space font-bold text-[#31372B] mb-2 group-hover:text-[#1E1E1E] transition-colors">
                     {tool.name}
                   </h2>
 
-                  <p className="text-[#717182] text-[14px] leading-relaxed flex-1">
+                  <p className="text-[#6B6B6B] text-[15px] leading-relaxed flex-1">
                     {tool.description}
                   </p>
 
-                  <div className="mt-4 flex items-center text-[#31372B] group-hover:text-[#717182] transition-colors">
-                    <span className="text-sm font-medium">Learn more</span>
+                  <div className="mt-5 flex items-center text-[#31372B] group-hover:text-[#1E1E1E] transition-colors">
+                    <span className="text-sm font-semibold uppercase tracking-[0.12em]">Open tool</span>
                     <svg
                       className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"
                       fill="none"
@@ -171,8 +185,8 @@ export default function ToolsForFoundersClient() {
             </div>
           )}
 
-          <div className="max-w-[900px] mx-auto bg-white border border-[#31372B1F] rounded-xl p-10 shadow-sm mb-12">
-            <h2 className="text-[32px] font-bold text-[#31372B] mb-6">
+          <div className="max-w-[900px] mx-auto bg-white/60 border border-black/[0.06] rounded-3xl p-10 shadow-sm backdrop-blur-sm mb-12">
+            <h2 className="text-[32px] font-space font-bold text-[#31372B] mb-6">
               Founder Tools for Fundraising, Finance, and Growth
             </h2>
 
@@ -199,17 +213,17 @@ export default function ToolsForFoundersClient() {
           </div>
 
           <div className="max-w-[900px] mx-auto">
-            <h2 className="text-[32px] font-bold text-[#31372B] mb-8 text-center">
+            <h2 className="text-[32px] font-space font-bold text-[#31372B] mb-8 text-center">
               Frequently Asked Questions
             </h2>
             <div className="space-y-4">
               {faqs.map((faq) => (
                 <details
                   key={faq.question}
-                  className="group bg-white border border-[#31372B1F] rounded-xl overflow-hidden shadow-sm"
+                  className="group overflow-hidden rounded-3xl border border-black/[0.06] bg-white/70 shadow-sm backdrop-blur-sm"
                 >
                   <summary className="flex justify-between items-center p-6 cursor-pointer list-none">
-                    <h3 className="text-[18px] font-bold text-[#31372B] pr-4">
+                    <h3 className="text-[18px] font-semibold text-[#31372B] pr-4">
                       {faq.question}
                     </h3>
                     <span className="transition-transform group-open:rotate-180">

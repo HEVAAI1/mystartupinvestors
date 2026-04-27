@@ -76,51 +76,50 @@ export default function PaymentSuccessPage() {
       {/* Show loader while checking status or fetching data */}
       {loading ? (
         <main className="flex flex-col items-center justify-center flex-grow px-6 py-16 mt-20">
-          <div className="bg-white border border-[rgba(49,55,43,0.12)] rounded-xl shadow-sm w-full max-w-[520px] p-8 md:p-10 text-center flex flex-col items-center gap-6">
-            <div className="w-20 h-20 flex items-center justify-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#31372B]"></div>
+          <div className="bg-white/70 border border-black/[0.06] rounded-3xl shadow-sm w-full max-w-[520px] p-8 md:p-10 text-center flex flex-col items-center gap-6 backdrop-blur-sm">
+            <div className="w-16 h-16 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-10 w-10 border-2 border-[#1E1E1E] border-t-transparent" />
             </div>
             <div>
-              <h1 className="font-[Arial] font-bold text-[#31372B] text-[24px] leading-[36px]">
+              <h1 className="font-space font-bold text-[#1E1E1E] text-[24px] leading-[36px] tracking-[-0.02em]">
                 Processing Payment...
               </h1>
-              <p className="text-[#717182] text-[14px] leading-[20px] mt-2 font-[Arial]">
+              <p className="text-[#6B6B6B] text-[14px] leading-[20px] mt-2 font-inter">
                 Please wait while we verify your transaction
               </p>
             </div>
           </div>
         </main>
       ) : (
-        /* Main Section */
         <main className="flex flex-col items-center justify-center flex-grow px-6 py-16 mt-20">
-          <div className="bg-white border border-[rgba(49,55,43,0.12)] rounded-xl shadow-sm w-full max-w-[520px] p-8 md:p-10 text-center flex flex-col items-center gap-6">
+          <div className="bg-white/70 border border-black/[0.06] rounded-3xl shadow-sm w-full max-w-[520px] p-8 md:p-10 text-center flex flex-col items-center gap-6 backdrop-blur-sm">
             {/* Checkmark Icon */}
-            <div className="w-20 h-20 flex items-center justify-center bg-[rgba(49,55,43,0.1)] rounded-full">
-              <CheckCircle className="w-10 h-10 text-[#31372B]" strokeWidth={2.5} />
+            <div className="w-16 h-16 flex items-center justify-center bg-[#C6FF55]/20 rounded-full">
+              <CheckCircle className="w-9 h-9 text-[#31372B]" strokeWidth={2} />
             </div>
 
             {/* Headings */}
             <div>
-              <h1 className="font-[Arial] font-bold text-[#31372B] text-[32px] leading-[48px] -tracking-[0.8px]">
+              <h1 className="font-space font-bold text-[#1E1E1E] text-[28px] leading-[40px] tracking-[-0.02em]">
                 Payment Successful 🎉
               </h1>
-              <p className="text-[#717182] text-[16px] leading-[24px] mt-2 font-[Arial]">
+              <p className="text-[#6B6B6B] text-[15px] leading-[24px] mt-2 font-inter">
                 Your credits are now available in your account.
               </p>
             </div>
 
             {/* Credits Info Box */}
             {creditsAdded !== null && (
-              <div className="bg-[rgba(245,245,245,0.3)] rounded-lg p-5 w-full max-w-[460px] text-left flex flex-col gap-2">
+              <div className="bg-black/[0.03] rounded-2xl p-5 w-full text-left flex flex-col gap-3 border border-black/[0.05]">
                 <div className="flex justify-between items-center">
-                  <p className="text-[#717182] text-[15px] font-[Arial]">Credits Added:</p>
-                  <p className="text-[#31372B] font-[Arial] font-bold text-[15px]">
+                  <p className="text-[#6B6B6B] text-[14px] font-inter">Credits Added:</p>
+                  <p className="text-[#1E1E1E] font-inter font-bold text-[14px]">
                     {creditsAdded.toLocaleString()} Credits
                   </p>
                 </div>
                 <div className="flex justify-between items-center">
-                  <p className="text-[#717182] text-[15px] font-[Arial]">Remaining Balance:</p>
-                  <p className="text-[#31372B] font-[Arial] font-bold text-[15px]">
+                  <p className="text-[#6B6B6B] text-[14px] font-inter">Remaining Balance:</p>
+                  <p className="text-[#1E1E1E] font-inter font-bold text-[14px]">
                     {remainingCredits.toLocaleString()} Credits
                   </p>
                 </div>
@@ -128,23 +127,23 @@ export default function PaymentSuccessPage() {
             )}
 
             {/* Buttons */}
-            <div className="flex flex-col md:flex-row gap-3 w-full max-w-[460px]">
+            <div className="flex flex-col md:flex-row gap-3 w-full">
               <button
                 onClick={() => router.push("/dashboard")}
-                className="bg-[#31372B] text-[#FAF7EE] rounded-md py-2.5 text-[14px] font-[Arial] flex justify-center items-center gap-2 hover:opacity-90 transition flex-1"
+                className="bg-[#1E1E1E] text-white rounded-full py-2.5 text-[14px] font-inter font-semibold flex justify-center items-center gap-2 hover:bg-[#333] transition flex-1 cursor-pointer"
               >
                 Go to Dashboard →
               </button>
               <button
                 onClick={() => router.push("/investors")}
-                className="bg-[#FAF7EE] border border-[rgba(49,55,43,0.12)] text-[#31372B] rounded-md py-2.5 text-[14px] font-[Arial] flex justify-center items-center gap-2 hover:bg-[#F5F5F5] transition flex-1"
+                className="bg-white border border-black/[0.10] text-[#31372B] rounded-full py-2.5 text-[14px] font-inter font-medium flex justify-center items-center gap-2 hover:bg-black/[0.04] transition flex-1 cursor-pointer"
               >
-                Start Browsing Investors →
+                Browse Investors →
               </button>
             </div>
 
             {/* Email Confirmation */}
-            <p className="text-[#717182] text-[13px] font-[Arial] mt-1">
+            <p className="text-[#6B6B6B] text-[12px] font-inter">
               An email receipt has been sent to your registered email address.
             </p>
           </div>

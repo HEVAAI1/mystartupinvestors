@@ -32,7 +32,7 @@ export default function ChurnToolPage() {
                     <div className="flex items-center gap-4">
                         <Link
                             href="/tools-for-founders"
-                            className="text-[#31372B] text-[14px] font-[Arial] font-bold hover:text-[#717182] transition cursor-pointer"
+                            className="text-[#31372B] text-[14px] font-inter font-bold hover:text-[#717182] transition cursor-pointer"
                         >
                             Tools for Founders
                         </Link>
@@ -46,7 +46,7 @@ export default function ChurnToolPage() {
                 </div>
             </nav>
 
-            <main className="min-h-screen bg-[#FAF7EE] font-[Arial] text-[#31372B]">
+            <main className="min-h-screen bg-[#FAF7EE] font-inter text-[#31372B]">
                 <div className="max-w-[900px] mx-auto pt-32 pb-16 px-6">
                     {/* Back Link */}
                     <Link
@@ -85,3 +85,4 @@ export default function ChurnToolPage() {
         </>
     );
 }
+
