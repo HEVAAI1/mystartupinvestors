@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import SmartNavbar from "@/components/SmartNavbar";
-import CTAFooter from "@/app/newhome/CTAFooter";
+import Footer from "@/components/Footer";
 import { tools } from "@/lib/tools";
 
 // --- SVG Illustrations ---
@@ -381,7 +381,7 @@ export default function ToolsForFoundersClient() {
         </section>
       </main>
 
-      <CTAFooter />
+      <Footer />
     </>
   );
 }

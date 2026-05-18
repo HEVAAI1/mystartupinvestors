@@ -93,14 +93,14 @@ export default function Home() {
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
+          <div className="flex items-center justify-between h-16 lg:h-20 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-6">
             {/* Logo */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 md:justify-self-start">
               <Image src="/Logo.svg" alt="MyFundingList" width={130} height={40} className="h-[36px] w-auto" />
             </div>
 
             {/* Desktop Nav — center links */}
-            <div className="hidden md:flex items-center gap-1">
+            <div className="hidden md:flex items-center justify-center gap-1 md:justify-self-center">
               <a
                 href="/tools-for-founders"
                 className="px-4 py-2 text-sm font-inter font-medium text-[#31372B]/70 hover:text-[#1E1E1E] transition-colors rounded-full hover:bg-black/5"
@@ -119,7 +119,7 @@ export default function Home() {
             </div>
 
             {/* Desktop CTAs */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-3 md:justify-self-end">
               <button
                 onClick={handleGoogleLogin}
                 className="px-4 py-2 text-sm font-inter font-medium text-[#31372B] hover:bg-black/5 rounded-full transition-colors cursor-pointer"
@@ -257,7 +257,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
+            className="mt-10 flex items-center justify-center"
           >
             <button
               onClick={handleGoogleLogin}
@@ -266,13 +266,6 @@ export default function Home() {
               Start Connecting Today
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
-            <a
-              href="#features"
-              className="inline-flex items-center gap-2 text-[#31372B] font-inter font-medium text-base hover:text-[#000] transition-colors px-6 py-4"
-            >
-              See How It Works
-              <span className="text-[#C6FF55]">↓</span>
-            </a>
           </motion.div>
 
           {/* Stats pill cards */}

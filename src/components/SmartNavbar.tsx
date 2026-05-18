@@ -15,6 +15,8 @@ export default function SmartNavbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const pathname = usePathname();
+    const isHomePage = pathname === "/";
+    const homeSectionHref = (section: string) => (isHomePage ? `#${section}` : `/#${section}`);
 
     const getNavLinkClasses = (path: string) => {
         const isActive = pathname === path || (path === "/tools-for-founders" && pathname?.startsWith("/tools-for-founders"));
@@ -45,6 +47,10 @@ export default function SmartNavbar() {
         };
         checkAuth();
     }, []);
+
+    useEffect(() => {
+        setMobileMenuOpen(false);
+    }, [pathname]);
 
     // Loading skeleton
     if (isLoading) {
@@ -84,22 +90,31 @@ export default function SmartNavbar() {
                 }`}
             >
                 <div className="max-w-7xl mx-auto px-6 md:px-8">
-                    <div className="flex items-center justify-between h-16 lg:h-[72px]">
-                        <Link href="/" className="flex items-center gap-2">
+                    <div className="flex items-center justify-between h-16 lg:h-[72px] md:grid md:grid-cols-[1fr_auto_1fr] md:gap-6">
+                        <Link href="/" className="flex items-center gap-2 md:justify-self-start">
                             <Image src="/Logo.svg" alt="Logo" width={110} height={40} className="h-[34px] w-auto" />
                         </Link>
 
                         {/* Desktop links */}
-                        <div className="hidden md:flex items-center gap-1">
+                        <div className="hidden md:flex items-center justify-center gap-1 md:justify-self-center">
                             <Link href="/tools-for-founders" className={getNavLinkClasses("/tools-for-founders")}>
                                 Tools for Founders
+                            </Link>
+                            <Link href={homeSectionHref("features")} className={getNavLinkClasses("/features")}>
+                                Features
+                            </Link>
+                            <Link href={homeSectionHref("pricing")} className={getNavLinkClasses("/pricing")}>
+                                Pricing
+                            </Link>
+                            <Link href={homeSectionHref("testimonials")} className={getNavLinkClasses("/testimonials")}>
+                                Testimonials
                             </Link>
                             <button onClick={handleGoogleLogin} className={getNavLinkClasses("/auth")}>
                                 Add My Startup
                             </button>
                         </div>
 
-                        <div className="hidden md:flex items-center gap-3">
+                        <div className="hidden md:flex items-center gap-3 md:justify-self-end">
                             <button
                                 onClick={handleGoogleLogin}
                                 className="px-5 py-2.5 text-sm font-inter font-semibold bg-[#1E1E1E] text-white rounded-full hover:bg-[#333] transition-all shadow-lg shadow-black/10 cursor-pointer"
@@ -149,6 +164,15 @@ export default function SmartNavbar() {
                             <div className="flex flex-col gap-1 p-4">
                                 <Link href="/tools-for-founders" className={getMobileNavClasses("/tools-for-founders")} onClick={() => setMobileMenuOpen(false)}>
                                     Tools for Founders
+                                </Link>
+                                <Link href={homeSectionHref("features")} className={getMobileNavClasses("/features")} onClick={() => setMobileMenuOpen(false)}>
+                                    Features
+                                </Link>
+                                <Link href={homeSectionHref("pricing")} className={getMobileNavClasses("/pricing")} onClick={() => setMobileMenuOpen(false)}>
+                                    Pricing
+                                </Link>
+                                <Link href={homeSectionHref("testimonials")} className={getMobileNavClasses("/testimonials")} onClick={() => setMobileMenuOpen(false)}>
+                                    Testimonials
                                 </Link>
                                 <button className={getMobileNavClasses("/auth")} onClick={() => { setMobileMenuOpen(false); handleGoogleLogin(); }}>
                                     Add My Startup

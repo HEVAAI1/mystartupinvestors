@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
-import AuthenticatedNavbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 import { useRouter } from "next/navigation";
@@ -68,9 +67,7 @@ function StepShell({
         fontFamily: "Arial, ui-sans-serif",
       }}
     >
-      <AuthenticatedNavbar />
-
-      <main className="flex-1">
+      <main className="flex-1 pt-[92px]">
         <div className="mx-auto max-w-[768px] px-6 py-10 md:py-16">
           <button className="mb-6 flex items-center gap-2 text-sm hover:underline">
             <ArrowLeft size={16} />

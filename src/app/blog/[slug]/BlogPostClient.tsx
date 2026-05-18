@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Footer from "@/components/Footer";
-import AuthenticatedNavbar from "@/components/Navbar";
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import SmartNavbar from "@/components/SmartNavbar";
 
 import { PortableText, PortableTextComponents } from "@portabletext/react";
 
@@ -60,34 +59,9 @@ interface BlogPostClientProps {
 // -----------------------------
 
 export default function BlogPostClient({ post }: BlogPostClientProps) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const supabase = createSupabaseBrowserClient();
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setIsAuthenticated(!!user);
-    };
-
-    checkAuth();
-  }, [supabase]);
-
   useEffect(() => {
     Prism.highlightAll();
   }, [post]);
-
-  const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-
-    if (error) console.error("Google Login Error:", error);
-  };
 
   // -----------------------------
   // PORTABLE TEXT COMPONENTS
@@ -151,30 +125,7 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
 
   return (
     <>
-      {isAuthenticated ? (
-        <AuthenticatedNavbar />
-      ) : (
-        <nav className="fixed top-0 left-0 w-full z-50 bg-[rgba(255,255,255,0.95)] border-b border-[rgba(49,55,43,0.12)] backdrop-blur-md px-8 py-4">
-          <div className="max-w-[1400px] mx-auto flex justify-between items-center">
-            <Link href="/" className="flex items-center gap-2">
-              <Image
-                src="/Logo.png"
-                alt="Logo"
-                width={100}
-                height={40}
-                className="h-[38px] w-auto"
-              />
-            </Link>
-
-            <button
-              onClick={handleGoogleLogin}
-              className="bg-[#31372B] text-[#FAF7EE] px-6 py-2 rounded-lg font-bold shadow hover:opacity-90 transition cursor-pointer"
-            >
-              Sign In
-            </button>
-          </div>
-        </nav>
-      )}
+      <SmartNavbar />
 
       <div className="min-h-screen bg-[#FAF7EE] text-[#31372B]">
         <div className="max-w-[900px] mx-auto pt-24 px-6">

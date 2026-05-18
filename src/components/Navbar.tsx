@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
-import { FiUser, FiMenu, FiX } from "react-icons/fi";
+import { FiUser } from "react-icons/fi";
 import { Calculator, Menu, X } from "lucide-react";
 import { useCredits } from "@/context/CreditsContext";
 import { useCalculationCredits } from "@/context/CalculationCreditsContext";
@@ -33,8 +33,13 @@ export default function AuthenticatedNavbar() {
     const isActive =
       pathname === path ||
       (path === "/tools-for-founders" && pathname?.startsWith("/tools-for-founders"));
+    const isDatabaseLink = path === "/dashboard";
     return isActive
-      ? "px-4 py-2 rounded-full text-sm font-inter font-semibold bg-[#1E1E1E] text-white transition-all cursor-pointer whitespace-nowrap shadow-sm"
+      ? `px-4 py-2 rounded-full text-sm font-inter font-semibold transition-all cursor-pointer whitespace-nowrap shadow-sm ${
+          isDatabaseLink
+            ? "bg-[#C6FF55] text-[#1E1E1E]"
+            : "bg-[#1E1E1E] text-white"
+        }`
       : "px-4 py-2 rounded-full text-sm font-inter font-medium text-[#31372B]/70 hover:text-[#1E1E1E] hover:bg-black/5 transition-all cursor-pointer whitespace-nowrap";
   };
 
@@ -42,8 +47,11 @@ export default function AuthenticatedNavbar() {
     const isActive =
       pathname === path ||
       (path === "/tools-for-founders" && pathname?.startsWith("/tools-for-founders"));
+    const isDatabaseLink = path === "/dashboard";
     return isActive
-      ? "w-full text-left px-4 py-3 rounded-2xl bg-[#1E1E1E] text-white font-inter font-semibold text-sm transition mb-1 cursor-pointer"
+      ? `w-full text-left px-4 py-3 rounded-2xl font-inter font-semibold text-sm transition mb-1 cursor-pointer ${
+          isDatabaseLink ? "bg-[#C6FF55] text-[#1E1E1E]" : "bg-[#1E1E1E] text-white"
+        }`
       : "w-full text-left px-4 py-3 rounded-2xl bg-black/[0.04] text-[#31372B] font-inter font-medium text-sm hover:bg-black/[0.07] transition mb-1 cursor-pointer";
   };
 
@@ -134,7 +142,7 @@ export default function AuthenticatedNavbar() {
                 onClick={() => router.push("/dashboard")}
                 className={getNavLinkClasses("/dashboard")}
               >
-                Dashboard
+                Investor Database
               </button>
               <button
                 onClick={() =>
@@ -286,7 +294,7 @@ export default function AuthenticatedNavbar() {
 
             <div className="flex flex-col gap-1 p-4 flex-1">
               <button onClick={() => router.push("/dashboard")} className={getMobileNavClasses("/dashboard")}>
-                Dashboard
+                Investor Database
               </button>
               <button
                 onClick={() => router.push(startupFormSubmitted ? "/view-startup" : "/add-startup")}

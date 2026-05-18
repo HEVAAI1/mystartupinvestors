@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect, ChangeEvent, useCallback, useMemo, useRef } from "react";
-import Image from "next/image";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 import UpgradeModal from "@/components/UpgradeModal";
 import { useCredits } from "@/context/CreditsContext"; // ✅ USE CONTEXT
 import Link from "next/link";
-import { Search, MapPin, Briefcase, Eye, EyeOff, Zap, Star, ExternalLink, ChevronDown } from "lucide-react";
-import { motion } from "framer-motion";
+import { Search, MapPin, Zap, ExternalLink, Briefcase, ChevronDown } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import Footer from "@/components/Footer";
+import InvestorProfileDrawer from "@/components/dashboard/InvestorProfileDrawer";
 
 interface Investor {
   id: number;
@@ -35,6 +36,98 @@ interface InvestorListResponse {
   error: { message?: string } | null;
 }
 
+interface FilterPillDropdownProps {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+  options: string[];
+  onSelect: (value: string) => void;
+}
+
+function FilterPillDropdown({
+  icon: Icon,
+  label,
+  value,
+  options,
+  onSelect,
+}: FilterPillDropdownProps) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handlePointerDown = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, []);
+
+  return (
+    <div ref={containerRef} className="relative w-full sm:w-auto">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        className="flex w-full items-center gap-2 rounded-xl border border-black/[0.07] bg-white px-4 py-3 text-left shadow-sm transition hover:border-[#C6FF55]/40 sm:min-w-[148px]"
+      >
+        <Icon className="h-4 w-4 flex-shrink-0 text-[#9B9B9B]" />
+        <span className="flex-1 truncate text-sm font-inter font-medium text-[#4B4B4B]">
+          {value}
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 flex-shrink-0 text-[#ABABAB] transition-transform ${
+            open ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.16 }}
+            className="absolute left-0 top-[calc(100%+8px)] z-20 w-full min-w-[220px] overflow-hidden rounded-2xl border border-black/[0.08] bg-white shadow-xl"
+          >
+            <div className="border-b border-black/[0.05] px-4 py-2.5">
+              <p className="text-[11px] font-inter font-semibold uppercase tracking-[0.14em] text-[#9B9B9B]">
+                {label}
+              </p>
+            </div>
+            <div className="max-h-64 overflow-y-auto py-1.5">
+              {[label, ...options].map((option) => {
+                const optionValue = option === label ? "All" : option;
+                const isActive = value === option;
+
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => {
+                      onSelect(optionValue);
+                      setOpen(false);
+                    }}
+                    className={`flex w-full items-center px-4 py-2.5 text-sm font-inter transition ${
+                      isActive
+                        ? "bg-[#C6FF55]/12 text-[#1E1E1E] font-semibold"
+                        : "text-[#4B4B4B] hover:bg-black/[0.03]"
+                    }`}
+                  >
+                    <span className="truncate">{option}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 const Dashboard = () => {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const latestFetchIdRef = useRef(0);
@@ -59,7 +152,7 @@ const Dashboard = () => {
   // UI state
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [loadingInvestorId, setLoadingInvestorId] = useState<number | null>(null);
-  const [locationSearch, setLocationSearch] = useState("");
+  const [selectedInvestor, setSelectedInvestor] = useState<Investor | null>(null);
 
   // Filter options (fetched once)
   const [locations, setLocations] = useState<string[]>([]);
@@ -68,12 +161,6 @@ const Dashboard = () => {
   const [viewedInvestorIds, setViewedInvestorIds] = useState<number[]>([]);
   // ⭐⭐⭐ USE CREDITS FROM CONTEXT ⭐⭐⭐
   const { credits, used, decrementCredit, userId } = useCredits(); // <— THIS is the correct way
-
-  const handleIndustryChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedIndustry(e.target.value);
-    setCurrentPage(1); // Reset to page 1
-  };
-
 
   // Debounce search input (300ms)
   // Manual search trigger
@@ -277,6 +364,9 @@ const Dashboard = () => {
     setCurrentPage(1); // Reset to page 1
   };
 
+  const locationLabel = selectedLocation === "All" ? "All Locations" : selectedLocation;
+  const industryLabel = selectedIndustry === "All" ? "All Industries" : selectedIndustry;
+
   // Masking Names
   const maskName = (name: string, id: number): string => {
     if (viewedInvestorIds.includes(id)) return name; // Show full name if viewed
@@ -321,10 +411,10 @@ const Dashboard = () => {
     console.log("Current userId:", userId);
     console.log("Viewed IDs:", viewedInvestorIds);
 
-    // 1. If already viewed, navigate to profile page
+    // 1. If already viewed, open the in-page drawer
     if (viewedInvestorIds.includes(investor.id)) {
-      console.log("Investor already viewed. Navigating to profile page.");
-      window.location.href = `/investor-profile?id=${investor.id}`;
+      console.log("Investor already viewed. Opening drawer.");
+      setSelectedInvestor(investor);
       return;
     }
 
@@ -378,17 +468,20 @@ const Dashboard = () => {
             console.log("Successfully updated credits_used atomically");
           }
 
-          // Navigate to profile page after successful DB update
-          window.location.href = `/investor-profile?id=${investor.id}`;
+          // Open the profile in-place after successful DB update
+          setSelectedInvestor(investor);
 
         } catch (err) {
           console.error("Error updating credits/views:", err);
           setLoadingInvestorId(null);
           alert("An error occurred. Please try again.");
+          return;
         }
       } else {
         console.error("No userId found, skipping DB updates");
       }
+
+      setLoadingInvestorId(null);
     } else {
       // 3. No credits
       console.log("No credits left. Showing upgrade modal.");
@@ -398,92 +491,66 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background font-inter text-[#31372B]">
-      {/* Header */}
+      <InvestorProfileDrawer investor={selectedInvestor} onClose={() => setSelectedInvestor(null)} />
+
       <div className="max-w-7xl mx-auto pt-28 px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-2xl font-space font-bold text-[#1E1E1E]">Investor Database</h1>
-            <p className="text-sm font-inter text-[#6B6B6B] mt-1">Discover and connect with verified investors worldwide</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-white/70 backdrop-blur-sm border border-black/[0.06] rounded-2xl px-4 py-2.5 shadow-sm">
-              <div className="w-2 h-2 rounded-full bg-[#C6FF55]" />
-              <span className="text-sm font-inter font-medium text-[#31372B]">Credits: {credits}</span>
-            </div>
-            <Link href="/pricing">
-              <button className="flex items-center gap-2 bg-[#1E1E1E] text-white text-sm font-inter font-semibold px-5 py-2.5 rounded-2xl hover:bg-[#333] transition-colors shadow-lg shadow-black/10">
-                <Zap className="w-4 h-4 text-[#C6FF55]" /> Get Credits
-              </button>
-            </Link>
+        <div className="mb-10">
+          <div className="relative max-w-3xl">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9B9B9B]" />
+            <input
+              type="text"
+              placeholder="Search investors, companies, industries..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              onKeyDown={handleKeyDown}
+              className="w-full rounded-2xl border border-black/[0.07] bg-white px-12 py-4 text-base font-inter text-[#31372B] shadow-sm outline-none transition focus:ring-2 focus:ring-[#C6FF55]/40 placeholder:text-[#ABABAB]"
+            />
           </div>
         </div>
 
-        {/* Search + Filters */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-8">
-          <div className="relative flex-1 flex gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B6B6B]" />
-              <input
-                type="text"
-                placeholder="Search by name, firm, or sector..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-                onKeyDown={handleKeyDown}
-                className="w-full pl-11 pr-4 py-3 rounded-2xl border border-black/[0.06] bg-white/70 backdrop-blur-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#C6FF55]/40 text-[#31372B] font-inter text-sm"
+        <div className="mb-6">
+          <div>
+            <h1 className="text-2xl font-space font-bold text-[#1E1E1E] md:text-[2.15rem]">Investor Database</h1>
+            <p className="mt-2 text-sm font-inter text-[#6B6B6B] md:text-[1.05rem]">
+              Discover and connect with <span className="font-semibold text-[#1E1E1E]">5,000+</span> verified investors worldwide
+            </p>
+          </div>
+        </div>
+
+        <div className="mb-8">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+              <FilterPillDropdown
+                icon={MapPin}
+                label="All Locations"
+                value={locationLabel}
+                options={locations}
+                onSelect={(value) => {
+                  setSelectedLocation(value);
+                  setCurrentPage(1);
+                }}
+              />
+
+              <FilterPillDropdown
+                icon={Briefcase}
+                label="All Industries"
+                value={industryLabel}
+                options={industries}
+                onSelect={(value) => {
+                  setSelectedIndustry(value);
+                  setCurrentPage(1);
+                }}
               />
             </div>
-            <button
-              onClick={handleSearch}
-              className="bg-[#1E1E1E] text-white p-3 rounded-2xl hover:bg-[#333] transition flex items-center justify-center shrink-0 shadow-lg shadow-black/10"
-              aria-label="Search"
-            >
-              <Search size={16} />
-            </button>
-          </div>
 
-          <div className="relative w-full sm:w-44">
-            <input
-              type="text"
-              placeholder="Search location..."
-              value={locationSearch}
-              onChange={(e) => {
-                setLocationSearch(e.target.value);
-                const match = locations.find(loc => loc.toLowerCase() === e.target.value.toLowerCase());
-                if (match) setSelectedLocation(match);
-                else if (e.target.value === "") setSelectedLocation("All");
-              }}
-              className="w-full bg-white/70 backdrop-blur-sm border border-black/[0.06] rounded-2xl px-4 py-3 text-sm font-inter text-[#31372B] focus:ring-2 focus:ring-[#C6FF55]/40 outline-none transition shadow-sm"
-            />
-            {locationSearch && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-black/[0.08] rounded-2xl shadow-xl max-h-60 overflow-y-auto">
-                <div className="px-3 py-2 text-sm font-inter hover:bg-black/[0.04] cursor-pointer rounded-t-2xl"
-                  onClick={() => { setSelectedLocation("All"); setLocationSearch(""); }}>
-                  All Locations
-                </div>
-                {locations.filter(loc => loc.toLowerCase().includes(locationSearch.toLowerCase())).map((location) => (
-                  <div key={location} className="px-3 py-2 text-sm font-inter hover:bg-black/[0.04] cursor-pointer"
-                    onClick={() => { setSelectedLocation(location); setLocationSearch(""); }}>
-                    {location}
-                  </div>
-                ))}
-              </div>
-            )}
+            <span className="text-sm font-inter text-[#9B9B9B] lg:text-right">
+              Showing <span className="font-semibold text-[#4B4B4B]">{currentPageData.length}</span> of{" "}
+              <span className="font-semibold text-[#4B4B4B]">5,000+</span> investors
+            </span>
           </div>
-
-          <select
-            value={selectedIndustry}
-            onChange={handleIndustryChange}
-            className="bg-white/70 backdrop-blur-sm border border-black/[0.06] rounded-2xl px-4 py-3 text-sm font-inter text-[#31372B] w-full sm:w-44 focus:ring-2 focus:ring-[#C6FF55]/40 outline-none shadow-sm"
-            size={1}
-          >
-            <option value="All">All Industries</option>
-            {industries.map((industry) => (
-              <option key={industry}>{industry}</option>
-            ))}
-          </select>
 
           <div
-            className="flex items-center bg-white/70 backdrop-blur-sm border border-black/[0.06] rounded-2xl px-4 py-3 text-sm font-inter gap-3 cursor-pointer select-none hover:border-[#C6FF55]/40 transition shadow-sm"
+            className="mt-3 inline-flex items-center bg-white border border-black/[0.06] rounded-2xl px-4 py-3 text-sm font-inter gap-3 cursor-pointer select-none hover:border-[#C6FF55]/40 transition shadow-sm"
             onClick={handleToggleViewed}
           >
             <span className="text-[#31372B]">Viewed Only</span>
@@ -666,6 +733,10 @@ const Dashboard = () => {
             </div>
           </div>
         </motion.div>
+      </div>
+
+      <div className="mt-16">
+        <Footer />
       </div>
 
       <UpgradeModal open={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
