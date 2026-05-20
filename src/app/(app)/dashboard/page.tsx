@@ -9,6 +9,7 @@ import { Search, MapPin, Zap, ExternalLink, Briefcase, ChevronDown } from "lucid
 import { motion, AnimatePresence } from "framer-motion";
 import Footer from "@/components/Footer";
 import InvestorProfileDrawer from "@/components/dashboard/InvestorProfileDrawer";
+import UpgradeBanner from "@/components/dashboard/UpgradeBanner";
 
 interface Investor {
   id: number;
@@ -160,7 +161,7 @@ const Dashboard = () => {
 
   const [viewedInvestorIds, setViewedInvestorIds] = useState<number[]>([]);
   // ⭐⭐⭐ USE CREDITS FROM CONTEXT ⭐⭐⭐
-  const { credits, used, decrementCredit, userId } = useCredits(); // <— THIS is the correct way
+  const { credits, used, decrementCredit, userId, hasPaid } = useCredits();
 
   // Debounce search input (300ms)
   // Manual search trigger
@@ -490,35 +491,33 @@ const Dashboard = () => {
   }, [credits, decrementCredit, supabase, used, userId, viewedInvestorIds]);
 
   return (
-    <div className="min-h-screen bg-background font-inter text-[#31372B]">
+    <div className="min-h-screen bg-[#F8F6F0] font-inter text-[#31372B]">
       <InvestorProfileDrawer investor={selectedInvestor} onClose={() => setSelectedInvestor(null)} />
 
-      <div className="max-w-7xl mx-auto pt-28 px-6 lg:px-8">
-        <div className="mb-10">
-          <div className="relative max-w-3xl">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9B9B9B]" />
-            <input
-              type="text"
-              placeholder="Search investors, companies, industries..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              onKeyDown={handleKeyDown}
-              className="w-full rounded-2xl border border-black/[0.07] bg-white px-12 py-4 text-base font-inter text-[#31372B] shadow-sm outline-none transition focus:ring-2 focus:ring-[#C6FF55]/40 placeholder:text-[#ABABAB]"
-            />
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 pt-16 lg:pt-[72px]">
+        <div className="sticky top-16 lg:top-[72px] z-30 -mx-6 px-6 lg:-mx-8 lg:px-8 pb-4 bg-[#F8F6F0]/95 backdrop-blur-md border-b border-black/[0.05]">
+          <div className="pt-5 pb-4">
+            <div className="relative max-w-3xl">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9B9B9B]" />
+              <input
+                type="text"
+                placeholder="Search investors, companies, industries..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                onKeyDown={handleKeyDown}
+                className="w-full rounded-xl border border-black/[0.07] bg-white pl-10 pr-4 py-2 text-sm font-inter text-[#31372B] shadow-sm outline-none transition focus:ring-2 focus:ring-[#C6FF55]/40 placeholder:text-[#ABABAB]"
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="mb-6">
-          <div>
+          <div className="mb-4">
             <h1 className="text-2xl font-space font-bold text-[#1E1E1E] md:text-[2.15rem]">Investor Database</h1>
-            <p className="mt-2 text-sm font-inter text-[#6B6B6B] md:text-[1.05rem]">
+            <p className="mt-1.5 text-sm font-inter text-[#6B6B6B] md:text-[1.05rem]">
               Discover and connect with <span className="font-semibold text-[#1E1E1E]">5,000+</span> verified investors worldwide
             </p>
           </div>
-        </div>
 
-        <div className="mb-8">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-3 pb-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <FilterPillDropdown
                 icon={MapPin}
@@ -541,27 +540,29 @@ const Dashboard = () => {
                   setCurrentPage(1);
                 }}
               />
+
+              <div
+                className="inline-flex w-full items-center gap-3 rounded-xl border border-black/[0.06] bg-white px-4 py-3 text-sm font-inter shadow-sm transition select-none hover:border-[#C6FF55]/40 cursor-pointer sm:w-auto"
+                onClick={handleToggleViewed}
+              >
+                <span className="text-[#31372B]">Viewed Only</span>
+                <div className={`flex h-4 w-8 items-center rounded-full p-0.5 transition-all duration-300 ${showViewed ? "bg-[#1E1E1E]" : "bg-[#CBCED4]"}`}>
+                  <div className={`h-3.5 w-3.5 rounded-full bg-white transition-transform duration-300 ${showViewed ? "translate-x-4" : ""}`} />
+                </div>
+              </div>
             </div>
 
-            <span className="text-sm font-inter text-[#9B9B9B] lg:text-right">
+            <span className="text-sm font-inter text-[#9B9B9B] sm:text-right">
               Showing <span className="font-semibold text-[#4B4B4B]">{currentPageData.length}</span> of{" "}
               <span className="font-semibold text-[#4B4B4B]">5,000+</span> investors
             </span>
           </div>
-
-          <div
-            className="mt-3 inline-flex items-center bg-white border border-black/[0.06] rounded-2xl px-4 py-3 text-sm font-inter gap-3 cursor-pointer select-none hover:border-[#C6FF55]/40 transition shadow-sm"
-            onClick={handleToggleViewed}
-          >
-            <span className="text-[#31372B]">Viewed Only</span>
-            <div className={`w-8 h-4 rounded-full flex items-center p-0.5 transition-all duration-300 ${showViewed ? "bg-[#1E1E1E]" : "bg-[#CBCED4]"}`}>
-              <div className={`w-3.5 h-3.5 bg-white rounded-full transform transition-transform duration-300 ${showViewed ? "translate-x-4" : ""}`} />
-            </div>
-          </div>
         </div>
 
+        <UpgradeBanner visible={!hasPaid} />
+
         {/* Investor List */}
-        <div className="flex flex-col gap-3">
+        <div className="mt-4 flex flex-col gap-3">
           {loading ? (
             <div className="flex items-center gap-3 py-12">
               <div className="animate-spin h-5 w-5 rounded-full border-2 border-[#1E1E1E] border-t-transparent" />

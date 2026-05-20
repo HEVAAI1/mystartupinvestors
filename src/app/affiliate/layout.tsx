@@ -18,21 +18,23 @@ export default async function AffiliateLayout({
   let credits = 0;
   let allocated = 0;
   let used = 0;
+  let hasPaid = false;
 
   if (user) {
     const { data } = await supabase
       .from("users")
-      .select("credits_allocated, credits_used")
+      .select("credits_allocated, credits_used, has_paid")
       .eq("id", user.id)
       .maybeSingle();
 
     allocated = data?.credits_allocated ?? 0;
     used = data?.credits_used ?? 0;
     credits = allocated - used;
+    hasPaid = data?.has_paid ?? false;
   }
 
   return (
-    <CreditsProvider value={{ credits, allocated, used, userId: user?.id || null }}>
+    <CreditsProvider value={{ credits, allocated, used, userId: user?.id || null, hasPaid }}>
       <CalculationCreditsProvider>
         <ReferralLinker />
         <SmartNavbar />

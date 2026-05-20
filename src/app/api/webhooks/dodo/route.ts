@@ -128,6 +128,8 @@ export async function POST(request: NextRequest) {
           // Make sure check-credits uses the paid flow.
           plan: planDetails.plan,
 
+          has_paid: true,
+
           // Tool credits (used by tools-for-founders calculators).
           // Migration uses NULL for enterprise=unlimited, but requirement here is
           // to credit the equal number of Calculation Credits on success.

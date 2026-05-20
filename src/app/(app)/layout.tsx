@@ -30,9 +30,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   console.log("User is logged in with ID:", user.id);
 
+  let hasPaid = false;
+
   const creditResponse = await supabase
     .from("users")
-    .select("credits_allocated, credits_used, role")
+    .select("credits_allocated, credits_used, role, has_paid")
     .eq("id", user.id)
     .single();
 
@@ -44,6 +46,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   allocated = data?.credits_allocated ?? 0;
   used = data?.credits_used ?? 0;
   userRole = data?.role ?? "user";
+  hasPaid = data?.has_paid ?? false;
 
   console.log("Allocated:", allocated);
   console.log("Used:", used);
@@ -62,7 +65,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <>
-      <CreditsProvider value={{ credits, allocated, used, userId: user?.id || null }}>
+      <CreditsProvider value={{ credits, allocated, used, userId: user?.id || null, hasPaid }}>
         <CalculationCreditsProvider>
           <ReferralLinker />
           <AuthenticatedNavbar />

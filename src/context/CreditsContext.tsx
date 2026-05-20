@@ -7,6 +7,7 @@ interface CreditInfo {
   allocated: number;
   used: number;
   userId: string | null;
+  hasPaid: boolean;
   decrementCredit: () => void;
   setCredits: (info: { credits: number; allocated: number; used: number }) => void;
 }
@@ -16,6 +17,7 @@ const CreditsContext = createContext<CreditInfo>({
   allocated: 0,
   used: 0,
   userId: null,
+  hasPaid: false,
   decrementCredit: () => { },
   setCredits: () => { },
 });
@@ -25,7 +27,7 @@ export default function CreditsProvider({
   value,
 }: {
   children: React.ReactNode;
-  value: { credits: number; allocated: number; used: number; userId: string | null };
+  value: { credits: number; allocated: number; used: number; userId: string | null; hasPaid: boolean };
 }) {
   const [creditState, setCreditState] = useState(value);
 

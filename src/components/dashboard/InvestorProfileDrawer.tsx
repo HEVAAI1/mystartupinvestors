@@ -36,11 +36,11 @@ export default function InvestorProfileDrawer({
           />
 
           <motion.aside
-            initial={{ x: "-100%" }}
+            initial={{ x: "100%" }}
             animate={{ x: 0 }}
-            exit={{ x: "-100%" }}
+            exit={{ x: "100%" }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="fixed inset-y-0 left-0 z-50 flex w-full max-w-xl flex-col bg-[#FAF7EE] shadow-2xl"
+            className="fixed inset-y-0 right-0 z-50 flex w-full max-w-xl flex-col bg-[#FAF7EE] shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-black/[0.06] bg-white/90 px-5 py-4 backdrop-blur-sm">
               <div>
