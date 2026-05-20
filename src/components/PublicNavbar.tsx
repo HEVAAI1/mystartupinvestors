@@ -7,22 +7,17 @@ import { Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { useThrottledScroll } from "@/hooks/useThrottledScroll";
 
 const navLinkClass =
   "px-4 py-2 text-sm font-inter font-medium text-[#31372B]/70 hover:text-[#1E1E1E] transition-colors rounded-full hover:bg-black/5";
 
 export default function PublicNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const scrolled = useThrottledScroll(20, 100);
   const pathname = usePathname();
   const isHomePage = pathname === "/";
   const sectionHref = (section: string) => (isHomePage ? `#${section}` : `/#${section}`);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -42,7 +37,7 @@ export default function PublicNavbar() {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 [transform:translateZ(0)] ${
         scrolled
           ? "bg-white/80 backdrop-blur-xl shadow-[0_1px_0_rgba(0,0,0,0.06)]"
           : "bg-transparent"

@@ -3,15 +3,16 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Search, Zap, ArrowRight, Sparkles, Users, DollarSign, Check, Mail } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 import Footer from "@/components/Footer";
 import PublicNavbar from "@/components/PublicNavbar";
+import { scheduleIdleWork } from "@/lib/schedule-idle";
 
 export default function Home() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const supabase = createSupabaseBrowserClient();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const router = useRouter();
   const investorLogos = [
     { src: "/KhoslaLogo.svg", name: "Khosla" },
@@ -29,24 +30,36 @@ export default function Home() {
     transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const },
   };
 
-  // Check for existing session on mount
+  // Defer auth redirect so hero paints before Supabase work
   useEffect(() => {
+    let cancelled = false;
+
     const checkSession = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: userData } = await supabase
-          .from("users")
-          .select("role")
-          .eq("id", user.id)
-          .single();
-        if (userData?.role === "admin") {
-          router.push("/admin/dashboard");
-        } else {
-          router.push("/dashboard");
-        }
+      if (cancelled || !user) return;
+
+      const { data: userData } = await supabase
+        .from("users")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      if (cancelled) return;
+      if (userData?.role === "admin") {
+        router.push("/admin/dashboard");
+      } else {
+        router.push("/dashboard");
       }
     };
-    checkSession();
+
+    const cancelIdle = scheduleIdleWork(() => {
+      if (!cancelled) void checkSession();
+    });
+
+    return () => {
+      cancelled = true;
+      cancelIdle();
+    };
   }, [router, supabase]);
 
   // Capture ?ref= from URL and save to localStorage with 24h expiry
@@ -114,16 +127,22 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-[clamp(36px,6vw,72px)] font-space font-bold text-[#000] leading-[1.05] tracking-[-0.03em] max-w-4xl mx-auto"
+            className="text-[clamp(36px,6vw,65px)] font-space font-bold text-[#000] leading-[1.05] tracking-[-0.03em] max-w-4xl mx-auto"
           >
-            Access{" "}
-            <span className="relative inline-block">
-              30,000+
-              <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 12" fill="none">
-                <path d="M2 8C50 2 150 2 198 8" stroke="#C6FF55" strokeWidth="4" strokeLinecap="round" />
-              </svg>
-            </span>{" "}
-            Investors to Get Your Startup Funded
+            <span className="block">
+              Access{" "}
+              <span className="relative inline-block">
+                30,000+
+                <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 12" fill="none">
+                  <path d="M2 8C50 2 150 2 198 8" stroke="#C6FF55" strokeWidth="4" strokeLinecap="round" />
+                </svg>
+              </span>{" "}
+              Investors to
+            </span>
+            <span className="block">
+              Get Your{" "}
+              <span className="whitespace-nowrap">Startup Funded</span>
+            </span>
           </motion.h1>
 
           {/* Subtitle */}
@@ -133,7 +152,7 @@ export default function Home() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-lg md:text-xl font-inter text-[#6B6B6B] max-w-2xl mx-auto mt-6 leading-relaxed"
           >
-            Connect with investors across all sectors &amp; geographies. Stop pitching blind — start pitching smart.
+            Connect with investors across all sectors &amp; geographies. Stop pitching blind , start pitching smart.
           </motion.p>
 
           {/* CTA Buttons */}

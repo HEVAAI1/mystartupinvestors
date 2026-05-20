@@ -141,6 +141,7 @@
 
 .animate-marquee {
   animation: marquee 18s linear infinite;
+  will-change: transform;
 }
 
 /* ── Newhome landing CSS utilities ───────────────────────── */
@@ -162,4 +163,12 @@
 
 .animate-pulse-glow {
   animation: pulse-glow 4s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-pulse-glow {
+    animation: none;
+  }
 }

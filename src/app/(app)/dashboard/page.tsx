@@ -1,28 +1,20 @@
 "use client";
 
-import { useState, useEffect, ChangeEvent, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, ChangeEvent, useCallback, useMemo, useRef, memo } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 import UpgradeModal from "@/components/UpgradeModal";
-import { useCredits } from "@/context/CreditsContext"; // ✅ USE CONTEXT
+import { useCredits } from "@/context/CreditsContext";
 import Link from "next/link";
-import { Search, MapPin, Zap, ExternalLink, Briefcase, ChevronDown } from "lucide-react";
+import { Search, MapPin, Zap, Briefcase, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Footer from "@/components/Footer";
 import InvestorProfileDrawer from "@/components/dashboard/InvestorProfileDrawer";
 import UpgradeBanner from "@/components/dashboard/UpgradeBanner";
-
-interface Investor {
-  id: number;
-  name: string;
-  about: string;
-  city: string;
-  country: string;
-  preference_sector: string;
-  firm_name: string;
-  email: string;
-  linkedin: string;
-  type?: string;
-}
+import InvestorListCard from "@/components/dashboard/InvestorListCard";
+import type { Investor } from "@/types/investor";
+import { INVESTOR_LIST_COLUMNS } from "@/types/investor";
+import { maskDescription, maskName } from "@/lib/investor-masking";
+import { scheduleIdleWork } from "@/lib/schedule-idle";
 
 
 
@@ -45,7 +37,7 @@ interface FilterPillDropdownProps {
   onSelect: (value: string) => void;
 }
 
-function FilterPillDropdown({
+const FilterPillDropdown = memo(function FilterPillDropdown({
   icon: Icon,
   label,
   value,
@@ -127,11 +119,12 @@ function FilterPillDropdown({
       </AnimatePresence>
     </div>
   );
-}
+});
 
 const Dashboard = () => {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const latestFetchIdRef = useRef(0);
+  const hasDisplayedDataRef = useRef(false);
 
   // Server-side pagination state
   const [currentPageData, setCurrentPageData] = useState<Investor[]>([]);
@@ -162,6 +155,17 @@ const Dashboard = () => {
   const [viewedInvestorIds, setViewedInvestorIds] = useState<number[]>([]);
   // ⭐⭐⭐ USE CREDITS FROM CONTEXT ⭐⭐⭐
   const { credits, used, decrementCredit, userId, hasPaid } = useCredits();
+
+  const viewedIdsSet = useMemo(
+    () => new Set(viewedInvestorIds),
+    [viewedInvestorIds]
+  );
+
+  const listAnimationKey = useMemo(
+    () =>
+      `${currentPage}|${debouncedSearch}|${selectedLocation}|${selectedIndustry}|${showViewed}`,
+    [currentPage, debouncedSearch, selectedLocation, selectedIndustry, showViewed]
+  );
 
   // Debounce search input (300ms)
   // Manual search trigger
@@ -198,18 +202,21 @@ const Dashboard = () => {
     }
   };
 
-  // Fetch filter options once on mount
+  // Defer filter options so investor list can paint first
   useEffect(() => {
+    let cancelled = false;
+
     const fetchFilterOptions = async () => {
       try {
         const { data, error } = await withTimeout(
-  supabase
-    .from("investors")
-    .select("country, preference_sector"),
-  "Loading filter options took too long."
-);
+          supabase
+            .from("investors")
+            .select("country, preference_sector")
+            .range(0, 1999),
+          "Loading filter options took too long."
+        );
 
-        if (error) throw error;
+        if (cancelled || error) return;
 
         if (data) {
           const uniqueLocations = Array.from(
@@ -228,19 +235,31 @@ const Dashboard = () => {
           ).sort();
 
           setLocations(uniqueLocations.sort());
-          setIndustries(uniqueIndustries.sort());
+          setIndustries(uniqueIndustries);
         }
       } catch (err) {
         console.error("Error fetching filter options:", err);
       }
     };
 
-    fetchFilterOptions();
+    const cancelIdle = scheduleIdleWork(
+      () => {
+        if (!cancelled) void fetchFilterOptions();
+      },
+      { timeoutMs: 2500, fallbackDelayMs: 400 }
+    );
+
+    return () => {
+      cancelled = true;
+      cancelIdle();
+    };
   }, [supabase, withTimeout]);
 
   const fetchInvestors = useCallback(async () => {
     const fetchId = ++latestFetchIdRef.current;
-    setLoading(true);
+    if (!hasDisplayedDataRef.current) {
+      setLoading(true);
+    }
     setError("");
     try {
       const from = (currentPage - 1) * PAGE_SIZE;
@@ -249,7 +268,7 @@ const Dashboard = () => {
       let query = supabase
         .from("investors")
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .select("*", { count: "exact" }) as any;
+        .select(INVESTOR_LIST_COLUMNS, { count: "exact" }) as any;
 
       // Server-side search
       if (debouncedSearch) {
@@ -286,10 +305,12 @@ const Dashboard = () => {
         if (viewedIds && viewedIds.length > 0) {
           query = query.in("id", viewedIds.map(v => v.investor_id));
         } else {
-          // No viewed investors
           if (fetchId !== latestFetchIdRef.current) return;
           setCurrentPageData([]);
           setTotalCount(0);
+          if (fetchId === latestFetchIdRef.current) {
+            setLoading(false);
+          }
           return;
         }
       }
@@ -304,7 +325,9 @@ const Dashboard = () => {
       if (error) throw error;
       if (fetchId !== latestFetchIdRef.current) return;
 
-      setCurrentPageData(data || []);
+      const rows = data || [];
+      if (rows.length > 0) hasDisplayedDataRef.current = true;
+      setCurrentPageData(rows);
       setTotalCount(count || 0);
     } catch (err) {
       console.error("Error fetching investors:", err);
@@ -337,16 +360,15 @@ const Dashboard = () => {
   // Fetch viewed investors
   useEffect(() => {
     const fetchViewed = async () => {
-      if (userId) {
-        console.log("Fetching viewed investors for user:", userId);
-        const { data } = await supabase
-          .from("user_investor_views")
-          .select("investor_id")
-          .eq("user_id", userId);
+      if (!userId) return;
 
-        if (data) {
-          setViewedInvestorIds(data.map((item) => item.investor_id));
-        }
+      const { data } = await supabase
+        .from("user_investor_views")
+        .select("investor_id")
+        .eq("user_id", userId);
+
+      if (data) {
+        setViewedInvestorIds(data.map((item) => item.investor_id));
       }
     };
     fetchViewed();
@@ -368,134 +390,62 @@ const Dashboard = () => {
   const locationLabel = selectedLocation === "All" ? "All Locations" : selectedLocation;
   const industryLabel = selectedIndustry === "All" ? "All Industries" : selectedIndustry;
 
-  // Masking Names
-  const maskName = (name: string, id: number): string => {
-    if (viewedInvestorIds.includes(id)) return name; // Show full name if viewed
-
-    if (!name) return "";
-    const parts = name.trim().split(" ");
-
-    if (parts.length === 1) {
-      return parts[0][0] + "X".repeat(parts[0].length - 1);
-    }
-
-    const first = parts[0][0] + "X".repeat(parts[0].length - 1);
-    const last = parts[1][0] + "X".repeat(parts[1].length - 1);
-
-    return `${first} ${last}`;
-  };
-
-  // Mask investor name in description for locked profiles
-  const maskDescription = (description: string, name: string, id: number): string => {
-    if (viewedInvestorIds.includes(id)) return description; // Show full description if viewed
-
-    if (!description || !name) return description;
-
-    // Replace the full name with asterisks
-    const maskedName = "*".repeat(name.length);
-    let maskedDesc = description.replace(new RegExp(name, 'gi'), maskedName);
-
-    // Also replace first name only (in case it appears separately)
-    const firstName = name.split(" ")[0];
-    if (firstName) {
-      const maskedFirstName = "*".repeat(firstName.length);
-      maskedDesc = maskedDesc.replace(new RegExp(`\\b${firstName}\\b`, 'gi'), maskedFirstName);
-    }
-
-    return maskedDesc;
-  };
-
-  const handleViewProfile = useCallback(async (investor: Investor) => {
-    console.log("handleViewProfile called for:", investor.id);
-    console.log("Current credits:", credits);
-    console.log("Current used:", used);
-    console.log("Current userId:", userId);
-    console.log("Viewed IDs:", viewedInvestorIds);
-
-    // 1. If already viewed, open the in-page drawer
-    if (viewedInvestorIds.includes(investor.id)) {
-      console.log("Investor already viewed. Opening drawer.");
-      setSelectedInvestor(investor);
-      return;
-    }
-
-    // 2. If not viewed, check credits
-    if (credits > 0) {
-      console.log("Credits available. Proceeding with deduction.");
-
-      // Set loading state
-      setLoadingInvestorId(investor.id);
-
-      // Optimistic update
-      decrementCredit();
-      setViewedInvestorIds((prev) => [...prev, investor.id]);
-
-      // DB Updates
-      if (userId) {
-        try {
-          console.log("Updating DB for user:", userId);
-
-          // Use Promise.all to run both operations in parallel for better performance
-          const [viewResult, creditResult] = await Promise.all([
-            // Record view
-            supabase.from("user_investor_views").insert({
-              user_id: userId,
-              investor_id: investor.id,
-            }),
-            // Atomically increment credits_used to avoid race conditions
-            supabase.rpc('increment_credits_used', { user_id: userId })
-          ]);
-
-          if (viewResult.error) {
-            console.error("Error inserting into user_investor_views:", viewResult.error);
-            throw viewResult.error;
-          } else {
-            console.log("Successfully inserted into user_investor_views");
-          }
-
-          if (creditResult.error) {
-            console.error("Error updating credits:", creditResult.error);
-            // Fallback to manual update if RPC doesn't exist
-            const { error: updateError } = await supabase
-              .from("users")
-              .update({ credits_used: used + 1 })
-              .eq("id", userId);
-
-            if (updateError) {
-              console.error("Error updating users table:", updateError);
-              throw updateError;
-            }
-          } else {
-            console.log("Successfully updated credits_used atomically");
-          }
-
-          // Open the profile in-place after successful DB update
-          setSelectedInvestor(investor);
-
-        } catch (err) {
-          console.error("Error updating credits/views:", err);
-          setLoadingInvestorId(null);
-          alert("An error occurred. Please try again.");
-          return;
-        }
-      } else {
-        console.error("No userId found, skipping DB updates");
+  const handleViewProfile = useCallback(
+    async (investor: Investor) => {
+      if (viewedIdsSet.has(investor.id)) {
+        setSelectedInvestor(investor);
+        return;
       }
 
-      setLoadingInvestorId(null);
-    } else {
-      // 3. No credits
-      console.log("No credits left. Showing upgrade modal.");
-      setShowUpgradeModal(true);
-    }
-  }, [credits, decrementCredit, supabase, used, userId, viewedInvestorIds]);
+      if (credits > 0) {
+        setLoadingInvestorId(investor.id);
+        decrementCredit();
+        setViewedInvestorIds((prev) => [...prev, investor.id]);
+
+        if (userId) {
+          try {
+            const [viewResult, creditResult] = await Promise.all([
+              supabase.from("user_investor_views").insert({
+                user_id: userId,
+                investor_id: investor.id,
+              }),
+              supabase.rpc("increment_credits_used", { user_id: userId }),
+            ]);
+
+            if (viewResult.error) throw viewResult.error;
+
+            if (creditResult.error) {
+              const { error: updateError } = await supabase
+                .from("users")
+                .update({ credits_used: used + 1 })
+                .eq("id", userId);
+
+              if (updateError) throw updateError;
+            }
+
+            setSelectedInvestor(investor);
+          } catch (err) {
+            console.error("Error updating credits/views:", err);
+            setLoadingInvestorId(null);
+            alert("An error occurred. Please try again.");
+            return;
+          }
+        }
+
+        setLoadingInvestorId(null);
+      } else {
+        setShowUpgradeModal(true);
+      }
+    },
+    [credits, decrementCredit, supabase, used, userId, viewedIdsSet]
+  );
 
   return (
     <div className="min-h-screen bg-[#F8F6F0] font-inter text-[#31372B]">
       <InvestorProfileDrawer investor={selectedInvestor} onClose={() => setSelectedInvestor(null)} />
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 pt-16 lg:pt-[72px]">
-        <div className="sticky top-16 lg:top-[72px] z-30 -mx-6 px-6 lg:-mx-8 lg:px-8 pb-4 bg-[#F8F6F0]/95 backdrop-blur-md border-b border-black/[0.05]">
+        <div className="sticky top-16 lg:top-[72px] z-30 -mx-6 px-6 lg:-mx-8 lg:px-8 pb-4 bg-[#F8F6F0]/95 backdrop-blur-md border-b border-black/[0.05] [transform:translateZ(0)]">
           <div className="pt-5 pb-4">
             <div className="relative max-w-3xl">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9B9B9B]" />
@@ -563,7 +513,7 @@ const Dashboard = () => {
 
         {/* Investor List */}
         <div className="mt-4 flex flex-col gap-3">
-          {loading ? (
+          {loading && currentPageData.length === 0 ? (
             <div className="flex items-center gap-3 py-12">
               <div className="animate-spin h-5 w-5 rounded-full border-2 border-[#1E1E1E] border-t-transparent" />
               <p className="text-[#6B6B6B] font-inter text-sm">Loading investor data...</p>
@@ -577,110 +527,41 @@ const Dashboard = () => {
             </div>
           ) : (
             <>
-              {currentPageData.map((inv: Investor) => {
-                const isViewed = viewedInvestorIds.includes(inv.id);
-                return (
-                  <motion.div
+              <motion.div
+                key={listAnimationKey}
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  visible: {
+                    transition: { staggerChildren: 0.05, delayChildren: 0.02 },
+                  },
+                }}
+                className="flex flex-col gap-3"
+              >
+                {currentPageData.map((inv) => (
+                  <InvestorListCard
                     key={inv.id}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={`group relative bg-white/70 backdrop-blur-sm border rounded-2xl p-5 transition-all duration-300 ${
-                      isViewed
-                        ? "border-black/[0.06] hover:border-[#C6FF55]/40 hover:shadow-lg hover:shadow-[#C6FF55]/5"
-                        : "border-black/[0.04] hover:border-black/10"
-                    }`}
-                  >
-                    <div className="flex items-start gap-4">
-                      {/* Avatar */}
-                      <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 font-space font-bold text-sm ${
-                        isViewed ? "bg-[#1E1E1E] text-white" : "bg-black/[0.06] text-[#6B6B6B]"
-                      }`}>
-                        {inv.name.charAt(0).toUpperCase()}
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className={`font-space font-bold text-base ${isViewed ? "text-[#1E1E1E]" : "text-[#6B6B6B]"}`}>
-                            {maskName(inv.name, inv.id)}
-                          </h3>
-                          {inv.type && (
-                            <span className="text-[10px] font-inter font-semibold bg-black/[0.05] border border-black/[0.06] text-[#31372B] px-2 py-0.5 rounded-full">
-                              {inv.type}
-                            </span>
-                          )}
-                        </div>
-                        <p className={`text-xs font-inter mt-0.5 ${isViewed ? "text-[#6B6B6B]" : "text-[#6B6B6B]/60"}`}>
-                          {inv.firm_name}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-1 text-xs font-inter text-[#6B6B6B] flex-shrink-0">
-                        <MapPin className="w-3 h-3" />
-                        {inv.city ? `${inv.city}, ` : ""}{inv.country}
-                      </div>
-                    </div>
-
-                    {/* Bio */}
-                    {isViewed ? (
-                      <p className="text-sm font-inter text-[#6B6B6B] leading-relaxed mt-3">{inv.about}</p>
-                    ) : (
-                      <div className="relative mt-3">
-                        <p className={`text-sm font-inter text-[#6B6B6B]/50 leading-relaxed`} style={{ filter: "blur(3px)", userSelect: "none" }}>
-                          {maskDescription(inv.about, inv.name, inv.id).substring(0, 100)}...
-                        </p>
-                        <p className="text-xs font-inter text-[#6B6B6B] mt-1">🔒 Unlock to view full description</p>
-                      </div>
+                    investor={inv}
+                    isViewed={viewedIdsSet.has(inv.id)}
+                    isLoading={loadingInvestorId === inv.id}
+                    displayName={maskName(inv.name, inv.id, viewedIdsSet)}
+                    displayAbout={maskDescription(
+                      inv.about,
+                      inv.name,
+                      inv.id,
+                      viewedIdsSet
                     )}
-
-                    {/* Tags + action */}
-                    <div className="flex items-center justify-between mt-4 flex-wrap gap-3">
-                      <div className="flex gap-1.5 flex-wrap">
-                        {inv.preference_sector.split(",").map((tag) => (
-                          <span key={tag} className={`text-[10px] font-inter font-semibold px-2.5 py-1 rounded-full ${
-                            isViewed ? "bg-[#C6FF55]/15 text-[#1E1E1E]" : "bg-black/[0.04] text-[#6B6B6B]/60"
-                          }`}>
-                            {tag.trim()}
-                          </span>
-                        ))}
-                      </div>
-                      <button
-                        onClick={() => handleViewProfile(inv)}
-                        disabled={loadingInvestorId === inv.id}
-                        className={`flex items-center gap-1.5 text-xs font-inter font-semibold px-4 py-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                          isViewed
-                            ? "bg-[#C6FF55]/20 text-[#1E1E1E] hover:bg-[#C6FF55]/40"
-                            : "bg-[#1E1E1E] text-white hover:bg-[#333]"
-                        }`}
-                      >
-                        {loadingInvestorId === inv.id ? (
-                          <>
-                            <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                            </svg>
-                            Loading...
-                          </>
-                        ) : isViewed ? (
-                          <><ExternalLink className="w-3 h-3" /> View Profile</>
-                        ) : (
-                          <><Zap className="w-3 h-3 text-[#C6FF55]" /> Unlock Profile</>
-                        )}
-                      </button>
-                    </div>
-
-                    {!isViewed && (
-                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-transparent via-transparent to-white/60 pointer-events-none" />
-                    )}
-                  </motion.div>
-                );
-              })}
+                    onViewProfile={handleViewProfile}
+                  />
+                ))}
+              </motion.div>
 
               {/* Pagination */}
               {totalCount > PAGE_SIZE && (
                 <div className="flex justify-center items-center gap-2 mt-8">
                   <button
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage === 1 || loading}
+                    disabled={currentPage === 1 || (loading && currentPageData.length === 0)}
                     className="px-4 py-2 rounded-full border border-black/[0.08] bg-white/70 text-sm font-inter disabled:opacity-40 hover:border-[#C6FF55]/40 disabled:cursor-not-allowed transition"
                   >
                     ← Previous
@@ -690,7 +571,7 @@ const Dashboard = () => {
                   </span>
                   <button
                     onClick={() => setCurrentPage((p) => Math.min(Math.ceil(totalCount / PAGE_SIZE), p + 1))}
-                    disabled={currentPage >= Math.ceil(totalCount / PAGE_SIZE) || loading}
+                    disabled={currentPage >= Math.ceil(totalCount / PAGE_SIZE) || (loading && currentPageData.length === 0)}
                     className="px-4 py-2 rounded-full border border-black/[0.08] bg-white/70 text-sm font-inter disabled:opacity-40 hover:border-[#C6FF55]/40 disabled:cursor-not-allowed transition"
                   >
                     Next →

@@ -174,6 +174,8 @@ export default function ToolsForFoundersClient() {
     );
   }, [searchTerm]);
 
+  const gridKey = searchTerm.trim() || "all";
+
   const faqSchema = useMemo(
     () => ({
       "@context": "https://schema.org",
@@ -275,31 +277,48 @@ export default function ToolsForFoundersClient() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredTools.map((tool, i) => {
+              <motion.div
+                key={gridKey}
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  visible: {
+                    transition: { staggerChildren: 0.06, delayChildren: 0 },
+                  },
+                }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              >
+                {filteredTools.map((tool) => {
                   const meta = toolMeta[tool.route];
                   const Icon = meta?.Icon ?? IllustrationFundraising;
                   const catColor = meta?.categoryColor ?? "#EDF4E5";
                   return (
                     <motion.div
                       key={tool.route}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.06 }}
-                      whileHover={{ y: -6, boxShadow: "0 24px 60px rgba(198,255,85,0.15), 0 8px 24px rgba(0,0,0,0.08)" }}
+                      variants={{
+                        hidden: { opacity: 0, y: 20 },
+                        visible: {
+                          opacity: 1,
+                          y: 0,
+                          transition: { duration: 0.4, ease: "easeOut" },
+                        },
+                      }}
+                      whileHover={{
+                        y: -6,
+                        boxShadow:
+                          "0 24px 60px rgba(198,255,85,0.15), 0 8px 24px rgba(0,0,0,0.08)",
+                      }}
                       style={{ boxShadow: "0 2px 16px rgba(0,0,0,0.05)" }}
+                      className="[contain:layout_style_paint]"
                     >
                       <Link
                         href={tool.route}
                         className="group flex flex-col bg-white/70 backdrop-blur-sm border border-black/[0.06] rounded-3xl p-7 shadow-sm cursor-pointer transition-colors duration-300 hover:border-[#C6FF55]/40 h-full"
                       >
-                        {/* Illustration */}
                         <div className="mb-5">
                           <Icon className="w-20 h-20" />
                         </div>
 
-                        {/* Category badge */}
                         <div className="mb-3">
                           <span
                             className="text-xs font-bold px-3 py-1 rounded-full border border-black/[0.06]"
@@ -324,7 +343,7 @@ export default function ToolsForFoundersClient() {
                     </motion.div>
                   );
                 })}
-              </div>
+              </motion.div>
             )}
           </div>
         </section>

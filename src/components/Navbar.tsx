@@ -9,6 +9,7 @@ import { Calculator, Menu, X } from "lucide-react";
 import { useCredits } from "@/context/CreditsContext";
 import { useCalculationCredits } from "@/context/CalculationCreditsContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { useThrottledScroll } from "@/hooks/useThrottledScroll";
 
 export default function AuthenticatedNavbar() {
   const router = useRouter();
@@ -16,18 +17,11 @@ export default function AuthenticatedNavbar() {
   const [open, setOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [startupFormSubmitted, setStartupFormSubmitted] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const scrolled = useThrottledScroll(10, 100);
   const { credits } = useCredits();
   const { creditStatus } = useCalculationCredits();
   const isToolsPage = pathname?.startsWith("/tools-for-founders");
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Scroll effect for frosted glass
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const getNavLinkClasses = (path: string) => {
     const isActive =
