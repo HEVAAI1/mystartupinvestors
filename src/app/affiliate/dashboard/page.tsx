@@ -216,9 +216,10 @@ export default function AffiliateDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF7EE]">
+    <div className="min-h-screen bg-[#FAF7EE] flex flex-col">
       {toast && <ToastNotification toast={toast} onDismiss={() => setToast(null)} />}
 
+      <main className="w-full flex-1">
       <div className="max-w-5xl mx-auto px-4 pt-32 pb-16">
 
         {/* Header */}
@@ -488,6 +489,7 @@ export default function AffiliateDashboardPage() {
           </button>
         </div>
       </div>
+      </main>
 
       <style jsx global>{`
         @keyframes fade-in {
@@ -497,7 +499,7 @@ export default function AffiliateDashboardPage() {
         .animate-fade-in { animation: fade-in 0.25s ease-out; }
       `}</style>
 
-      <Footer/>
+      <Footer />
     </div>
   );
 }

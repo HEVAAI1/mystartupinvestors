@@ -287,7 +287,7 @@ export default function Home() {
             <p className="text-lg font-inter text-white/50 mt-4">Stop pitching blind. Start pitching smart.</p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 items-stretch gap-6 lg:gap-8">
             {[
               {
                 step: "01",
@@ -315,9 +315,9 @@ export default function Home() {
                 key={item.step}
                 {...softCardReveal}
                 transition={{ ...softCardReveal.transition, delay: i * 0.15 }}
-                className="group relative"
+                className="group relative h-full"
               >
-                <div className="relative p-8 lg:p-10 rounded-3xl bg-white/[0.05] border border-white/[0.08] transition-all duration-500 hover:bg-white/[0.08] hover:border-[#C6FF55]/30 hover:-translate-y-1">
+                <div className="relative flex h-full flex-col p-8 lg:p-10 rounded-3xl bg-white/[0.05] border border-white/[0.08] transition-all duration-500 hover:bg-white/[0.08] hover:border-[#C6FF55]/30 hover:-translate-y-1">
                   <div className="inline-flex items-center gap-2 bg-white/[0.08] rounded-full px-4 py-1.5 mb-8">
                     <span className="text-xs font-inter font-semibold text-white/60 tracking-wider">STEP {item.step}</span>
                   </div>

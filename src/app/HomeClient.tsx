@@ -222,7 +222,7 @@ export default function HomeClient() {
         </div>
 
         {/* 3 Cards */}
-        <div className="max-w-[1300px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="max-w-[1300px] mx-auto grid grid-cols-1 md:grid-cols-3 items-stretch gap-10">
 
           {/* CARD COMPONENT */}
           {[
@@ -251,7 +251,8 @@ export default function HomeClient() {
             <div
               key={i}
               className="
-          group relative w-[90%] md:w-auto mx-auto p-10 rounded-[24px]
+          group relative flex h-full w-[90%] md:w-auto mx-auto p-10 rounded-[24px]
+          flex-col
           bg-white/[0.10] border border-white/10
           transition-all duration-300
           hover:border-[#C6FF55]/40

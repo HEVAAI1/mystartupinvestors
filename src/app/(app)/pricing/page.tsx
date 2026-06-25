@@ -94,7 +94,7 @@ export default function PricingPage() {
       {/* Navbar rendered by layout */}
 
       {/* Main Content */}
-      <main className="flex flex-col items-center w-full mt-24 px-6 md:px-0 mb-20">
+      <main className="flex flex-1 flex-col items-center w-full mt-24 px-6 md:px-0 mb-20">
         <div className="max-w-[1100px] flex flex-col items-center gap-12 w-full">
           {/* Heading */}
           <div className="text-center">

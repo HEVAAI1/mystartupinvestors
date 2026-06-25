@@ -92,6 +92,9 @@ export default function RootLayout({
           ${funnelDisplay.variable}
           ${inter.variable}
           ${spaceGrotesk.variable}
+          min-h-screen
+          flex
+          flex-col
           antialiased
         `}
       >
