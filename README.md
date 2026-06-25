@@ -1,5 +1,5 @@
 Added Staging
-# MyFundingList (InvestorList App)
+# MyFundingList
 
 A comprehensive platform connecting startups with investors. This application features a robust investor database, credit-based access system, startup submission workflow, and a full-featured admin panel.
 
