@@ -7,7 +7,7 @@ Comprehensive route protection has been implemented to ensure:
 2. ✅ Regular authenticated users cannot access `/admin` routes
 3. ✅ Admins cannot access user dashboard at `/dashboard`
 4. ✅ Proper redirects based on user role and authentication status
-
+Change
 ---
 
 ## Protection Layers
