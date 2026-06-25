@@ -7,7 +7,7 @@
 1. ✅ **Middleware** - Server-side protection (first line of defense)
 2. ✅ **User Layout** - Protects user routes from unauthenticated users and admins
 3. ✅ **Admin Layout** - Protects admin routes from regular users
-
+Added change here
 ---
 
 ## 🚀 Quick Setup (2 Steps)
