@@ -109,7 +109,7 @@ const FilterPillDropdown = memo(function FilterPillDropdown({
 const Dashboard = () => {
   const latestFetchIdRef = useRef(0);
   const hasDisplayedDataRef = useRef(false);
-  
+
   // Server-side pagination state
   const [currentPageData, setCurrentPageData] = useState<Investor[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -164,14 +164,6 @@ const Dashboard = () => {
     }
   };
 
-  useEffect(() => {
-  console.log("🖥️ UI DATA CHANGED", {
-    page: currentPage,
-    rows: currentPageData.length,
-    data: currentPageData,
-  });
-}, [currentPageData]);
-
   // Defer filter options so investor list can paint first
   useEffect(() => {
     let cancelled = false;
@@ -203,13 +195,6 @@ const Dashboard = () => {
   }, []);
 
   const fetchInvestors = useCallback(async () => {
-    console.log("🚀 FETCH START", {
-    page: currentPage,
-    search: debouncedSearch,
-    location: selectedLocation,
-    industry: selectedIndustry,
-    showViewed,
-  });
     const fetchId = ++latestFetchIdRef.current;
     if (!hasDisplayedDataRef.current) {
       setLoading(true);
@@ -228,14 +213,7 @@ const Dashboard = () => {
       if (error) throw error;
       if (fetchId !== latestFetchIdRef.current) return;
 
-const rows = data || [];
-
-console.log("📦 API RESULT", {
-  fetchId,
-  rows: rows.length,
-  count,
-  first: rows[0],
-});
+      const rows = data || [];
       hasDisplayedDataRef.current = true;
 
       setCurrentPageData(rows);
@@ -397,35 +375,35 @@ console.log("📦 API RESULT", {
             </div>
           ) : (
             <>
-             <motion.div
-  key={listAnimationKey}
-  className="flex flex-col gap-3"
->
-  {currentPageData.map((inv, index) => (
-    <motion.div
-      key={inv.id}
-      initial={{
-        opacity: 0,
-        y: 16,
-      }}
-      animate={{
-        opacity: 1,
-        y: 0,
-      }}
-      transition={{
-        duration: 0.25,
-        delay: index * 0.04,
-        ease: "easeOut",
-      }}
-    >
-      <InvestorListCard
-        investor={inv}
-        isLoading={loadingInvestorId === inv.id}
-        onViewProfile={handleViewProfile}
-      />
-    </motion.div>
-  ))}
-</motion.div>
+              <motion.div
+                key={listAnimationKey}
+                className="flex flex-col gap-3"
+              >
+                {currentPageData.map((inv, index) => (
+                  <motion.div
+                    key={inv.id}
+                    initial={{
+                      opacity: 0,
+                      y: 16,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                    }}
+                    transition={{
+                      duration: 0.25,
+                      delay: index * 0.04,
+                      ease: "easeOut",
+                    }}
+                  >
+                    <InvestorListCard
+                      investor={inv}
+                      isLoading={loadingInvestorId === inv.id}
+                      onViewProfile={handleViewProfile}
+                    />
+                  </motion.div>
+                ))}
+              </motion.div>
 
               {/* Pagination */}
               {totalCount > PAGE_SIZE && (
@@ -444,15 +422,15 @@ console.log("📦 API RESULT", {
                   </span>
                   <button
                     onClick={() => {
-  setCurrentPage((p) =>
-    Math.min(Math.ceil(totalCount / PAGE_SIZE), p + 1)
-  );
+                      setCurrentPage((p) =>
+                        Math.min(Math.ceil(totalCount / PAGE_SIZE), p + 1)
+                      );
 
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth",
-  });
-}}
+                      window.scrollTo({
+                        top: 0,
+                        behavior: "smooth",
+                      });
+                    }}
                     disabled={currentPage >= Math.ceil(totalCount / PAGE_SIZE) || (loading && currentPageData.length === 0)}
                     className="px-4 py-2 rounded-full border border-black/[0.08] bg-white/70 text-sm font-inter disabled:opacity-40 hover:border-[#C6FF55]/40 disabled:cursor-not-allowed transition"
                   >

@@ -70,12 +70,8 @@ export default function PricingPage() {
       });
 
       const data = await response.json();
-      console.log("FULL BACKEND RESPONSE:", data);
-
       if (!response.ok) {
-        throw new Error(
-          `${data.error}\nRequestId: ${data.requestId}\nLogs:\n${JSON.stringify(data.logs, null, 2)}`
-        );
+        throw new Error(data.error || 'Checkout failed');
       }
 
       // Redirect to Dodo Payments checkout

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import Footer from "@/components/Footer";
-import { getUser, getSession, uploadDeck, createStartup } from "@/lib/api";
+import { getUser, uploadDeck, createStartup } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
 const COLORS = {
@@ -624,56 +624,33 @@ export default function StartupWizard() {
   });
 
   const handleSubmit = async (other: OtherInfo) => {
-    console.log("=== FORM SUBMISSION STARTED ===");
-    console.log("Other info received:", other);
-
     setState((s) => ({ ...s, other }));
     setSubmitting(true);
 
     try {
-      console.log("Getting user via API...");
-
-      // Get current user
       const { user, error: userError } = await getUser();
 
-      console.log("Auth response:", { user, userError });
-      console.log("User object:", user);
-      console.log("User ID:", user?.id);
-      console.log("User email:", user?.email);
-
       if (userError) {
-        console.error("Error getting user:", userError);
         alert("Authentication error. Please try logging in again.");
         return;
       }
 
       if (!user) {
-        console.error("No user found in session");
-        console.log("Attempting to check session...");
-        const { session: sessionData } = await getSession();
-        console.log("Session data:", sessionData);
         alert("You must be logged in to submit the form");
         return;
       }
 
-      console.log("User authenticated successfully:", user.id);
-
-      // Upload deck if provided
       let deckUrl = null;
       if (other.deckFile) {
-        console.log("Uploading deck file:", other.deckFile.name);
         const uploadResult = await uploadDeck(other.deckFile);
 
         if (uploadResult.error) {
           console.error("Deck upload error:", uploadResult.error);
         } else {
-          console.log("Deck uploaded successfully:", uploadResult);
           deckUrl = uploadResult.url;
-          console.log("Deck public URL:", deckUrl);
         }
       }
 
-      console.log("Preparing to insert startup lead data...");
       const insertData = {
         user_id: user.id,
         full_name: state.personal.name,
@@ -697,31 +674,20 @@ export default function StartupWizard() {
         form_submitted: true,
       };
 
-      console.log("Insert data:", insertData);
-
-      // Create startup lead (inserts into startup_leads and updates user flag)
       const result = await createStartup(insertData, true);
 
       if (result.error) {
-        console.error("Insert error:", result.error);
-        console.error("Insert error details:", JSON.stringify(result.error, null, 2));
         alert("Error submitting form. Please try again.");
         return;
       }
 
-      console.log("Startup lead inserted successfully");
-
-      console.log("=== FORM SUBMISSION COMPLETED SUCCESSFULLY ===");
       alert("Form submitted successfully!");
       router.push("/dashboard");
     } catch (err) {
-      console.error("=== SUBMISSION ERROR ===");
       console.error("Submission error:", err);
-      console.error("Error stack:", err instanceof Error ? err.stack : "No stack trace");
       alert("An error occurred. Please try again.");
     } finally {
       setSubmitting(false);
-      console.log("Submission process ended, submitting set to false");
     }
   };
 

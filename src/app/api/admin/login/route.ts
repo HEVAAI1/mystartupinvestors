@@ -4,8 +4,16 @@ export async function POST(request: NextRequest) {
     try {
         const { username, password } = await request.json();
 
-        const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin@mystartupinvestors.com";
-        const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "SecureAdmin2024!";
+        const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
+        const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+        if (!ADMIN_USERNAME || !ADMIN_PASSWORD) {
+            console.error("Admin credentials not configured");
+            return NextResponse.json(
+                { error: "Server configuration error" },
+                { status: 500 }
+            );
+        }
 
         if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
             return NextResponse.json({ success: true });
