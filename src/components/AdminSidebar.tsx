@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { LayoutDashboard, Users, Building2, Database, LogOut, Download, X, DollarSign, Handshake } from "lucide-react";
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { getAdminUsers, getAdminStartups, getAdminVisualization } from "@/lib/api";
 import * as XLSX from "xlsx";
 import { useState } from "react";
 
@@ -35,48 +35,37 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
     const handleExportData = async () => {
         setExporting(true);
         try {
-            const supabase = createSupabaseBrowserClient();
-
-            // Fetch all data
-            const [usersRes, startupsRes, investorsRes, transactionsRes] = await Promise.all([
-                supabase.from("users").select("*"),
-                supabase.from("startup_leads").select("*"),
-                supabase.from("investors").select("*"),
-                supabase.from("transactions").select("*"),
+            const [usersRes, startupsRes, investorsRes, visRes] = await Promise.all([
+                getAdminUsers(),
+                getAdminStartups(),
+                fetch('/api/admin/excel').then(r => r.json()),
+                getAdminVisualization(),
             ]);
 
-            // Create workbook
             const workbook = XLSX.utils.book_new();
 
-            // Add Users sheet
             if (usersRes.data && usersRes.data.length > 0) {
                 const usersSheet = XLSX.utils.json_to_sheet(usersRes.data);
                 XLSX.utils.book_append_sheet(workbook, usersSheet, "Users");
             }
 
-            // Add Startups sheet
             if (startupsRes.data && startupsRes.data.length > 0) {
                 const startupsSheet = XLSX.utils.json_to_sheet(startupsRes.data);
                 XLSX.utils.book_append_sheet(workbook, startupsSheet, "Startups");
             }
 
-            // Add Investors sheet
             if (investorsRes.data && investorsRes.data.length > 0) {
                 const investorsSheet = XLSX.utils.json_to_sheet(investorsRes.data);
                 XLSX.utils.book_append_sheet(workbook, investorsSheet, "Investors");
             }
 
-            // Add Transactions sheet
-            if (transactionsRes.data && transactionsRes.data.length > 0) {
-                const transactionsSheet = XLSX.utils.json_to_sheet(transactionsRes.data);
+            if (visRes.transactions && visRes.transactions.length > 0) {
+                const transactionsSheet = XLSX.utils.json_to_sheet(visRes.transactions);
                 XLSX.utils.book_append_sheet(workbook, transactionsSheet, "Transactions");
             }
 
-            // Generate filename with current date
             const date = new Date().toISOString().split('T')[0];
             const filename = `MyFundingList_Export_${date}.xlsx`;
-
-            // Download file
             XLSX.writeFile(workbook, filename);
         } catch (error) {
             console.error("Error exporting data:", error);

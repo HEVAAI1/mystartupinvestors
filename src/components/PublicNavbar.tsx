@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { signInWithGoogle } from "@/lib/api";
 import { useThrottledScroll } from "@/hooks/useThrottledScroll";
 
 const navLinkClass =
@@ -24,12 +24,7 @@ export default function PublicNavbar() {
   }, [pathname]);
 
   const handleGoogleLogin = async () => {
-    const supabase = createSupabaseBrowserClient();
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
-    if (error) console.error("Google Login Error:", error);
+    await signInWithGoogle();
   };
 
   return (

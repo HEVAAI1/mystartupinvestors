@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { getAdminStartups } from "@/lib/api";
 import { Eye } from "lucide-react";
 import StartupDetailsModal from "@/components/StartupDetailsModal";
 
@@ -31,14 +31,8 @@ export default function StartupListPage() {
 
     const fetchStartups = async () => {
         try {
-            const supabase = createSupabaseBrowserClient();
-            const { data, error } = await supabase
-                .from("startup_leads")
-                .select("*")
-                .order("created_at", { ascending: false });
-
-            if (error) throw error;
-            setStartups(data || []);
+            const result = await getAdminStartups();
+            setStartups(result.data || []);
         } catch (error) {
             console.error("Error fetching startups:", error);
         } finally {

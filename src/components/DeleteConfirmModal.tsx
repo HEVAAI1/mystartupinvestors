@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { X, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { deleteInvestor } from "@/lib/api";
 
 interface Investor {
     id: number;
@@ -35,12 +35,7 @@ export default function DeleteConfirmModal({
         setError("");
 
         try {
-            const supabase = createSupabaseBrowserClient();
-
-            const { error: deleteError } = await supabase
-                .from("investors")
-                .delete()
-                .eq("id", investor.id);
+            const { error: deleteError } = await deleteInvestor(String(investor.id));
 
             if (deleteError) throw deleteError;
 

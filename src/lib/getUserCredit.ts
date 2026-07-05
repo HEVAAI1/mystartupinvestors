@@ -1,23 +1,13 @@
-// lib/getUserCredits.ts
-import { supabase } from "./supabaseClient";
+import { getUser, getUserCredits as apiGetUserCredits } from "@/lib/api";
 
 export async function getUserCredits() {
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+  const { user, error: userError } = await getUser();
 
   if (userError || !user) {
     return 0;
   }
 
-  const { data, error } = await supabase
-    .from("users")
-    .select("credits_allocated, credits_used")
-    .eq("id", user.id)
-    .single();
+  const { credits } = await apiGetUserCredits();
 
-  if (error || !data) return 0;
-
-  return (data.credits_allocated || 0) - (data.credits_used || 0);
+  return credits ?? 0;
 }

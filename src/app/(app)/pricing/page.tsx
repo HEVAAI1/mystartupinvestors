@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Footer from "@/components/Footer";
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { getUser } from "@/lib/api";
 
 export default function PricingPage() {
   const [selectedPlan, setSelectedPlan] = useState<"professional" | "growth" | "enterprise">("growth");
@@ -43,8 +43,7 @@ export default function PricingPage() {
       setError(null);
 
       // Get current user
-      const supabase = createSupabaseBrowserClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const { user } = await getUser();
 
       if (!user) {
         setError("Please log in to continue");

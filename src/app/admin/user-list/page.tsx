@@ -1,7 +1,8 @@
 "use client";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { getAdminUsers, getAdminStartups } from "@/lib/api";
 import { X } from "lucide-react";
 
 interface User {
@@ -54,14 +55,8 @@ export default function UserListPage() {
 
   const fetchUsers = async () => {
     try {
-      const supabase = createSupabaseBrowserClient();
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setUsers(data || []);
+      const result = await getAdminUsers();
+      setUsers(result.data || []);
     } catch (error) {
       console.error("Error fetching users:", error);
     } finally {
@@ -76,17 +71,12 @@ export default function UserListPage() {
     setStartupDetails(null);
 
     try {
-      const supabase = createSupabaseBrowserClient();
-      const { data, error } = await supabase
-        .from("startup_leads")
-        .select("*")
-        .eq("user_id", userId)
-        .single();
-
-      if (error) {
-        console.error("Error fetching startup details:", error);
+      const result = await getAdminStartups();
+      const startup = (result.data || []).find((s: any) => s.user_id === userId);
+      if (startup) {
+        setStartupDetails(startup);
       } else {
-        setStartupDetails(data);
+        console.error("No startup found for user");
       }
     } catch (err) {
       console.error("Error:", err);

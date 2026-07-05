@@ -9,7 +9,5 @@ export interface Investor {
   email: string;
   linkedin: string;
   type?: string;
+  locked?: boolean;
 }
-
-export const INVESTOR_LIST_COLUMNS =
-  "id,name,about,city,country,preference_sector,firm_name,email,linkedin,type" as const;

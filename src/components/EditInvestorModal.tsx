@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { updateInvestor } from "@/lib/api";
 
 interface Investor {
     id: number;
@@ -70,12 +70,7 @@ export default function EditInvestorModal({
         setError("");
 
         try {
-            const supabase = createSupabaseBrowserClient();
-
-            const { error: updateError } = await supabase
-                .from("investors")
-                .update(formData)
-                .eq("id", investor.id);
+            const { error: updateError } = await updateInvestor(String(investor.id), formData as Record<string, unknown>);
 
             if (updateError) throw updateError;
 

@@ -3,16 +3,15 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Search, Zap, ArrowRight, Sparkles, Users, DollarSign, Check, Mail } from "lucide-react";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { getUser, signInWithGoogle } from "@/lib/api";
 import Footer from "@/components/Footer";
 import PublicNavbar from "@/components/PublicNavbar";
 import { scheduleIdleWork } from "@/lib/schedule-idle";
 
 export default function Home() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const router = useRouter();
   const investorLogos = [
     { src: "/KhoslaLogo.svg", name: "Khosla" },
@@ -35,21 +34,10 @@ export default function Home() {
     let cancelled = false;
 
     const checkSession = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { user } = await getUser();
       if (cancelled || !user) return;
 
-      const { data: userData } = await supabase
-        .from("users")
-        .select("role")
-        .eq("id", user.id)
-        .single();
-
-      if (cancelled) return;
-      if (userData?.role === "admin") {
-        router.push("/admin/dashboard");
-      } else {
-        router.push("/dashboard");
-      }
+      router.push("/dashboard");
     };
 
     const cancelIdle = scheduleIdleWork(() => {
@@ -60,7 +48,7 @@ export default function Home() {
       cancelled = true;
       cancelIdle();
     };
-  }, [router, supabase]);
+  }, [router]);
 
   // Capture ?ref= from URL and save to localStorage with 24h expiry
   useEffect(() => {
@@ -74,13 +62,8 @@ export default function Home() {
   }, []);
 
   const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-    if (error) console.error("Google Login Error:", error);
+    const data = await signInWithGoogle();
+    if (data.error) console.error("Google Login Error:", data.error);
   };
 
   return (

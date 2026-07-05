@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { getAdminInvestors } from "@/lib/api";
 import { Eye, Plus, FileSpreadsheet, Search, Pencil, Trash2 } from "lucide-react";
 import InvestorDetailsModal from "@/components/InvestorDetailsModal";
 import AddInvestorModal from "@/components/AddInvestorModal";
@@ -58,34 +58,9 @@ export default function InvestorListPage() {
   const fetchInvestors = useCallback(async () => {
     setLoading(true);
     try {
-      const supabase = createSupabaseBrowserClient();
-      const from = (currentPage - 1) * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
-
-      let query = supabase
-        .from("investors")
-        .select("*", { count: "exact" });
-
-      // Server-side search across multiple fields
-      if (debouncedSearch) {
-        query = query.or(
-          `name.ilike.%${debouncedSearch}%,` +
-          `firm_name.ilike.%${debouncedSearch}%,` +
-          `email.ilike.%${debouncedSearch}%,` +
-          `country.ilike.%${debouncedSearch}%,` +
-          `preference_sector.ilike.%${debouncedSearch}%,` +
-          `type.ilike.%${debouncedSearch}%`
-        );
-      }
-
-      const { data, count, error } = await query
-        .range(from, to)
-        .order("id", { ascending: true });
-
-      if (error) throw error;
-
-      setCurrentPageData(data || []);
-      setTotalCount(count || 0);
+      const result = await getAdminInvestors(debouncedSearch);
+      setCurrentPageData(result.data || []);
+      setTotalCount(result.count || 0);
     } catch (error) {
       console.error("Error fetching investors:", error);
       setCurrentPageData([]);
@@ -93,7 +68,7 @@ export default function InvestorListPage() {
     } finally {
       setLoading(false);
     }
-  }, [PAGE_SIZE, currentPage, debouncedSearch]);
+  }, [debouncedSearch]);
 
   // Fetch investors with server-side pagination and search
   useEffect(() => {

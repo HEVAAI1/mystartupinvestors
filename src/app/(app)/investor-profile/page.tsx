@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 // import Image from "next/image";
 import Link from "next/link";
-import { supabase } from "@/lib/supabaseClient";
+import { getInvestorAccess } from "@/lib/api";
 import { useCredits } from "@/context/CreditsContext";
 
 interface Investor {
@@ -37,30 +37,12 @@ const InvestorProfilePage = () => {
             }
 
             try {
-                // Fetch investor data
-                const { data: investorData, error: investorError } = await supabase
-                    .from("investors")
-                    .select("*")
-                    .eq("id", investorId)
-                    .single();
+                const { investor, hasAccess, error } = await getInvestorAccess(userId, investorId);
 
-                if (investorError) throw investorError;
+                if (error) throw error;
 
-                // Check if user has viewed this investor
-                const { data: viewData, error: viewError } = await supabase
-                    .from("user_investor_views")
-                    .select("*")
-                    .eq("user_id", userId)
-                    .eq("investor_id", investorId)
-                    .single();
-
-                if (viewError && viewError.code !== "PGRST116") {
-                    // PGRST116 means no rows found, which is fine
-                    console.error("Error checking access:", viewError);
-                }
-
-                setInvestor(investorData);
-                setHasAccess(!!viewData);
+                setInvestor(investor);
+                setHasAccess(!!hasAccess);
             } catch (err) {
                 console.error("Error fetching investor:", err);
             } finally {

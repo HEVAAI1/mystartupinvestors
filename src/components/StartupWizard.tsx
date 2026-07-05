@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import Footer from "@/components/Footer";
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { getUser, getSession, uploadDeck, createStartup } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
 const COLORS = {
@@ -631,15 +631,12 @@ export default function StartupWizard() {
     setSubmitting(true);
 
     try {
-      console.log("Creating Supabase browser client...");
-      const supabase = createSupabaseBrowserClient();
-
-      console.log("Attempting to get user from Supabase...");
+      console.log("Getting user via API...");
 
       // Get current user
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      const { user, error: userError } = await getUser();
 
-      console.log("Supabase auth response:", { user, userError });
+      console.log("Auth response:", { user, userError });
       console.log("User object:", user);
       console.log("User ID:", user?.id);
       console.log("User email:", user?.email);
@@ -653,7 +650,7 @@ export default function StartupWizard() {
       if (!user) {
         console.error("No user found in session");
         console.log("Attempting to check session...");
-        const { data: sessionData } = await supabase.auth.getSession();
+        const { session: sessionData } = await getSession();
         console.log("Session data:", sessionData);
         alert("You must be logged in to submit the form");
         return;
@@ -665,19 +662,13 @@ export default function StartupWizard() {
       let deckUrl = null;
       if (other.deckFile) {
         console.log("Uploading deck file:", other.deckFile.name);
-        const fileName = `${user.id}/${Date.now()}_${other.deckFile.name}`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from("startup-decks")
-          .upload(fileName, other.deckFile);
+        const uploadResult = await uploadDeck(other.deckFile);
 
-        if (uploadError) {
-          console.error("Deck upload error:", uploadError);
+        if (uploadResult.error) {
+          console.error("Deck upload error:", uploadResult.error);
         } else {
-          console.log("Deck uploaded successfully:", uploadData);
-          const { data: { publicUrl } } = supabase.storage
-            .from("startup-decks")
-            .getPublicUrl(fileName);
-          deckUrl = publicUrl;
+          console.log("Deck uploaded successfully:", uploadResult);
+          deckUrl = uploadResult.url;
           console.log("Deck public URL:", deckUrl);
         }
       }
@@ -708,30 +699,17 @@ export default function StartupWizard() {
 
       console.log("Insert data:", insertData);
 
-      // Insert into startup_leads
-      const { error: insertError } = await supabase.from("startup_leads").insert(insertData);
+      // Create startup lead (inserts into startup_leads and updates user flag)
+      const result = await createStartup(insertData, true);
 
-      if (insertError) {
-        console.error("Insert error:", insertError);
-        console.error("Insert error details:", JSON.stringify(insertError, null, 2));
+      if (result.error) {
+        console.error("Insert error:", result.error);
+        console.error("Insert error details:", JSON.stringify(result.error, null, 2));
         alert("Error submitting form. Please try again.");
         return;
       }
 
       console.log("Startup lead inserted successfully");
-
-      // Update user's startup_form_submitted flag
-      console.log("Updating user startup_form_submitted flag...");
-      const { error: updateError } = await supabase
-        .from("users")
-        .update({ startup_form_submitted: true })
-        .eq("id", user.id);
-
-      if (updateError) {
-        console.error("Error updating user flag:", updateError);
-      } else {
-        console.log("User flag updated successfully");
-      }
 
       console.log("=== FORM SUBMISSION COMPLETED SUCCESSFULLY ===");
       alert("Form submitted successfully!");

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { getUser } from "@/lib/api";
 import AuthenticatedNavbar from "./Navbar";
 import PublicNavbar from "./PublicNavbar";
 
@@ -13,8 +13,7 @@ export default function SmartNavbar() {
 
     useEffect(() => {
         const checkAuth = async () => {
-            const supabase = createSupabaseBrowserClient();
-            const { data: { user } } = await supabase.auth.getUser();
+            const { user } = await getUser();
             setIsAuthenticated(!!user);
             setIsLoading(false);
         };

@@ -1,6 +1,7 @@
 "use client";
 
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { getAdminWithdrawals, getAdminAffiliates, updateWithdrawal } from "@/lib/api";
 import { useCallback, useEffect, useState } from "react";
 import { Check, DollarSign, X } from "lucide-react";
 
@@ -38,16 +39,10 @@ export default function AdminWithdrawalsPage() {
   const fetchRequests = useCallback(async () => {
     setLoadError(null);
     try {
-      const supabase = createSupabaseBrowserClient();
-      const { data: rows, error } = await supabase
-        .from("withdrawal_requests")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const result = await getAdminWithdrawals();
+      const list = result.data ?? [];
 
-      if (error) throw error;
-
-      const list = rows ?? [];
-      const affiliateIds = [...new Set(list.map((r) => r.affiliate_id).filter(Boolean))] as string[];
+      const affiliateIds = [...new Set(list.map((r: any) => r.affiliate_id).filter(Boolean))] as string[];
 
       let affById: Record<
         string,
@@ -55,22 +50,18 @@ export default function AdminWithdrawalsPage() {
       > = {};
 
       if (affiliateIds.length > 0) {
-        const { data: affiliates, error: affErr } = await supabase
-          .from("affiliates")
-          .select("id, referral_code, total_earned, total_paid, user_id")
-          .in("id", affiliateIds);
-
-        if (affErr) throw affErr;
+        const affResult = await getAdminAffiliates();
+        const affiliates = affResult.data ?? [];
         affById = Object.fromEntries(
-          (affiliates ?? []).map((a) => [a.id as string, a])
+          affiliates.filter((a: any) => affiliateIds.includes(a.id)).map((a: any) => [a.id, a])
         );
       }
 
       setRequests(
-        list.map((r) => ({
+        list.map((r: any) => ({
           ...r,
           affiliates:
-            affById[r.affiliate_id as string] ?? {
+            affById[r.affiliate_id] ?? {
               referral_code: "—",
               total_earned: 0,
               total_paid: 0,
@@ -103,52 +94,7 @@ export default function AdminWithdrawalsPage() {
 
     setProcessingId(id);
     try {
-      const supabase = createSupabaseBrowserClient();
-
-      const { data: withdrawal, error: fetchErr } = await supabase
-        .from("withdrawal_requests")
-        .select("id, affiliate_id, amount, status")
-        .eq("id", id)
-        .maybeSingle();
-
-      if (fetchErr || !withdrawal) {
-        alert(fetchErr?.message || "Withdrawal not found");
-        return;
-      }
-
-      const { error: updateErr } = await supabase
-        .from("withdrawal_requests")
-        .update({ status: newStatus, processed_at: new Date().toISOString() })
-        .eq("id", id);
-
-      if (updateErr) {
-        alert(updateErr.message);
-        return;
-      }
-
-      if (action === "mark-paid") {
-        const { data: affiliate, error: affFetchErr } = await supabase
-          .from("affiliates")
-          .select("total_paid")
-          .eq("id", withdrawal.affiliate_id)
-          .single();
-
-        if (!affFetchErr && affiliate) {
-          const newTotalPaid =
-            Number(affiliate.total_paid) + Number(withdrawal.amount);
-          await supabase
-            .from("affiliates")
-            .update({ total_paid: newTotalPaid })
-            .eq("id", withdrawal.affiliate_id);
-
-          await supabase
-            .from("commissions")
-            .update({ status: "paid" })
-            .eq("affiliate_id", withdrawal.affiliate_id)
-            .eq("status", "pending");
-        }
-      }
-
+      await updateWithdrawal(id, newStatus);
       await fetchRequests();
     } catch (error) {
       console.error("Action error:", error);

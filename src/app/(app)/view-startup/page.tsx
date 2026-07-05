@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { getUser, getMyStartup, updateMyStartup } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { Edit2, Save, X } from "lucide-react";
 
@@ -37,26 +37,21 @@ export default function ViewStartupPage() {
 
     const fetchStartupData = useCallback(async () => {
         try {
-            const supabase = createSupabaseBrowserClient();
-            const { data: { user } } = await supabase.auth.getUser();
+            const { user } = await getUser();
 
             if (!user) {
                 router.push("/");
                 return;
             }
 
-            const { data, error } = await supabase
-                .from("startup_leads")
-                .select("*")
-                .eq("user_id", user.id)
-                .single();
+            const { startup, error } = await getMyStartup();
 
             if (error) {
                 console.error("Error fetching startup data:", error);
                 return;
             }
 
-            setStartupData(data);
+            setStartupData(startup);
         } catch (err) {
             console.error("Error:", err);
         } finally {
@@ -83,11 +78,7 @@ export default function ViewStartupPage() {
 
         setSaving(true);
         try {
-            const supabase = createSupabaseBrowserClient();
-            const { error } = await supabase
-                .from("startup_leads")
-                .update({ [field]: editValue })
-                .eq("id", startupData.id);
+            const { error } = await updateMyStartup(field, editValue, startupData.id);
 
             if (error) {
                 console.error("Error updating:", error);

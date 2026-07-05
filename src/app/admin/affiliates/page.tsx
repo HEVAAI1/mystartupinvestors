@@ -1,6 +1,7 @@
 "use client";
 
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { getAdminAffiliates, getAdminUsers } from "@/lib/api";
 import { useCallback, useEffect, useState } from "react";
 
 type AffiliateRow = {
@@ -25,61 +26,35 @@ export default function AdminAffiliatesPage() {
     setLoading(true);
     setError(null);
     try {
-      const supabase = createSupabaseBrowserClient();
+      const affResult = await getAdminAffiliates();
+      const affiliates = affResult.data ?? [];
 
-      const { data: affiliates, error: affErr } = await supabase
-        .from("affiliates")
-        .select("id, user_id, referral_code, total_earned, total_paid, created_at")
-        .order("created_at", { ascending: false });
-
-      if (affErr) throw affErr;
-
-      const list = affiliates ?? [];
-      const userIds = [...new Set(list.map((a) => a.user_id).filter(Boolean))] as string[];
+      const userIds = [...new Set(affiliates.map((a: any) => a.user_id).filter(Boolean))] as string[];
 
       let usersById: Record<string, { email: string | null; name: string | null }> = {};
       if (userIds.length > 0) {
-        const { data: users, error: userErr } = await supabase
-          .from("users")
-          .select("id, email, name")
-          .in("id", userIds);
-
-        if (userErr) throw userErr;
+        const usersResult = await getAdminUsers();
+        const users = usersResult.data ?? [];
         usersById = Object.fromEntries(
-          (users ?? []).map((u) => [u.id as string, { email: u.email, name: u.name }])
+          users.filter((u: any) => userIds.includes(u.id)).map((u: any) => [u.id, { email: u.email, name: u.name }])
         );
       }
 
-      const affiliateIds = list.map((a) => a.id as string);
-      const referralCount: Record<string, number> = {};
-      if (affiliateIds.length > 0) {
-        const { data: refs, error: refErr } = await supabase
-          .from("referrals")
-          .select("affiliate_id")
-          .in("affiliate_id", affiliateIds);
-
-        if (refErr) throw refErr;
-        for (const r of refs ?? []) {
-          const id = r.affiliate_id as string;
-          referralCount[id] = (referralCount[id] ?? 0) + 1;
-        }
-      }
-
       setRows(
-        list.map((a) => {
-          const uid = a.user_id as string;
+        affiliates.map((a: any) => {
+          const uid = a.user_id;
           const u = usersById[uid];
           const earned = Number(a.total_earned);
           const paid = Number(a.total_paid);
           return {
-            id: a.id as string,
+            id: a.id,
             user_id: uid,
-            referral_code: a.referral_code as string,
+            referral_code: a.referral_code,
             total_earned: earned,
             total_paid: paid,
             pending_earnings: earned - paid,
-            referral_count: referralCount[a.id as string] ?? 0,
-            created_at: a.created_at as string,
+            referral_count: 0,
+            created_at: a.created_at,
             user_email: u?.email ?? null,
             user_name: u?.name ?? null,
           };

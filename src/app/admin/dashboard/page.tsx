@@ -1,7 +1,8 @@
 "use client";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { getAdminDashboard, getAdminVisualization } from "@/lib/api";
 import { Users, Building2, Database, TrendingUp, DollarSign, Calendar } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
@@ -87,10 +88,8 @@ export default function AdminDashboardPage() {
 
   const fetchVisualizationData = useCallback(async () => {
     try {
-      const supabase = createSupabaseBrowserClient();
       const now = new Date();
 
-      // Calculate the start date based on selected duration
       let startDate: Date;
       let groupBy: "hour" | "day" | "week" | "month";
 
@@ -118,17 +117,14 @@ export default function AdminDashboardPage() {
       }
 
       const groupedData: { [key: string]: number[] } = {};
+      const { transactions, users } = await getAdminVisualization();
 
       if (selectedMetric === "revenue") {
-        // Fetch transaction data
-        const { data: transactionsData } = await supabase
-          .from("transactions")
-          .select("amount, created_at, status")
-          .eq("status", "succeeded")
-          .gte("created_at", startDate.toISOString())
-          .order("created_at", { ascending: true });
+        const transactionsData = (transactions || [])
+          .filter((t: any) => t.status === "succeeded" && t.created_at && new Date(t.created_at) >= startDate)
+          .sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 
-        transactionsData?.forEach(transaction => {
+        transactionsData.forEach((transaction: any) => {
           if (!transaction.created_at) return;
           const date = new Date(transaction.created_at);
           const key = formatDateByGroup(date, groupBy);
@@ -137,15 +133,11 @@ export default function AdminDashboardPage() {
         });
 
       } else if (selectedMetric === "creditsUsed" || selectedMetric === "creditsAllocated") {
-        // For credits, we need to aggregate user data over time
-        // Note: This is a snapshot approach - we're showing current values grouped by user creation
-        const { data: usersData } = await supabase
-          .from("users")
-          .select("created_at, credits_used, credits_allocated")
-          .gte("created_at", startDate.toISOString())
-          .order("created_at", { ascending: true });
+        const usersData = (users || [])
+          .filter((u: any) => u.created_at && new Date(u.created_at) >= startDate)
+          .sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 
-        usersData?.forEach(user => {
+        usersData.forEach((user: any) => {
           if (!user.created_at) return;
           const date = new Date(user.created_at);
           const key = formatDateByGroup(date, groupBy);
@@ -158,28 +150,24 @@ export default function AdminDashboardPage() {
         });
 
       } else if (selectedMetric === "activeUsers") {
-        // Fetch user login data
-        const { data: usersData } = await supabase
-          .from("users")
-          .select("last_login")
-          .gte("last_login", startDate.toISOString())
-          .order("last_login", { ascending: true });
+        const usersData = (users || [])
+          .filter((u: any) => u.last_login && new Date(u.last_login) >= startDate)
+          .sort((a: any, b: any) => new Date(a.last_login).getTime() - new Date(b.last_login).getTime());
 
-        usersData?.forEach(user => {
+        usersData.forEach((user: any) => {
           if (!user.last_login) return;
           const date = new Date(user.last_login);
           const key = formatDateByGroup(date, groupBy);
           if (!groupedData[key]) groupedData[key] = [];
-          groupedData[key].push(1); // Count each user as 1
+          groupedData[key].push(1);
         });
       }
 
-      // Convert grouped data to chart format
       const chartData: VisualizationData[] = Object.entries(groupedData).map(([period, values]) => ({
         period,
         value: selectedMetric === "activeUsers"
-          ? values.length // For active users, count unique entries
-          : Math.round(values.reduce((sum, val) => sum + val, 0) * 100) / 100, // Sum and round
+          ? values.length
+          : Math.round(values.reduce((sum, val) => sum + val, 0) * 100) / 100,
       }));
 
       setVisualizationData(chartData);
@@ -207,80 +195,55 @@ export default function AdminDashboardPage() {
 
   const fetchStats = async () => {
     try {
-      const supabase = createSupabaseBrowserClient();
+      const [dashboard, visualization] = await Promise.all([
+        getAdminDashboard(),
+        getAdminVisualization()
+      ]);
 
-      // Fetch all users data
-      const { data: usersData } = await supabase
-        .from("users")
-        .select("plan, credits_used, last_login");
+      const usersData = visualization.users || [];
+      const transactionsData = visualization.transactions || [];
 
-      // Calculate user counts by plan
-      const freeCount = usersData?.filter(u => !u.plan || u.plan === "free").length || 0;
-      const starterCount = usersData?.filter(u => u.plan === "starter").length || 0;
-      const planGrowthCount = usersData?.filter(u => u.plan === "growth").length || 0;
+      const freeCount = usersData.filter((u: any) => !u.plan || u.plan === "free").length || 0;
+      const starterCount = usersData.filter((u: any) => u.plan === "starter").length || 0;
+      const planGrowthCount = usersData.filter((u: any) => u.plan === "growth").length || 0;
 
-      // Calculate active users
       const now = new Date();
       const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
       const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-      const dailyActive = usersData?.filter(u => {
+      const dailyActive = usersData.filter((u: any) => {
         if (!u.last_login) return false;
-        const lastLogin = new Date(u.last_login);
-        return lastLogin >= oneDayAgo;
+        return new Date(u.last_login) >= oneDayAgo;
       }).length || 0;
 
-      const monthlyActive = usersData?.filter(u => {
+      const monthlyActive = usersData.filter((u: any) => {
         if (!u.last_login) return false;
-        const lastLogin = new Date(u.last_login);
-        return lastLogin >= oneMonthAgo;
+        return new Date(u.last_login) >= oneMonthAgo;
       }).length || 0;
 
-      // Fetch total startups
-      const { count: startupsCount } = await supabase
-        .from("startup_leads")
-        .select("*", { count: "exact", head: true });
-
-      // Fetch total investors
-      const { count: investorsCount } = await supabase
-        .from("investors")
-        .select("*", { count: "exact", head: true });
-
-      // Calculate total credits used
-      const totalCreditsUsed = usersData?.reduce(
-        (sum, user) => sum + (user.credits_used || 0),
+      const totalCreditsUsed = usersData.reduce(
+        (sum: number, u: any) => sum + (u.credits_used || 0),
         0
       ) || 0;
 
-      // Fetch revenue data
-      const { data: transactionsData } = await supabase
-        .from("transactions")
-        .select("amount, created_at, status");
+      const completedTransactions = transactionsData.filter((t: any) => t.status === "succeeded") || [];
 
-      const completedTransactions = transactionsData?.filter(t => t.status === "succeeded") || [];
+      const totalRev = completedTransactions.reduce((sum: number, t: any) => sum + (parseFloat(t.amount) || 0), 0);
 
-      const totalRev = completedTransactions.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
-
-      // Calculate current month revenue
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
       const monthlyRev = completedTransactions
-        .filter(t => {
+        .filter((t: any) => {
           if (!t.created_at) return false;
           const date = new Date(t.created_at);
           return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
         })
-        .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+        .reduce((sum: number, t: any) => sum + (parseFloat(t.amount) || 0), 0);
 
-      // Calculate sales breakdown by plan type
-      const { data: salesData } = await supabase
-        .from("transactions")
-        .select("plan_type")
-        .eq("status", "succeeded");
-
-      const professionalCount = salesData?.filter(t => t.plan_type === "professional").length || 0;
-      const growthCount = salesData?.filter(t => t.plan_type === "growth").length || 0;
-      const enterpriseCount = salesData?.filter(t => t.plan_type === "enterprise").length || 0;
+      const salesData = completedTransactions;
+      const professionalCount = salesData.filter((t: any) => t.plan_type === "professional").length || 0;
+      const growthCount = salesData.filter((t: any) => t.plan_type === "growth").length || 0;
+      const enterpriseCount = salesData.filter((t: any) => t.plan_type === "enterprise").length || 0;
 
       setSalesBreakdown({
         professional: professionalCount,
@@ -289,9 +252,9 @@ export default function AdminDashboardPage() {
       });
 
       setStats({
-        totalUsers: usersData?.length || 0,
-        totalStartups: startupsCount || 0,
-        totalInvestors: investorsCount || 0,
+        totalUsers: dashboard.usersCount || 0,
+        totalStartups: dashboard.startupsCount || 0,
+        totalInvestors: dashboard.investorsCount || 0,
         creditsUsed: totalCreditsUsed,
         freeUsers: freeCount,
         starterUsers: starterCount,

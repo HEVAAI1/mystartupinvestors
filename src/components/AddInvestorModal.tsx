@@ -3,7 +3,7 @@
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { createInvestor } from "@/lib/api";
 
 interface AddInvestorModalProps {
     open: boolean;
@@ -39,11 +39,7 @@ export default function AddInvestorModal({ open, onClose, onSuccess }: AddInvest
         setSaving(true);
 
         try {
-            const supabase = createSupabaseBrowserClient();
-
-            const { error: insertError } = await supabase
-                .from("investors")
-                .insert([formData]);
+            const { error: insertError } = await createInvestor(formData as Record<string, unknown>);
 
             if (insertError) throw insertError;
 

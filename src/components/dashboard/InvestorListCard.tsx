@@ -7,21 +7,16 @@ import type { Investor } from "@/types/investor";
 
 interface InvestorListCardProps {
   investor: Investor;
-  isViewed: boolean;
   isLoading: boolean;
-  displayName: string;
-  displayAbout: string;
   onViewProfile: (investor: Investor) => void;
 }
 
 function InvestorListCard({
   investor,
-  isViewed,
   isLoading,
-  displayName,
-  displayAbout,
   onViewProfile,
 }: InvestorListCardProps) {
+  const isViewed = !investor.locked;
   const sectors = investor.preference_sector.split(",");
 
   return (
@@ -56,7 +51,7 @@ function InvestorListCard({
                 isViewed ? "text-[#1E1E1E]" : "text-[#6B6B6B]"
               }`}
             >
-              {displayName}
+              {investor.name}
             </h3>
             {investor.type && (
               <span className="text-[10px] font-inter font-semibold bg-black/[0.05] border border-black/[0.06] text-[#31372B] px-2 py-0.5 rounded-full">
@@ -90,7 +85,7 @@ function InvestorListCard({
             className="text-sm font-inter text-[#6B6B6B]/50 leading-relaxed"
             style={{ filter: "blur(3px)", userSelect: "none" }}
           >
-            {displayAbout.substring(0, 100)}...
+            {investor.about.substring(0, 100)}...
           </p>
           <p className="text-xs font-inter text-[#6B6B6B] mt-1">
             🔒 Unlock to view full description

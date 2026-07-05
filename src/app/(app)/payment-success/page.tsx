@@ -6,7 +6,7 @@ import AuthenticatedNavbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { CheckCircle } from "lucide-react";
 import { useCredits } from "@/context/CreditsContext";
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { getUser, getTransaction } from "@/lib/api";
 import { creditsForPlanType } from "@/lib/dodo-config";
 
 export default function PaymentSuccessPage() {
@@ -35,22 +35,14 @@ export default function PaymentSuccessPage() {
       }
 
       try {
-        const supabase = createSupabaseBrowserClient();
-        const { data: { user } } = await supabase.auth.getUser();
+        const { user } = await getUser();
 
         if (!user) {
           setLoading(false);
           return;
         }
 
-        // Fetch the most recent transaction for this user
-        const { data: transaction } = await supabase
-          .from('transactions')
-          .select('plan_type')
-          .eq('user_id', user.id)
-          .eq('transaction_id', paymentId)
-          .eq('status', 'succeeded')
-          .single();
+        const { transaction } = await getTransaction(paymentId);
 
         if (transaction) {
           setCreditsAdded(creditsForPlanType(transaction.plan_type));

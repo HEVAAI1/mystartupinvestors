@@ -2,13 +2,12 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { getUser, signInWithGoogle } from "@/lib/api";
 import Footer from "@/components/Footer";
 import SmartNavbar from "@/components/SmartNavbar";
 
 export default function AffiliateLandingPage() {
   const router = useRouter();
-  const supabase = createSupabaseBrowserClient();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -21,9 +20,7 @@ export default function AffiliateLandingPage() {
   }, []);
 
   const handleGetLink = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { user } = await getUser();
 
     if (user) {
       router.push("/affiliate/dashboard");
@@ -31,14 +28,8 @@ export default function AffiliateLandingPage() {
     }
 
     localStorage.setItem("mfl_next_path", "/affiliate/dashboard");
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-
-    if (error) console.error("Google Login Error:", error);
+    const data = await signInWithGoogle();
+    if (data.error) console.error("Google Login Error:", data.error);
   };
 
   const steps = [

@@ -3,7 +3,6 @@
 import { X, Download, Upload, FileSpreadsheet } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 import * as XLSX from "xlsx";
 
 interface AddInvestorExcelModalProps {
@@ -98,10 +97,11 @@ export default function AddInvestorExcelModal({ open, onClose, onSuccess }: AddI
                 about: row.about || "",
             }));
 
-            const supabase = createSupabaseBrowserClient();
-            const { error: insertError } = await supabase
-                .from("investors")
-                .insert(investors);
+            const { error: insertError } = await fetch('/api/admin/investors', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(investors),
+            }).then(r => r.json());
 
             if (insertError) throw insertError;
 

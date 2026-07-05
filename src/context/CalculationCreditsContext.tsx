@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { getSession } from "@/lib/api";
 
 interface CalculationCreditStatus {
     userState: "anonymous" | "free" | "paid" | "loading";
@@ -40,8 +40,7 @@ export function CalculationCreditsProvider({ children }: { children: ReactNode }
     const checkCredits = async () => {
         try {
             setIsLoading(true);
-            const supabase = createSupabaseBrowserClient();
-            const { data: { session } } = await supabase.auth.getSession();
+            const { session } = await getSession();
 
             const headers: HeadersInit = {};
             if (session?.access_token) {
@@ -65,8 +64,7 @@ export function CalculationCreditsProvider({ children }: { children: ReactNode }
 
     const useCredit = async (): Promise<{ success: boolean; error?: string; message?: string }> => {
         try {
-            const supabase = createSupabaseBrowserClient();
-            const { data: { session } } = await supabase.auth.getSession();
+            const { session } = await getSession();
 
             const headers: HeadersInit = {
                 "Content-Type": "application/json",

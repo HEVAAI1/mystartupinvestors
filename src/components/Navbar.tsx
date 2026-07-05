@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { getUser, getStartupStatus, signOut } from "@/lib/api";
 import { FiUser } from "react-icons/fi";
 import { Calculator, Menu, X } from "lucide-react";
 import { useCredits } from "@/context/CreditsContext";
@@ -52,15 +52,10 @@ export default function AuthenticatedNavbar() {
   // Fetch startup form submission status
   useEffect(() => {
     const fetchUserStatus = async () => {
-      const supabase = createSupabaseBrowserClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const { user } = await getUser();
       if (user) {
-        const { data } = await supabase
-          .from("users")
-          .select("startup_form_submitted")
-          .eq("id", user.id)
-          .single();
-        if (data) setStartupFormSubmitted(data.startup_form_submitted ?? false);
+        const data = await getStartupStatus();
+        if (data) setStartupFormSubmitted(data.submitted ?? false);
       }
     };
     fetchUserStatus();
@@ -89,12 +84,11 @@ export default function AuthenticatedNavbar() {
     setLoggingOut(true);
     setOpen(false);
     setMobileMenuOpen(false);
-    const supabase = createSupabaseBrowserClient();
     try {
       const signOutTimeout = new Promise<never>((_, reject) => {
         window.setTimeout(() => reject(new Error("Logout timed out. Please try again.")), 10000);
       });
-      const { error } = await Promise.race([supabase.auth.signOut(), signOutTimeout]);
+      const { error } = await Promise.race([signOut(), signOutTimeout]);
       if (error) throw error;
       window.location.assign("/");
     } catch (error) {

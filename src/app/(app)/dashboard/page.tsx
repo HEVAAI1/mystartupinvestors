@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, ChangeEvent, useCallback, useMemo, useRef, memo } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
+import { getInvestors, getFilterOptions, unlockInvestor } from "@/lib/api";
 import UpgradeModal from "@/components/UpgradeModal";
 import { useCredits } from "@/context/CreditsContext";
 import Link from "next/link";
@@ -12,22 +12,9 @@ import InvestorProfileDrawer from "@/components/dashboard/InvestorProfileDrawer"
 import UpgradeBanner from "@/components/dashboard/UpgradeBanner";
 import InvestorListCard from "@/components/dashboard/InvestorListCard";
 import type { Investor } from "@/types/investor";
-import { INVESTOR_LIST_COLUMNS } from "@/types/investor";
-import { maskDescription, maskName } from "@/lib/investor-masking";
 import { scheduleIdleWork } from "@/lib/schedule-idle";
 
 
-
-interface ViewedIdsResponse {
-  data: { investor_id: number }[] | null;
-  error: { message?: string } | null;
-}
-
-interface InvestorListResponse {
-  data: Investor[] | null;
-  count: number | null;
-  error: { message?: string } | null;
-}
 
 interface FilterPillDropdownProps {
   icon: React.ComponentType<{ className?: string }>;
@@ -70,9 +57,8 @@ const FilterPillDropdown = memo(function FilterPillDropdown({
           {value}
         </span>
         <ChevronDown
-          className={`h-4 w-4 flex-shrink-0 text-[#ABABAB] transition-transform ${
-            open ? "rotate-180" : ""
-          }`}
+          className={`h-4 w-4 flex-shrink-0 text-[#ABABAB] transition-transform ${open ? "rotate-180" : ""
+            }`}
         />
       </button>
 
@@ -103,11 +89,10 @@ const FilterPillDropdown = memo(function FilterPillDropdown({
                       onSelect(optionValue);
                       setOpen(false);
                     }}
-                    className={`flex w-full items-center px-4 py-2.5 text-sm font-inter transition ${
-                      isActive
-                        ? "bg-[#C6FF55]/12 text-[#1E1E1E] font-semibold"
-                        : "text-[#4B4B4B] hover:bg-black/[0.03]"
-                    }`}
+                    className={`flex w-full items-center px-4 py-2.5 text-sm font-inter transition ${isActive
+                      ? "bg-[#C6FF55]/12 text-[#1E1E1E] font-semibold"
+                      : "text-[#4B4B4B] hover:bg-black/[0.03]"
+                      }`}
                   >
                     <span className="truncate">{option}</span>
                   </button>
@@ -122,10 +107,9 @@ const FilterPillDropdown = memo(function FilterPillDropdown({
 });
 
 const Dashboard = () => {
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const latestFetchIdRef = useRef(0);
   const hasDisplayedDataRef = useRef(false);
-
+  
   // Server-side pagination state
   const [currentPageData, setCurrentPageData] = useState<Investor[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -152,19 +136,19 @@ const Dashboard = () => {
   const [locations, setLocations] = useState<string[]>([]);
   const [industries, setIndustries] = useState<string[]>([]);
 
-  const [viewedInvestorIds, setViewedInvestorIds] = useState<number[]>([]);
   // ⭐⭐⭐ USE CREDITS FROM CONTEXT ⭐⭐⭐
-  const { credits, used, decrementCredit, userId, hasPaid } = useCredits();
-
-  const viewedIdsSet = useMemo(
-    () => new Set(viewedInvestorIds),
-    [viewedInvestorIds]
-  );
+  const { decrementCredit, hasPaid } = useCredits();
 
   const listAnimationKey = useMemo(
     () =>
       `${currentPage}|${debouncedSearch}|${selectedLocation}|${selectedIndustry}|${showViewed}`,
-    [currentPage, debouncedSearch, selectedLocation, selectedIndustry, showViewed]
+    [
+      currentPage,
+      debouncedSearch,
+      selectedLocation,
+      selectedIndustry,
+      showViewed,
+    ]
   );
 
   // Debounce search input (300ms)
@@ -174,33 +158,19 @@ const Dashboard = () => {
     setCurrentPage(1);
   };
 
-  const withTimeout = useCallback(
-  async function withTimeout<T>(
-    promise: PromiseLike<T>, // ✅ KEY FIX
-    message: string,
-    timeoutMs = 15000
-  ): Promise<T> {
-    let timeoutId: ReturnType<typeof setTimeout> | undefined;
-
-    try {
-      return await Promise.race([
-        promise,
-        new Promise<T>((_, reject) => {
-          timeoutId = setTimeout(() => reject(new Error(message)), timeoutMs);
-        }),
-      ]);
-    } finally {
-      if (timeoutId) clearTimeout(timeoutId);
-    }
-  },
-  []
-);
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handleSearch();
     }
   };
+
+  useEffect(() => {
+  console.log("🖥️ UI DATA CHANGED", {
+    page: currentPage,
+    rows: currentPageData.length,
+    data: currentPageData,
+  });
+}, [currentPageData]);
 
   // Defer filter options so investor list can paint first
   useEffect(() => {
@@ -208,35 +178,12 @@ const Dashboard = () => {
 
     const fetchFilterOptions = async () => {
       try {
-        const { data, error } = await withTimeout(
-          supabase
-            .from("investors")
-            .select("country, preference_sector")
-            .range(0, 1999),
-          "Loading filter options took too long."
-        );
+        const { locations, industries } = await getFilterOptions();
 
-        if (cancelled || error) return;
+        if (cancelled) return;
 
-        if (data) {
-          const uniqueLocations = Array.from(
-            new Set(data.map((item) => item.country).filter(Boolean))
-          );
-          const uniqueIndustries = Array.from(
-            new Set(
-              data
-                .flatMap((item) =>
-                  item.preference_sector
-                    ?.split(",")
-                    .map((sector: string) => sector.trim())
-                )
-                .filter(Boolean)
-            )
-          ).sort();
-
-          setLocations(uniqueLocations.sort());
-          setIndustries(uniqueIndustries);
-        }
+        if (locations) setLocations(locations);
+        if (industries) setIndustries(industries);
       } catch (err) {
         console.error("Error fetching filter options:", err);
       }
@@ -253,80 +200,44 @@ const Dashboard = () => {
       cancelled = true;
       cancelIdle();
     };
-  }, [supabase, withTimeout]);
+  }, []);
 
   const fetchInvestors = useCallback(async () => {
+    console.log("🚀 FETCH START", {
+    page: currentPage,
+    search: debouncedSearch,
+    location: selectedLocation,
+    industry: selectedIndustry,
+    showViewed,
+  });
     const fetchId = ++latestFetchIdRef.current;
     if (!hasDisplayedDataRef.current) {
       setLoading(true);
     }
     setError("");
     try {
-      const from = (currentPage - 1) * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
-
-      let query = supabase
-        .from("investors")
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .select(INVESTOR_LIST_COLUMNS, { count: "exact" }) as any;
-
-      // Server-side search
-      if (debouncedSearch) {
-        query = query.or(
-          `name.ilike.%${debouncedSearch}%,` +
-          `firm_name.ilike.%${debouncedSearch}%,` +
-          `preference_sector.ilike.%${debouncedSearch}%,` +
-          `country.ilike.%${debouncedSearch}%,` +
-          `type.ilike.%${debouncedSearch}%`
-        );
-      }
-
-      // Location filter
-      if (selectedLocation !== "All") {
-        query = query.eq("country", selectedLocation);
-      }
-
-      // Industry filter
-      if (selectedIndustry !== "All") {
-        query = query.ilike("preference_sector", `%${selectedIndustry}%`);
-      }
-      // Viewed filter
-      if (showViewed && userId) {
-        const { data: viewedIds, error: viewedIdsError } = await withTimeout<ViewedIdsResponse>(
-          supabase
-            .from("user_investor_views")
-            .select("investor_id")
-            .eq("user_id", userId),
-          "Loading viewed investors took too long."
-        );
-
-        if (viewedIdsError) throw viewedIdsError;
-
-        if (viewedIds && viewedIds.length > 0) {
-          query = query.in("id", viewedIds.map(v => v.investor_id));
-        } else {
-          if (fetchId !== latestFetchIdRef.current) return;
-          setCurrentPageData([]);
-          setTotalCount(0);
-          if (fetchId === latestFetchIdRef.current) {
-            setLoading(false);
-          }
-          return;
-        }
-      }
-
-      const { data, count, error } = await withTimeout<InvestorListResponse>(
-        query
-          .range(from, to)
-          .order("id", { ascending: true }),
-        "Loading investor data timed out. Please try again."
-      );
+      const { data, count, error } = await getInvestors({
+        page: currentPage,
+        pageSize: PAGE_SIZE,
+        search: debouncedSearch || undefined,
+        location: selectedLocation !== 'All' ? selectedLocation : undefined,
+        industry: selectedIndustry !== 'All' ? selectedIndustry : undefined,
+        showViewed: showViewed || undefined,
+      });
 
       if (error) throw error;
       if (fetchId !== latestFetchIdRef.current) return;
 
-      const rows = data || [];
-      if (rows.length > 0) hasDisplayedDataRef.current = true;
+const rows = data || [];
+
+console.log("📦 API RESULT", {
+  fetchId,
+  rows: rows.length,
+  count,
+  first: rows[0],
+});
+      hasDisplayedDataRef.current = true;
+
       setCurrentPageData(rows);
       setTotalCount(count || 0);
     } catch (err) {
@@ -341,40 +252,17 @@ const Dashboard = () => {
       }
     }
   }, [
-    PAGE_SIZE,
     currentPage,
     debouncedSearch,
     selectedIndustry,
     selectedLocation,
     showViewed,
-    supabase,
-    userId,
-    withTimeout,
   ]);
 
   // Fetch investors with server-side pagination and filters
   useEffect(() => {
     fetchInvestors();
   }, [fetchInvestors]);
-
-  // Fetch viewed investors
-  useEffect(() => {
-    const fetchViewed = async () => {
-      if (!userId) return;
-
-      const { data } = await supabase
-        .from("user_investor_views")
-        .select("investor_id")
-        .eq("user_id", userId);
-
-      if (data) {
-        setViewedInvestorIds(data.map((item) => item.investor_id));
-      }
-    };
-    fetchViewed();
-  }, [supabase, userId]);
-
-
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -392,52 +280,34 @@ const Dashboard = () => {
 
   const handleViewProfile = useCallback(
     async (investor: Investor) => {
-      if (viewedIdsSet.has(investor.id)) {
+      if (!investor.locked) {
         setSelectedInvestor(investor);
         return;
       }
 
-      if (credits > 0) {
-        setLoadingInvestorId(investor.id);
+      setLoadingInvestorId(investor.id);
+      try {
+        const result = await unlockInvestor(investor.id);
+        if (result.error) throw new Error(result.error);
+
+        const unlocked = result.investor;
+        setCurrentPageData((prev) =>
+          prev.map((inv) => (inv.id === investor.id ? unlocked : inv))
+        );
+        setSelectedInvestor(unlocked);
         decrementCredit();
-        setViewedInvestorIds((prev) => [...prev, investor.id]);
-
-        if (userId) {
-          try {
-            const [viewResult, creditResult] = await Promise.all([
-              supabase.from("user_investor_views").insert({
-                user_id: userId,
-                investor_id: investor.id,
-              }),
-              supabase.rpc("increment_credits_used", { user_id: userId }),
-            ]);
-
-            if (viewResult.error) throw viewResult.error;
-
-            if (creditResult.error) {
-              const { error: updateError } = await supabase
-                .from("users")
-                .update({ credits_used: used + 1 })
-                .eq("id", userId);
-
-              if (updateError) throw updateError;
-            }
-
-            setSelectedInvestor(investor);
-          } catch (err) {
-            console.error("Error updating credits/views:", err);
-            setLoadingInvestorId(null);
-            alert("An error occurred. Please try again.");
-            return;
-          }
+      } catch (err) {
+        console.error("Error unlocking investor:", err);
+        if ((err as Error).message === "Insufficient credits" || (err as Error).message?.includes("credits")) {
+          setShowUpgradeModal(true);
+        } else {
+          alert("Failed to unlock investor. Please try again.");
         }
-
+      } finally {
         setLoadingInvestorId(null);
-      } else {
-        setShowUpgradeModal(true);
       }
     },
-    [credits, decrementCredit, supabase, used, userId, viewedIdsSet]
+    [decrementCredit]
   );
 
   return (
@@ -527,41 +397,44 @@ const Dashboard = () => {
             </div>
           ) : (
             <>
-              <motion.div
-                key={listAnimationKey}
-                initial="hidden"
-                animate="visible"
-                variants={{
-                  visible: {
-                    transition: { staggerChildren: 0.05, delayChildren: 0.02 },
-                  },
-                }}
-                className="flex flex-col gap-3"
-              >
-                {currentPageData.map((inv) => (
-                  <InvestorListCard
-                    key={inv.id}
-                    investor={inv}
-                    isViewed={viewedIdsSet.has(inv.id)}
-                    isLoading={loadingInvestorId === inv.id}
-                    displayName={maskName(inv.name, inv.id, viewedIdsSet)}
-                    displayAbout={maskDescription(
-                      inv.about,
-                      inv.name,
-                      inv.id,
-                      viewedIdsSet
-                    )}
-                    onViewProfile={handleViewProfile}
-                  />
-                ))}
-              </motion.div>
+             <motion.div
+  key={listAnimationKey}
+  className="flex flex-col gap-3"
+>
+  {currentPageData.map((inv, index) => (
+    <motion.div
+      key={inv.id}
+      initial={{
+        opacity: 0,
+        y: 16,
+      }}
+      animate={{
+        opacity: 1,
+        y: 0,
+      }}
+      transition={{
+        duration: 0.25,
+        delay: index * 0.04,
+        ease: "easeOut",
+      }}
+    >
+      <InvestorListCard
+        investor={inv}
+        isLoading={loadingInvestorId === inv.id}
+        onViewProfile={handleViewProfile}
+      />
+    </motion.div>
+  ))}
+</motion.div>
 
               {/* Pagination */}
               {totalCount > PAGE_SIZE && (
                 <div className="flex justify-center items-center gap-2 mt-8">
                   <button
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage === 1 || (loading && currentPageData.length === 0)}
+                    onClick={() => {
+                      setCurrentPage((p) => Math.max(1, p - 1));
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }} disabled={currentPage === 1 || (loading && currentPageData.length === 0)}
                     className="px-4 py-2 rounded-full border border-black/[0.08] bg-white/70 text-sm font-inter disabled:opacity-40 hover:border-[#C6FF55]/40 disabled:cursor-not-allowed transition"
                   >
                     ← Previous
@@ -570,7 +443,16 @@ const Dashboard = () => {
                     Page {currentPage} of {Math.ceil(totalCount / PAGE_SIZE)}
                   </span>
                   <button
-                    onClick={() => setCurrentPage((p) => Math.min(Math.ceil(totalCount / PAGE_SIZE), p + 1))}
+                    onClick={() => {
+  setCurrentPage((p) =>
+    Math.min(Math.ceil(totalCount / PAGE_SIZE), p + 1)
+  );
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+}}
                     disabled={currentPage >= Math.ceil(totalCount / PAGE_SIZE) || (loading && currentPageData.length === 0)}
                     className="px-4 py-2 rounded-full border border-black/[0.08] bg-white/70 text-sm font-inter disabled:opacity-40 hover:border-[#C6FF55]/40 disabled:cursor-not-allowed transition"
                   >
