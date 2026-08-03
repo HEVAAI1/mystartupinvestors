@@ -9,7 +9,7 @@ Everything you need to know about using MyFundingList to find investors and rais
 ## About the Platform
 
 **What is MyFundingList?**
-MyFundingList is a startup investor discovery platform. It provides founders with access to a verified database of 5,000+ investors — including angels, VCs, syndicates, and funds — along with their direct email addresses and profile information.
+MyFundingList is a startup investor discovery platform. It provides founders with access to a verified database of 34,850+ investors — including angels, VCs, syndicates, and funds — along with their direct email addresses and profile information.
 
 **Who is MyFundingList for?**
 It's built for startup founders who are actively fundraising or preparing to raise. It's particularly useful for pre-seed and seed stage startups, but also works well for Series A and growth-stage companies.
@@ -25,7 +25,7 @@ MyFundingList provides **verified direct email addresses** for investors — not
 ## Investor Database
 
 **How many investors are in the database?**
-Over 5,000 verified investors as of the latest update. The number grows regularly.
+Over 34,000 verified investors as of the latest update. The number grows regularly.
 
 **What types of investors are included?**
 Angels, VC funds, micro-VCs, syndicates, family offices, and corporate venture capital (CVC) arms.

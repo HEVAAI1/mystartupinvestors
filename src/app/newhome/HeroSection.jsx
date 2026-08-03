@@ -67,7 +67,7 @@ export default function HeroSection() {
                 >
                     Access{' '}
                     <span className="relative inline-block">
-                        4000+
+                        34,850+
                         <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 12" fill="none">
                             <path d="M2 8C50 2 150 2 198 8" stroke="#C6FF55" strokeWidth="4" strokeLinecap="round" />
                         </svg>
@@ -110,7 +110,7 @@ export default function HeroSection() {
                     transition={{ duration: 0.5, delay: 0.45 }}
                     className="mt-14 flex flex-wrap items-center justify-center gap-4"
                 >
-                    <StatCard icon={Users} value="4,000+" label="Verified Investors" delay={0.5} />
+                    <StatCard icon={Users} value="34,850+" label="Verified Investors" delay={0.5} />
                     <StatCard icon={DollarSign} value="$2.5B+" label="Funding Raised" delay={0.6} />
                 </motion.div>
 

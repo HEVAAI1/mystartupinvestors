@@ -311,7 +311,7 @@ const Dashboard = () => {
           <div className="mb-4">
             <h1 className="text-2xl font-space font-bold text-[#1E1E1E] md:text-[2.15rem]">Investor Database</h1>
             <p className="mt-1.5 text-sm font-inter text-[#6B6B6B] md:text-[1.05rem]">
-              Discover and connect with <span className="font-semibold text-[#1E1E1E]">5,000+</span> verified investors worldwide
+              Discover and connect with <span className="font-semibold text-[#1E1E1E]">34,850+</span> verified investors worldwide
             </p>
           </div>
 
@@ -352,7 +352,7 @@ const Dashboard = () => {
 
             <span className="text-sm font-inter text-[#9B9B9B] sm:text-right">
               Showing <span className="font-semibold text-[#4B4B4B]">{currentPageData.length}</span> of{" "}
-              <span className="font-semibold text-[#4B4B4B]">5,000+</span> investors
+              <span className="font-semibold text-[#4B4B4B]">34,850+</span> investors
             </span>
           </div>
         </div>
@@ -456,7 +456,7 @@ const Dashboard = () => {
               <span className="text-xs font-inter font-semibold text-[#C6FF55] uppercase tracking-wider">Unlock More</span>
             </div>
             <h2 className="text-2xl md:text-3xl font-space font-bold text-white mb-3">
-              Get instant access to all 5,000+ investors
+              Get instant access to all 34,850+ investors
             </h2>
             <p className="text-white/50 font-inter max-w-lg mx-auto mb-8">
               Upgrade your plan to unlock verified emails, direct contact info, and full investor profiles.

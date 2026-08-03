@@ -37,7 +37,7 @@ Contact: support@myfundinglist.com
 
 # MyFundingList
 
-> MyFundingList is a startup investor discovery platform that gives founders direct access to 5,000+ verified investors — angels, VCs, syndicates, and funds — across 120+ global locations and 25+ industries. Founders can unlock verified investor emails, filter by sector and stage, and pitch smarter to raise funding faster.
+> MyFundingList is a startup investor discovery platform that gives founders direct access to 34,850+ verified investors — angels, VCs, syndicates, and funds — across 120+ global locations and 25+ industries. Founders can unlock verified investor emails, filter by sector and stage, and pitch smarter to raise funding faster.
 
 ## What is MyFundingList?
 
@@ -50,8 +50,8 @@ MyFundingList is a B2B SaaS platform built for startup founders who are actively
 
 ## Core Features
 
-- **Investor Database:** 5,000+ verified investor profiles including angels, VCs, syndicates, micro-funds, and strategic investors
-- **Verified Emails:** 4,850+ direct, verified email addresses for decision-makers
+- **Investor Database:** 34,850+ verified investor profiles including angels, VCs, syndicates, micro-funds, and strategic investors
+- **Verified Emails:** 34,850+ direct, verified email addresses for decision-makers
 - **Advanced Search & Filters:** Filter by industry, stage, geography, check size, and investment thesis
 - **CSV Export:** Download investor lists for CRM integration and bulk outreach
 - **Startup Listing:** Founders can add their startup to be matched with relevant investors
@@ -72,8 +72,8 @@ Credits never expire. Each credit unlocks one verified investor contact.
 
 ## Investor Network Stats
 
-- 5,000+ Verified Investors Worldwide
-- 4,850+ Verified Email Addresses
+- 34,850+ Verified Investors Worldwide
+- 34,850+ Verified Email Addresses
 - 120+ Global Locations / Cities
 - 25+ Investment Fields / Industries
 - $25 Billion+ in Investable Capital represented

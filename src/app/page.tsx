@@ -115,7 +115,7 @@ export default function Home() {
             <span className="block">
               Access{" "}
               <span className="relative inline-block">
-                30,000+
+                34,850+
                 <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 12" fill="none">
                   <path d="M2 8C50 2 150 2 198 8" stroke="#C6FF55" strokeWidth="4" strokeLinecap="round" />
                 </svg>
@@ -162,7 +162,7 @@ export default function Home() {
             className="mt-14 flex flex-wrap items-center justify-center gap-4"
           >
             {[
-              { icon: Users, value: "30,000+", label: "Investors" },
+              { icon: Users, value: "34,850+", label: "Investors" },
               { icon: DollarSign, value: "$25Bn+", label: "Investable Capital" },
             ].map(({ icon: Icon, value, label }, i) => (
               <motion.div
@@ -398,7 +398,7 @@ export default function Home() {
                       <span className="ml-auto text-[9px] font-inter text-[#31372B] bg-[#EDF4E5] border border-[rgba(49,55,43,0.1)] px-2 py-0.5 rounded-full flex-shrink-0">{inv.tag}</span>
                     </div>
                   ))}
-                  <p className="text-[10px] font-inter text-[#6B6B6B] text-center pt-1">Showing 3 of 30,000+ investors</p>
+                  <p className="text-[10px] font-inter text-[#6B6B6B] text-center pt-1">Showing 3 of 34,850+ investors</p>
                 </div>
               </div>
             </motion.div>
@@ -499,7 +499,7 @@ export default function Home() {
               Global Investor Network
             </span>
             <h2 className="text-[clamp(28px,4vw,54px)] font-space font-bold text-white leading-tight tracking-[-0.02em]">
-              Your Gateway to 30,000+ Investors
+              Your Gateway to 34,850+ Investors
             </h2>
             <p className="text-lg font-inter text-white/70 mt-4 max-w-xl">
               Access verified investor contacts across industries and global locations
@@ -508,8 +508,8 @@ export default function Home() {
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mt-14">
             {[
-              { imgSrc: "/UsersIcon.svg", value: "30,000+", label: "Investors", sub: "Worldwide" },
-              { imgSrc: "/MailIcon.svg", value: "4,850", label: "Verified Emails", sub: "Direct contacts" },
+              { imgSrc: "/UsersIcon.svg", value: "34,850+", label: "Investors", sub: "Worldwide" },
+              { imgSrc: "/MailIcon.svg", value: "34,850+", label: "Verified Emails", sub: "Direct contacts" },
               { imgSrc: "/MapPinIcon.svg", value: "120+", label: "Global Locations", sub: "Cities covered" },
               { imgSrc: "/BriefCaseIcon.svg", value: "25+", label: "Investment Fields", sub: "Industries" },
             ].map((item, i) => (

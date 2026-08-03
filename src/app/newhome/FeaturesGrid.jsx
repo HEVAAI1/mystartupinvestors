@@ -28,7 +28,7 @@ const InvestorListPreview = () => (
                 <span className="ml-auto text-[10px] font-inter text-[#6B6B6B] bg-black/[0.04] px-2 py-1 rounded-full flex-shrink-0">{inv.firm}</span>
             </motion.div>
         ))}
-        <p className="text-xs font-inter text-[#6B6B6B] text-center pt-1">Showing 3 of 5,000+ verified investors</p>
+        <p className="text-xs font-inter text-[#6B6B6B] text-center pt-1">Showing 3 of 34,850+ verified investors</p>
     </div>
 );
 

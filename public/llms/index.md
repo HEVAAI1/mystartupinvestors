@@ -1,4 +1,4 @@
-# MyFundingList — Find & Connect with 5,000+ Verified Investors
+# MyFundingList — Find & Connect with 34,850+ Verified Investors
 
 **The #1 Investor Database for Startup Founders**
 
@@ -12,8 +12,8 @@ Connect with investors across all sectors and geographies. Stop pitching blind. 
 
 | Metric | Value |
 |---|---|
-| Verified Investors | 5,000+ |
-| Verified Email Addresses | 4,850+ |
+| Verified Investors | 34,850+ |
+| Verified Email Addresses | 34,850+ |
 | Global Locations | 120+ cities |
 | Investment Fields | 25+ industries |
 | Investable Capital | $25 Billion+ |
@@ -32,7 +32,7 @@ Finding the right investors takes founders **months of wasted research and guess
 ## How It Works
 
 **Step 1 — Search**
-Browse 5,000+ investor profiles. Filter by industry, stage, geography, and investment thesis.
+Browse 34,850+ investor profiles. Filter by industry, stage, geography, and investment thesis.
 
 **Step 2 — Unlock**
 Use a credit to reveal a verified direct email address. Each credit = one investor contact unlocked.

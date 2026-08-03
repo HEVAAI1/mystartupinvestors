@@ -1,4 +1,4 @@
-# Investor Database — 5,000+ Verified Investors for Startups
+# Investor Database — 34,850+ Verified Investors for Startups
 
 Access the most comprehensive, verified investor database built for startup founders. Connect directly with angels, VCs, syndicates, and funds across every major startup ecosystem in the world.
 
@@ -10,8 +10,8 @@ Access the most comprehensive, verified investor database built for startup foun
 
 | Metric | Count |
 |---|---|
-| Total Verified Investors | 5,000+ |
-| Verified Email Addresses | 4,850+ |
+| Total Verified Investors | 34,850+ |
+| Verified Email Addresses | 34,850+ |
 | Global Cities Covered | 120+ |
 | Investment Sectors | 25+ |
 | Total Investable Capital | $25 Billion+ |
@@ -89,7 +89,7 @@ Our database includes investors from top firms including (but not limited to):
 - **Y Combinator** — Iconic seed accelerator and fund
 - **Lightspeed Venture Partners** — Multi-stage global VC
 - **Blume Ventures** — India-focused early stage VC
-- …and 5,000+ more
+- …and 34,850+ more
 
 ---
 

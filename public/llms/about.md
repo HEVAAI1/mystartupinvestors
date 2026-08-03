@@ -56,7 +56,7 @@ Each credit unlocks **one verified investor contact** — revealing their direct
 
 ## Our Data Quality Promise
 
-- **4,850+ verified emails** with active validation
+- **34,850+ verified emails** with active validation
 - **Weekly updates** to remove stale or bounced contacts
 - **Manual curation** for top-tier VC and angel profiles
 - Investors span **120+ cities** and **25+ investment sectors**

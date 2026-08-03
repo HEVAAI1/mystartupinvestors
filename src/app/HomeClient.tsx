@@ -82,7 +82,7 @@ export default function HomeClient() {
 
         {/* Heading */}
         <h1 className="text-[40px] md:text-[48px] leading-tight font-bold text-[#000] tracking-[-1px] max-w-3xl">
-          4000+ Investors’ Access to get <br className="hidden md:block" /> your startup funded
+          34,850+ Investors’ Access to get <br className="hidden md:block" /> your startup funded
         </h1>
 
         {/* Subtext */}
@@ -103,7 +103,7 @@ export default function HomeClient() {
         <div className="flex gap-16 md:gap-24 mt-10">
           {/* Stat 1 */}
           <div className="flex flex-col items-center">
-            <p className="text-[32px] md:   text-[40px] font-bold text-black">4000+</p>
+            <p className="text-[32px] md:   text-[40px] font-bold text-black">34,850+</p>
             <p className="text-[#6B6B6B] text-sm md:text-base mt-1">Verified Investors</p>
           </div>
 
@@ -362,7 +362,7 @@ export default function HomeClient() {
               <div className="flex justify-between items-center mb-4 px-1">
                 <div className="flex items-center gap-2 text-[13px] font-bold text-[#31372B]">
                   <div className="w-2 h-2 rounded-full bg-[#31372B]"></div>
-                  5,000+ Investors
+                  34,850+ Investors
                 </div>
                 <div className="flex gap-1">
                   <div className="w-1 h-1 bg-[#31372B] rounded-full opacity-40"></div>
@@ -413,7 +413,7 @@ export default function HomeClient() {
 
               {/* Footer */}
               <div className="mt-auto pt-2 text-center text-[11px] font-bold text-[#31372B]/70">
-                Showing 3 of 5,000+ verified investors
+                Showing 3 of 34,850+ verified investors
               </div>
             </div>
           </div>
@@ -532,7 +532,7 @@ export default function HomeClient() {
           </div>
 
           <h2 className="text-[54px] font-bold leading-[1.3] max-w-[850px]">
-            Your Gateway to 5,000+ Investors
+            Your Gateway to 34,850+ Investors
           </h2>
           <p className="text-[20px] text-white/80">
             Access verified investor contacts across industries and global locations
@@ -549,7 +549,7 @@ export default function HomeClient() {
               </svg>
             </div>
             <div className="mt-4">
-              <p className="text-[48px] font-bold leading-none">5,000+</p>
+              <p className="text-[48px] font-bold leading-none">34,850+</p>
               <p className="font-semibold text-[16px] mt-2">Verified Investors</p>
               <p className="text-[14px] text-white/70">Worldwide</p>
             </div>
@@ -564,7 +564,7 @@ export default function HomeClient() {
               </svg>
             </div>
             <div className="mt-4">
-              <p className="text-[48px] font-bold leading-none">4,850</p>
+              <p className="text-[48px] font-bold leading-none">34,850+</p>
               <p className="font-semibold text-[16px] mt-2">Verified Emails</p>
               <p className="text-[14px] text-white/70">Direct contacts</p>
             </div>

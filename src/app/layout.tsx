@@ -44,17 +44,17 @@ export const metadata: Metadata = {
   },
 
   title: {
-    default: "Find 5000+ Verified Investors | MyFundingList",
+    default: "Find 34,850+ Verified Investors | MyFundingList",
     template: "%s | MyFundingList",
   },
 
   description:
-    "Connect with 5,000+ verified investors. MyFundingList helps founders find, filter, and reach the right investors across sectors and geographies.",
+    "Connect with 34,850+ verified investors. MyFundingList helps founders find, filter, and reach the right investors across sectors and geographies.",
 
   openGraph: {
-    title: "Find & Connect with 5000+ Verified Investors",
+    title: "Find & Connect with 34,850+ Verified Investors",
     description:
-      "Access 5,000+ active investors across sectors and geographies for your startup.",
+      "Access 34,850+ active investors across sectors and geographies for your startup.",
     url: "https://myfundinglist.com",
     siteName: "MyFundingList",
     images: [
@@ -69,9 +69,9 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "Find & Connect with 5000+ Verified Investors",
+    title: "Find & Connect with 34,850+ Verified Investors",
     description:
-      "Access 5,000+ active investors across sectors and geographies.",
+      "Access 34,850+ active investors across sectors and geographies.",
     images: ["https://myfundinglist.com/og-preview.png"], // 🔥 IMPORTANT
   },
 };

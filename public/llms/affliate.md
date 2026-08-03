@@ -41,7 +41,7 @@ The affiliate program is ideal for:
 ## The Product You're Promoting
 
 MyFundingList gives startup founders:
-- Access to **5,000+ verified investors** worldwide
+- Access to **34,850+ verified investors** worldwide
 - **Verified direct email addresses** for angels, VCs, and funds
 - **Startup tools** for pitch preparation and outreach
 - Plans starting at **free**, scaling to enterprise

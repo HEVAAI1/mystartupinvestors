@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { Users, Mail, MapPin, Briefcase } from 'lucide-react';
 
 const stats = [
-    { icon: Users, value: '5,000+', label: 'Verified Investors', sub: 'Worldwide' },
-    { icon: Mail, value: '4,850', label: 'Verified Emails', sub: 'Direct contacts' },
+    { icon: Users, value: '34,850+', label: 'Verified Investors', sub: 'Worldwide' },
+    { icon: Mail, value: '34,850+', label: 'Verified Emails', sub: 'Direct contacts' },
     { icon: MapPin, value: '120+', label: 'Global Locations', sub: 'Cities covered' },
     { icon: Briefcase, value: '25+', label: 'Investment Fields', sub: 'Industries' },
 ];
@@ -28,7 +28,7 @@ export default function StatsGateway() {
                         Global Investor Network
                     </span>
                     <h2 className="text-[clamp(28px,4vw,44px)] font-space font-bold text-[#000] leading-tight tracking-[-0.02em]">
-                        Your Gateway to 5,000+ Investors
+                        Your Gateway to 34,850+ Investors
                     </h2>
                     <p className="text-lg font-inter text-[#6B6B6B] mt-4 max-w-xl mx-auto">
                         Access verified investor contacts across industries and global locations
