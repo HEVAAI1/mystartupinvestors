@@ -3,7 +3,7 @@ import { requireAdmin } from "@/lib/requireAdmin";
 import { NextRequest, NextResponse } from "next/server";
 
 function escapePostgrestFilterValue(value: string) {
-  return value.replace(/[,.()%]/g, "\\$&");
+  return value.replace(/\\/g, "\\\\").replace(/[,.()%*]/g, "\\$&");
 }
 
 export async function GET(request: NextRequest) {

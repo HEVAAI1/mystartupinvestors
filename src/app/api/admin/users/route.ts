@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/requireAdmin";
 
 function escapePostgrestValue(value: string) {
-  return value.replace(/[,.()%]/g, (char) => `\\${char}`);
+  return value.replace(/\\/g, "\\\\").replace(/[,.()%*]/g, (char) => `\\${char}`);
 }
 
 export async function GET(request: NextRequest) {
