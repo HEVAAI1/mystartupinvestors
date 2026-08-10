@@ -1,7 +1,15 @@
 import { createSupabaseAdminClient } from "@/lib/supabaseServer";
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/requireAdmin";
+
+function escapePostgrestValue(value: string) {
+  return value.replace(/[,.()%]/g, (char) => `\\${char}`);
+}
 
 export async function GET(request: NextRequest) {
+  const admin = await requireAdmin();
+  if (!admin.ok) return admin.response;
+
   try {
     const supabase = createSupabaseAdminClient();
     const { searchParams } = new URL(request.url);
@@ -10,7 +18,8 @@ export async function GET(request: NextRequest) {
     let query = supabase.from("users").select("id, email, name, role, credits_allocated, credits_used, created_at, startup_form_submitted", { count: "exact" });
 
     if (search) {
-      query = query.or(`email.ilike.%${search}%,name.ilike.%${search}%`);
+      const safeSearch = escapePostgrestValue(search);
+      query = query.or(`email.ilike.%${safeSearch}%,name.ilike.%${safeSearch}%`);
     }
 
     const { data, count, error } = await query.order("created_at", { ascending: false });

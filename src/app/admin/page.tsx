@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 
 export default function AdminLoginPage() {
     const router = useRouter();
-    const [username, setUsername] = useState("");
+    const supabase = createSupabaseBrowserClient();
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
@@ -16,20 +18,27 @@ export default function AdminLoginPage() {
         setLoading(true);
 
         try {
-            const response = await fetch("/api/admin/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password }),
+            const { data, error: signInError } = await supabase.auth.signInWithPassword({
+                email,
+                password,
             });
 
-            const data = await response.json();
+            if (signInError || !data.user) {
+                setError("Invalid credentials");
+                return;
+            }
 
-            if (response.ok) {
-                // Store admin session
-                localStorage.setItem("adminAuth", "true");
+            const { data: userData } = await supabase
+                .from("users")
+                .select("role")
+                .eq("id", data.user.id)
+                .single();
+
+            if (userData?.role === "admin") {
                 router.push("/admin/dashboard");
             } else {
-                setError(data.error || "Invalid credentials");
+                await supabase.auth.signOut();
+                setError("Invalid credentials");
             }
         } catch (err) {
             setError("An error occurred. Please try again.");
@@ -56,9 +65,9 @@ export default function AdminLoginPage() {
                                 Email
                             </label>
                             <input
-                                type="text"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 className="w-full px-4 py-2 border border-[#31372B1F] rounded-md outline-none focus:ring-2 focus:ring-[#31372B] text-[14px]"
                                 placeholder="Email Address"
                                 required

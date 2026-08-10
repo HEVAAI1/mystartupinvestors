@@ -111,20 +111,21 @@ export async function middleware(request: NextRequest) {
 
     // RULE 2: Admin routes require admin authentication
     if (isAdminRoute) {
-        // Check localStorage-based admin auth (this is client-side, so we'll handle it in layout)
-        // For now, just ensure they're not a regular user
-        if (user) {
-            const { data: userData } = await supabase
-                .from('users')
-                .select('role')
-                .eq('id', user.id)
-                .single();
+        if (!user) {
+            console.log(`[Middleware] Unauthenticated user trying to access admin route ${pathname}, redirecting to /admin`);
+            return NextResponse.redirect(new URL('/admin', request.url));
+        }
 
-            if (userData?.role !== 'admin') {
-                // Regular user trying to access admin - redirect to user dashboard
-                console.log(`[Middleware] Regular user trying to access admin route ${pathname}, redirecting to /dashboard`);
-                return NextResponse.redirect(new URL('/dashboard', request.url));
-            }
+        const { data: userData } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+
+        if (userData?.role !== 'admin') {
+            // Regular user trying to access admin - redirect to user dashboard
+            console.log(`[Middleware] Regular user trying to access admin route ${pathname}, redirecting to /dashboard`);
+            return NextResponse.redirect(new URL('/dashboard', request.url));
         }
     }
 

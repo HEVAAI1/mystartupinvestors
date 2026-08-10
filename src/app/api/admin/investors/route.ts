@@ -1,8 +1,16 @@
 import { createSupabaseAdminClient } from "@/lib/supabaseServer";
+import { requireAdmin } from "@/lib/requireAdmin";
 import { NextRequest, NextResponse } from "next/server";
+
+function escapePostgrestFilterValue(value: string) {
+  return value.replace(/[,.()%]/g, "\\$&");
+}
 
 export async function GET(request: NextRequest) {
   try {
+    const admin = await requireAdmin();
+    if (!admin.ok) return admin.response;
+
     const supabase = createSupabaseAdminClient();
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search") || "";
@@ -10,11 +18,12 @@ export async function GET(request: NextRequest) {
     let query = supabase.from("investors").select("*", { count: "exact" });
 
     if (search) {
+      const escapedSearch = escapePostgrestFilterValue(search);
       query = query.or(
-        `name.ilike.%${search}%,` +
-        `firm_name.ilike.%${search}%,` +
-        `country.ilike.%${search}%,` +
-        `type.ilike.%${search}%`
+        `name.ilike.%${escapedSearch}%,` +
+        `firm_name.ilike.%${escapedSearch}%,` +
+        `country.ilike.%${escapedSearch}%,` +
+        `type.ilike.%${escapedSearch}%`
       );
     }
 
@@ -30,6 +39,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: Request) {
   try {
+    const admin = await requireAdmin();
+    if (!admin.ok) return admin.response;
+
     const body = await request.json();
     const supabase = createSupabaseAdminClient();
 

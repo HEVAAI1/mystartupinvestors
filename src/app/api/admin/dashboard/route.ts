@@ -1,8 +1,12 @@
 import { createSupabaseAdminClient } from "@/lib/supabaseServer";
+import { requireAdmin } from "@/lib/requireAdmin";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
+    const admin = await requireAdmin();
+    if (!admin.ok) return admin.response;
+
     const supabase = createSupabaseAdminClient();
 
     const [users, investors, startups, transactions] = await Promise.all([

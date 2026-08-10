@@ -1,7 +1,11 @@
 import { createSupabaseAdminClient } from "@/lib/supabaseServer";
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/requireAdmin";
 
 export async function GET(request: NextRequest) {
+  const admin = await requireAdmin();
+  if (!admin.ok) return admin.response;
+
   try {
     const supabase = createSupabaseAdminClient();
     const { searchParams } = new URL(request.url);

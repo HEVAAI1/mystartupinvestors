@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { LayoutDashboard, Users, Building2, Database, LogOut, Download, X, DollarSign, Handshake } from "lucide-react";
 import { getAdminUsers, getAdminStartups, getAdminVisualization } from "@/lib/api";
+import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 import * as XLSX from "xlsx";
 import { useState } from "react";
 
@@ -14,6 +15,7 @@ interface AdminSidebarProps {
 export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
     const pathname = usePathname();
     const router = useRouter();
+    const supabase = createSupabaseBrowserClient();
     const [exporting, setExporting] = useState(false);
     const [loggingOut, setLoggingOut] = useState(false);
 
@@ -22,9 +24,7 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
 
         setLoggingOut(true);
         try {
-            console.log("Admin logging out...");
-            localStorage.removeItem("adminAuth");
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await supabase.auth.signOut();
             router.push("/admin");
         } catch (error) {
             console.error("Logout failed:", error);
