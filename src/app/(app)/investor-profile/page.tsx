@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 // import Image from "next/image";
 import Link from "next/link";
 import { getInvestorAccess } from "@/lib/api";
+import { sanitizeHref } from "@/lib/safe-url";
 import { useCredits } from "@/context/CreditsContext";
 
 interface Investor {
@@ -142,7 +143,7 @@ const InvestorProfilePage = () => {
                         </a>
 
                         <a
-                            href={investor.linkedin}
+                            href={sanitizeHref(investor.linkedin) ?? "#"}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex w-full sm:w-auto justify-center sm:justify-start items-center gap-2 bg-[#1E1E1E] text-white rounded-full px-5 py-2.5 text-sm font-inter font-medium hover:bg-[#333] transition"

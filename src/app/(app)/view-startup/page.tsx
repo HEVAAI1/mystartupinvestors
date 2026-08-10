@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { getUser, getMyStartup, updateMyStartup } from "@/lib/api";
+import { sanitizeHref } from "@/lib/safe-url";
 import { useRouter } from "next/navigation";
 import { Edit2, Save, X } from "lucide-react";
 
@@ -364,11 +365,11 @@ export default function ViewStartupPage() {
                     ])}
                     {renderTextareaField("Additional Notes", "additional_notes", startupData.additional_notes)}
 
-                    {startupData.deck_url && (
+                    {sanitizeHref(startupData.deck_url) && (
                         <div className="mb-5">
                             <label className="text-[13px] font-inter font-semibold text-[#31372B] mb-1.5 block">Pitch Deck</label>
                             <a
-                                href={startupData.deck_url}
+                                href={sanitizeHref(startupData.deck_url)!}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-2 text-[13px] font-inter text-[#31372B] bg-[#C6FF55]/20 border border-[#C6FF55]/40 px-4 py-2 rounded-full hover:bg-[#C6FF55]/30 transition"

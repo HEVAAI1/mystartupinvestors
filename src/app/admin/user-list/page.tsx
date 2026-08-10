@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { getAdminUsers, getAdminStartups } from "@/lib/api";
+import { sanitizeHref } from "@/lib/safe-url";
 import { X } from "lucide-react";
 
 interface User {
@@ -361,11 +362,11 @@ export default function UserListPage() {
                         <p className="text-[11px] text-[#717182] font-semibold uppercase tracking-wide mb-1">Additional Notes</p>
                         <p className="text-[13px] text-[#31372B] whitespace-pre-wrap">{startupDetails.additional_notes || "—"}</p>
                       </div>
-                      {startupDetails.deck_url && (
+                      {sanitizeHref(startupDetails.deck_url) && (
                         <div className="bg-[#F5F5F5] rounded-lg px-4 py-3">
                           <p className="text-[11px] text-[#717182] font-semibold uppercase tracking-wide mb-1">Pitch Deck</p>
                           <a
-                            href={startupDetails.deck_url}
+                            href={sanitizeHref(startupDetails.deck_url)!}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-[13px] text-[#31372B] hover:underline font-semibold"

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { sanitizeHref } from "@/lib/safe-url";
 
 interface InvestorDetailModalProps {
   open: boolean;
@@ -87,8 +88,9 @@ const InvestorDetailModal: React.FC<InvestorDetailModalProps> = ({
           <div className="flex justify-between">
             <span className="font-semibold text-[#31372B]">LinkedIn:</span>
             <a
-              href={investor.linkedin}
+              href={sanitizeHref(investor.linkedin) ?? "#"}
               target="_blank"
+              rel="noopener noreferrer"
               className="text-[#31372B] hover:underline"
             >
               View Profile

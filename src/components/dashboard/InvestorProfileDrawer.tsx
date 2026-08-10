@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { ExternalLink, Mail, MapPin, X } from "lucide-react";
+import { sanitizeHref } from "@/lib/safe-url";
 
 interface InvestorProfileDrawerProps {
   investor: {
@@ -127,7 +128,7 @@ export default function InvestorProfileDrawer({
                     </a>
 
                     <a
-                      href={investor.linkedin}
+                      href={sanitizeHref(investor.linkedin) ?? "#"}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-between rounded-2xl border border-black/[0.07] bg-[#1E1E1E] px-4 py-3 text-sm font-inter text-white transition hover:bg-[#333]"

@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { sanitizeHref } from "@/lib/safe-url";
 
 interface StartupDetailsModalProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -71,8 +72,8 @@ export default function StartupDetailsModal({ startup, open, onClose }: StartupD
                                         </div>
                                         <div>
                                             <p className="text-[12px] text-[#717182] mb-1">LinkedIn</p>
-                                            {startup.linkedin ? (
-                                                <a href={startup.linkedin} target="_blank" rel="noopener noreferrer" className="text-[14px] text-blue-600 hover:underline">
+                                            {sanitizeHref(startup.linkedin) ? (
+                                                <a href={sanitizeHref(startup.linkedin)!} target="_blank" rel="noopener noreferrer" className="text-[14px] text-blue-600 hover:underline">
                                                     View Profile
                                                 </a>
                                             ) : (
@@ -96,8 +97,8 @@ export default function StartupDetailsModal({ startup, open, onClose }: StartupD
                                         </div>
                                         <div>
                                             <p className="text-[12px] text-[#717182] mb-1">Website</p>
-                                            {startup.company_website ? (
-                                                <a href={startup.company_website} target="_blank" rel="noopener noreferrer" className="text-[14px] text-blue-600 hover:underline">
+                                            {sanitizeHref(startup.company_website) ? (
+                                                <a href={sanitizeHref(startup.company_website)!} target="_blank" rel="noopener noreferrer" className="text-[14px] text-blue-600 hover:underline">
                                                     Visit Website
                                                 </a>
                                             ) : (

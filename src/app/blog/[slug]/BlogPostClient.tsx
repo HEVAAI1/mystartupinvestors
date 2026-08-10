@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Footer from "@/components/Footer";
 import SmartNavbar from "@/components/SmartNavbar";
+import { sanitizeHref } from "@/lib/safe-url";
 
 import { PortableText, PortableTextComponents } from "@portabletext/react";
 
@@ -99,11 +100,16 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
 
     marks: {
       link: ({ children, value }) => {
-        const href = value?.href || "";
+        const href = sanitizeHref(value?.href);
+
+        if (!href) {
+          return <>{children}</>;
+        }
 
         return (
           <a
             href={href}
+            rel="noopener noreferrer"
             className="text-blue-600 font-medium hover:underline"
           >
             {children}

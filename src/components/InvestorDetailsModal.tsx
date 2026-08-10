@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { sanitizeHref } from "@/lib/safe-url";
 
 interface InvestorDetailsModalProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -123,9 +124,9 @@ export default function InvestorDetailsModal({ investor, open, onClose }: Invest
                                     <div className="space-y-3">
                                         <div>
                                             <p className="text-[12px] text-[#717182] mb-1">LinkedIn</p>
-                                            {investor.linkedin ? (
+                                            {sanitizeHref(investor.linkedin) ? (
                                                 <a
-                                                    href={investor.linkedin}
+                                                    href={sanitizeHref(investor.linkedin)!}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="text-[14px] text-blue-600 hover:underline"
