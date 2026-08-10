@@ -21,6 +21,10 @@ function hasScheme(value: string): boolean {
   return slashIndex === -1 || colonIndex < slashIndex;
 }
 
+function isProtocolRelative(value: string): boolean {
+  return value.startsWith("//");
+}
+
 export function sanitizeHref(
   href: string | null | undefined,
   opts?: { allowMailto?: boolean }
@@ -28,7 +32,7 @@ export function sanitizeHref(
   if (!href) return null;
 
   const cleaned = normalize(href);
-  if (!cleaned) return null;
+  if (!cleaned || isProtocolRelative(cleaned)) return null;
 
   const allowedProtocols = opts?.allowMailto
     ? [...ALLOWED_PROTOCOLS, MAILTO_PROTOCOL]

@@ -157,10 +157,10 @@ export default function StartupDetailsModal({ startup, open, onClose }: StartupD
                                             <p className="text-[12px] text-[#717182] mb-1">Additional Notes</p>
                                             <p className="text-[14px] text-[#31372B] font-medium whitespace-pre-wrap">{startup.additional_notes || "N/A"}</p>
                                         </div>
-                                        {startup.deck_url && (
+                                        {sanitizeHref(startup.deck_url) && (
                                             <div>
                                                 <p className="text-[12px] text-[#717182] mb-1">Pitch Deck</p>
-                                                <a href={startup.deck_url} target="_blank" rel="noopener noreferrer" className="text-[14px] text-blue-600 hover:underline">
+                                                <a href={sanitizeHref(startup.deck_url)!} target="_blank" rel="noopener noreferrer" className="text-[14px] text-blue-600 hover:underline">
                                                     View Deck
                                                 </a>
                                             </div>
