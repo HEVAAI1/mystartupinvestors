@@ -1,8 +1,15 @@
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { checkRateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIp(request);
+    const { allowed, retryAfterSeconds } = checkRateLimit(`signin:${ip}`, 5, 900);
+    if (!allowed) {
+      return rateLimitResponse(retryAfterSeconds);
+    }
+
     const { provider, redirectTo } = await request.json();
     const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase.auth.signInWithOAuth({

@@ -1,4 +1,5 @@
 import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabaseServer";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(
@@ -10,6 +11,11 @@ export async function POST(
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const rateLimit = checkRateLimit(`investors-unlock:${user.id}`, 10, 60);
+    if (!rateLimit.allowed) {
+      return rateLimitResponse(rateLimit.retryAfterSeconds);
     }
 
     const { id: investorId } = await params;
