@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import DodoPayments from 'dodopayments';
 import { createSupabaseServerClient } from '@/lib/supabaseServer';
-import { checkRateLimit, getClientIp, rateLimitResponse } from '@/lib/rate-limit';
+import { checkRateLimit, rateLimitResponse } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
     try {
@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const rateLimitKey = user.id || getClientIp(request);
+        const rateLimitKey = `checkout:${user.id}`;
         const rateLimit = checkRateLimit(rateLimitKey, 5, 300);
         if (!rateLimit.allowed) {
             return rateLimitResponse(rateLimit.retryAfterSeconds);
