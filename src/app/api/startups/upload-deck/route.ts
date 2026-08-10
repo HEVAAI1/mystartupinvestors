@@ -10,6 +10,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
+    const MAX_FILE_SIZE = 15 * 1024 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: "File too large. Please upload a deck smaller than 15MB." },
+        { status: 400 }
+      );
+    }
+
     const supabase = createSupabaseAdminClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
