@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
+import { randomInt } from 'crypto';
 import { createSupabaseServerClient, createSupabaseAdminClient } from '@/lib/supabaseServer';
 
 function generateReferralCode(): string {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let code = '';
     for (let i = 0; i < 8; i++) {
-        code += chars.charAt(Math.floor(Math.random() * chars.length));
+        code += chars.charAt(randomInt(chars.length));
     }
     return code;
 }
