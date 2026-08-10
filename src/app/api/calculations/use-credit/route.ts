@@ -25,6 +25,47 @@ function needsWeeklyReset(lastResetAt: string | null): boolean {
     return daysSinceReset >= 7;
 }
 
+type CreditColumn = "weekly_calculation_credits" | "calculation_credits";
+
+// Atomically decrements a credit column, retrying if a concurrent request
+// already consumed the previously-read value. Returns the authoritative
+// post-update balance, or null if there were no credits left to spend.
+async function consumeCredit(
+    column: CreditColumn,
+    userId: string,
+    current: number
+): Promise<number | null> {
+    let credits = current;
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+        if (credits <= 0) {
+            return null;
+        }
+
+        const { data: updated } = await supabaseAdmin
+            .from("users")
+            .update({ [column]: credits - 1 })
+            .eq("id", userId)
+            .eq(column, credits)
+            .gt(column, 0)
+            .select(column);
+
+        if (updated && updated.length > 0) {
+            return (updated[0] as unknown as Record<CreditColumn, number>)[column];
+        }
+
+        const { data: userData } = await supabaseAdmin
+            .from("users")
+            .select(column)
+            .eq("id", userId)
+            .single();
+
+        credits = (userData as unknown as Record<CreditColumn, number> | null)?.[column] ?? 0;
+    }
+
+    return null;
+}
+
 export async function POST(request: NextRequest) {
     try {
         const cookieStore = await cookies();
@@ -110,17 +151,35 @@ export async function POST(request: NextRequest) {
 
             // Check if reset is needed (lazy evaluation)
             if (needsWeeklyReset(lastResetAt)) {
-                weeklyCredits = 3;
-                lastResetAt = new Date().toISOString();
+                const newResetAt = new Date().toISOString();
 
-                // Update database with reset
-                await supabaseAdmin
+                let resetQuery = supabaseAdmin
                     .from("users")
                     .update({
                         weekly_calculation_credits: 3,
-                        last_calculation_reset_at: lastResetAt,
+                        last_calculation_reset_at: newResetAt,
                     })
                     .eq("id", user.id);
+
+                resetQuery = lastResetAt
+                    ? resetQuery.eq("last_calculation_reset_at", lastResetAt)
+                    : resetQuery.is("last_calculation_reset_at", null);
+
+                const { data: resetRows } = await resetQuery.select();
+
+                if (resetRows && resetRows.length > 0) {
+                    weeklyCredits = 3;
+                    lastResetAt = newResetAt;
+                } else {
+                    const { data: freshUserData } = await supabaseAdmin
+                        .from("users")
+                        .select("weekly_calculation_credits, last_calculation_reset_at")
+                        .eq("id", user.id)
+                        .single();
+
+                    weeklyCredits = freshUserData?.weekly_calculation_credits || 0;
+                    lastResetAt = freshUserData?.last_calculation_reset_at ?? lastResetAt;
+                }
             }
 
             // Check if credits available
@@ -140,11 +199,22 @@ export async function POST(request: NextRequest) {
             }
 
             // Consume 1 credit
-            const newWeeklyCredits = weeklyCredits - 1;
-            await supabaseAdmin
-                .from("users")
-                .update({ weekly_calculation_credits: newWeeklyCredits })
-                .eq("id", user.id);
+            const newWeeklyCredits = await consumeCredit("weekly_calculation_credits", user.id, weeklyCredits);
+
+            if (newWeeklyCredits === null) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        error: "CREDITS_EXHAUSTED",
+                        message: "You've used all your free calculations this week. Upgrade for more!",
+                        userState: "free",
+                        remaining: 0,
+                        limit: 3,
+                        resetDate: new Date(new Date(lastResetAt).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
+                    { status: 403 }
+                );
+            }
 
             return NextResponse.json({
                 success: true,
@@ -186,11 +256,21 @@ export async function POST(request: NextRequest) {
         }
 
         // Consume 1 credit
-        const newCalculationCredits = calculationCredits - 1;
-        await supabaseAdmin
-            .from("users")
-            .update({ calculation_credits: newCalculationCredits })
-            .eq("id", user.id);
+        const newCalculationCredits = await consumeCredit("calculation_credits", user.id, calculationCredits);
+
+        if (newCalculationCredits === null) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: "CREDITS_EXHAUSTED",
+                    message: "You've used all your calculation credits. Contact support to purchase more.",
+                    userState: "paid",
+                    plan: userData.plan,
+                    remaining: 0,
+                },
+                { status: 403 }
+            );
+        }
 
         return NextResponse.json({
             success: true,
