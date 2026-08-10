@@ -1,8 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import DodoPayments from 'dodopayments';
+import { createSupabaseServerClient } from '@/lib/supabaseServer';
+import { checkRateLimit, getClientIp, rateLimitResponse } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
     try {
+        const supabase = await createSupabaseServerClient();
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        const rateLimitKey = user.id || getClientIp(request);
+        const rateLimit = checkRateLimit(rateLimitKey, 5, 300);
+        if (!rateLimit.allowed) {
+            return rateLimitResponse(rateLimit.retryAfterSeconds);
+        }
+
+        const user_id = user.id;
+
         let rawBody = '';
         try {
             rawBody = await request.text();
@@ -23,16 +39,15 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const isCheckoutRequestBody = (value: unknown): value is { product_id: string; user_id: string } => {
+        const isCheckoutRequestBody = (value: unknown): value is { product_id: string } => {
             if (typeof value !== 'object' || value === null) return false;
             const record = value as Record<string, unknown>;
-            return typeof record.product_id === 'string' && typeof record.user_id === 'string';
+            return typeof record.product_id === 'string';
         };
 
         const product_id = isCheckoutRequestBody(parsed) ? parsed.product_id : undefined;
-        const user_id = isCheckoutRequestBody(parsed) ? parsed.user_id : undefined;
 
-        if (!product_id || !user_id) {
+        if (!product_id) {
             return NextResponse.json(
                 { error: 'Missing required fields' },
                 { status: 400 }
@@ -89,9 +104,7 @@ export async function POST(request: NextRequest) {
         try {
             checkoutSession = await client.checkoutSessions.create(payload);
         } catch (err) {
-            const errDetails = typeof err === 'object' && err !== null
-                ? JSON.stringify(err, Object.getOwnPropertyNames(err as object))
-                : String(err);
+            const errDetails = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
             console.error('Dodo checkout failed details:', errDetails);
             return NextResponse.json(
                 { error: 'Failed to create checkout session with payment provider' },

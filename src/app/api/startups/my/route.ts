@@ -34,12 +34,18 @@ export async function PUT(request: Request) {
 
     const { field, value, id } = await request.json();
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("startup_leads")
       .update({ [field]: value })
-      .eq("id", id);
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .select("id");
 
     if (error) throw error;
+    if (!data || data.length === 0) {
+      return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+    }
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error updating startup:", error);
