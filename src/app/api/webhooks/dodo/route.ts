@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import DodoPayments from 'dodopayments';
 import { createSupabaseAdminClient } from '@/lib/supabaseServer';
 import { DODO_PRODUCT_MAP } from '@/lib/dodo-config';
+import { calculateCommission } from '@/lib/affiliate-constants';
 
 const supabaseAdmin = createSupabaseAdminClient();
 
@@ -149,7 +150,7 @@ export async function POST(request: NextRequest) {
 
         // ❌ Prevent self-referral abuse
         if (referral?.affiliate_id && referral.affiliate_id !== userId) {
-          const commissionAmount = Math.round(amount * 0.25 * 100) / 100;
+          const commissionAmount = calculateCommission(amount);
 
           // 🚨 SAFETY CHECK
           if (commissionAmount > amount) {

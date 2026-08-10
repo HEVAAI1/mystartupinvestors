@@ -2,6 +2,10 @@ import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/sup
 import { maskInvestor } from "@/lib/investor-masking.server";
 import { NextRequest, NextResponse } from "next/server";
 
+function escapePostgrestFilterValue(value: string) {
+  return value.replace(/\\/g, "\\\\").replace(/[,.()%*]/g, "\\$&");
+}
+
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createSupabaseServerClient();
@@ -28,12 +32,13 @@ export async function GET(request: NextRequest) {
       .select("*", { count: "exact" });
 
     if (search) {
+      const escapedSearch = escapePostgrestFilterValue(search);
       query = query.or(
-        `name.ilike.%${search}%,` +
-        `firm_name.ilike.%${search}%,` +
-        `preference_sector.ilike.%${search}%,` +
-        `country.ilike.%${search}%,` +
-        `type.ilike.%${search}%`
+        `name.ilike.%${escapedSearch}%,` +
+        `firm_name.ilike.%${escapedSearch}%,` +
+        `preference_sector.ilike.%${escapedSearch}%,` +
+        `country.ilike.%${escapedSearch}%,` +
+        `type.ilike.%${escapedSearch}%`
       );
     }
 

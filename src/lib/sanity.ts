@@ -56,8 +56,16 @@ export type MappedPost = {
 // FETCH HELPER
 // -----------------------------
 
-async function sanityFetch<T>(query: string): Promise<T> {
-  const url = `${BASE_URL}?query=${encodeURIComponent(query)}`;
+async function sanityFetch<T>(
+  query: string,
+  params: Record<string, string> = {}
+): Promise<T> {
+  const searchParams = new URLSearchParams({ query });
+  for (const [key, value] of Object.entries(params)) {
+    searchParams.set(`$${key}`, JSON.stringify(value));
+  }
+
+  const url = `${BASE_URL}?${searchParams.toString()}`;
 
   const res = await fetch(url, {
     next: { revalidate: 3600 },
@@ -146,7 +154,7 @@ export async function fetchSanityPost(
   slug: string
 ): Promise<MappedPost | null> {
   const query = `
-    *[_type == "post" && slug.current == "${slug}"][0] {
+    *[_type == "post" && slug.current == $slug][0] {
       _id,
       title,
       excerpt,
@@ -157,7 +165,7 @@ export async function fetchSanityPost(
     }
   `;
 
-  const post = await sanityFetch<SanityPost | null>(query);
+  const post = await sanityFetch<SanityPost | null>(query, { slug });
 
   if (!post) return null;
 

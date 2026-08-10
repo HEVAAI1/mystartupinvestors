@@ -1,7 +1,11 @@
 import { createSupabaseAdminClient } from "@/lib/supabaseServer";
+import { requireAdmin } from "@/lib/requireAdmin";
 import { NextResponse } from "next/server";
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const admin = await requireAdmin();
+  if (!admin.ok) return admin.response;
+
   try {
     const { id } = await params;
     const body = await request.json();
@@ -18,6 +22,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const admin = await requireAdmin();
+  if (!admin.ok) return admin.response;
+
   try {
     const { id } = await params;
     const supabase = createSupabaseAdminClient();
