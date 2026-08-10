@@ -1,4 +1,4 @@
-import { createSupabaseAdminClient } from "@/lib/supabaseServer";
+import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabaseServer";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -18,11 +18,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const supabase = createSupabaseAdminClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const supabaseAuth = await createSupabaseServerClient();
+    const { data: { user } } = await supabaseAuth.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
+
+    const supabase = createSupabaseAdminClient();
 
     const fileExt = file.name.split(".").pop();
     const fileName = `${user.id}-${Date.now()}.${fileExt}`;
