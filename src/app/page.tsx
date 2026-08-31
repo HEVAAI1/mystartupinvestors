@@ -10,6 +10,24 @@ import Footer from "@/components/Footer";
 import PublicNavbar from "@/components/PublicNavbar";
 import { scheduleIdleWork } from "@/lib/schedule-idle";
 
+const FAQS = [
+  { q: "How do credits work?", a: "Each credit lets you unlock one verified investor contact. Use credits anytime to reveal verified emails and direct contact info." },
+  { q: "What types of investors are in your database?", a: "Our database includes angels, VCs, syndicates, funds, and strategic investors across industries and stages." },
+  { q: "How often is the investor data updated?", a: "Our investor database is updated weekly with verified information to ensure accuracy." },
+  { q: "Do credits expire?", a: "No. Credits never expire — you can use them anytime." },
+  { q: "Can I get a refund if I don't use my credits?", a: "Unused credits are non-refundable, but they remain valid forever." },
+];
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQS.map(({ q, a }) => ({
+    "@type": "Question",
+    name: q,
+    acceptedAnswer: { "@type": "Answer", text: a },
+  })),
+};
+
 export default function Home() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const router = useRouter();
@@ -830,13 +848,7 @@ export default function Home() {
             viewport={{ once: true }}
             className="space-y-3"
           >
-            {[
-              { q: "How do credits work?", a: "Each credit lets you unlock one verified investor contact. Use credits anytime to reveal verified emails and direct contact info." },
-              { q: "What types of investors are in your database?", a: "Our database includes angels, VCs, syndicates, funds, and strategic investors across industries and stages." },
-              { q: "How often is the investor data updated?", a: "Our investor database is updated weekly with verified information to ensure accuracy." },
-              { q: "Do credits expire?", a: "No. Credits never expire — you can use them anytime." },
-              { q: "Can I get a refund if I don't use my credits?", a: "Unused credits are non-refundable, but they remain valid forever." },
-            ].map((faq, i) => (
+            {FAQS.map((faq, i) => (
               <motion.div
                 key={i}
                 initial={false}
@@ -906,6 +918,10 @@ export default function Home() {
       </section>
 
       <Footer />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
     </main>
   );
 }

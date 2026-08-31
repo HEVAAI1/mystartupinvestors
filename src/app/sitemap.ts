@@ -1,8 +1,9 @@
 import { fetchSanityPosts } from "@/lib/sanity";
 import { tools } from "@/lib/tools";
+import { SITE_URL } from "@/lib/seo";
 
 export default async function sitemap() {
-  const baseUrl = "https://myfundinglist.com";
+  const baseUrl = SITE_URL;
 
   // Blogs
   const posts = await fetchSanityPosts();
@@ -23,6 +24,7 @@ export default async function sitemap() {
     { url: baseUrl, lastModified: new Date() },
     { url: `${baseUrl}/pricing`, lastModified: new Date() },
     { url: `${baseUrl}/blog`, lastModified: new Date() },
+    { url: `${baseUrl}/affiliate`, lastModified: new Date() },
 
     // Tools hub
     { url: `${baseUrl}/tools-for-founders`, lastModified: new Date() },

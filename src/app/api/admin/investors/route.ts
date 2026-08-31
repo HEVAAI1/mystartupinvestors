@@ -45,7 +45,8 @@ export async function POST(request: Request) {
     const body = await request.json();
     const supabase = createSupabaseAdminClient();
 
-    const { data, error } = await supabase.from("investors").insert(body).select().single();
+    const query = supabase.from("investors").insert(body).select();
+    const { data, error } = Array.isArray(body) ? await query : await query.single();
     if (error) throw error;
 
     return NextResponse.json({ data });

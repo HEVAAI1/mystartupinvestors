@@ -1,3 +1,5 @@
+import { SITE_URL } from "@/lib/seo";
+
 export default function robots() {
   return {
     rules: [
@@ -12,6 +14,12 @@ export default function robots() {
           "/admin",
           "/api",
           "/auth",
+          "/add-startup",
+          "/investor-profile",
+          "/startup-details",
+          "/view-startup",
+          "/payment-success",
+          "/payment-failure",
           "/_next",     // block Next internals
         ],
       },
@@ -29,8 +37,8 @@ export default function robots() {
       },
     ],
 
-    sitemap: "https://myfundinglist.com/sitemap.xml",
+    sitemap: `${SITE_URL}/sitemap.xml`,
 
-    host: "https://myfundinglist.com",
+    host: SITE_URL,
   };
 }

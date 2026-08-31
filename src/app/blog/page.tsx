@@ -5,7 +5,7 @@ export const metadata = {
     title: "Blog",
     description: "Insights, updates, and resources for startup founders and investors",
     alternates: {
-    canonical: "https://myfundinglist.com/blog",
+    canonical: "/blog",
   },
 };
 

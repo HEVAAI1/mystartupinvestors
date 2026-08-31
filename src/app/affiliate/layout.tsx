@@ -1,8 +1,16 @@
+import type { Metadata } from "next";
 import SmartNavbar from "@/components/SmartNavbar";
 import ReferralLinker from "@/components/ReferralLinker";
 import CreditsProvider from "@/context/CreditsContext";
 import { CalculationCreditsProvider } from "@/context/CalculationCreditsContext";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
+
+export const metadata: Metadata = {
+  title: "Affiliate Program",
+  description:
+    "Join the MyFundingList affiliate program and earn commission for every founder you refer to our verified investor database.",
+  alternates: { canonical: "/affiliate" },
+};
 
 export default async function AffiliateLayout({
   children,

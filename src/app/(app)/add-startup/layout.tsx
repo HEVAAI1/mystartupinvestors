@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Add Your Startup",
   description: "Submit your startup to MyFundingList. If your startup is exceptional, our team will also manually help you connect with relevant investors.",
+  robots: { index: false, follow: false },
 };
 
 export default function AddStartupLayout({ children }: { children: React.ReactNode }) {

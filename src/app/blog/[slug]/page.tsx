@@ -1,6 +1,7 @@
 import { fetchSanityPost } from "@/lib/sanity";
 import { notFound } from "next/navigation";
 import BlogPostClient from "./BlogPostClient";
+import { SITE_URL, SITE_NAME } from "@/lib/seo";
 
 export const revalidate = 3600;
 
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
     openGraph: {
       title: post.title,
       description: post.brief,
-      url: `https://myfundinglist.com/blog/${slug}`,
+      url: `/blog/${slug}`,
       images: post.coverImage?.url
         ? [
             {
@@ -52,7 +53,7 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
     },
 
     alternates: {
-      canonical: `https://myfundinglist.com/blog/${slug}`,
+      canonical: `/blog/${slug}`,
     },
   };
 }
@@ -66,5 +67,25 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     notFound();
   }
 
-  return <BlogPostClient post={post} />;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.brief,
+    datePublished: post.publishedAt,
+    author: { "@type": "Person", name: post.author.name },
+    publisher: { "@type": "Organization", name: SITE_NAME },
+    image: post.coverImage?.url,
+    mainEntityOfPage: `${SITE_URL}/blog/${slug}`,
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <BlogPostClient post={post} />
+    </>
+  );
 }

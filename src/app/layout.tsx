@@ -7,8 +7,9 @@ import {
   Inter,
   Space_Grotesk,
 } from "next/font/google";
-import "./globals.css"; 
+import "./globals.css";
 import Script from "next/script";
+import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE } from "@/lib/seo";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -37,7 +38,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://myfundinglist.com"),
+  metadataBase: new URL(SITE_URL),
 
   alternates: {
     canonical: "/",
@@ -51,15 +52,36 @@ export const metadata: Metadata = {
   description:
     "Connect with 34,850+ verified investors. MyFundingList helps founders find, filter, and reach the right investors across sectors and geographies.",
 
+  keywords: [
+    "investor database",
+    "find investors for startup",
+    "startup funding database",
+    "angel investors directory",
+    "VC database",
+    "venture capital contacts",
+    "startup fundraising platform",
+    "investor list for founders",
+  ],
+
+  robots: {
+    index: true,
+    follow: true,
+  },
+
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/Logo.png",
+  },
+
   openGraph: {
     title: "Find & Connect with 34,850+ Verified Investors",
     description:
       "Access 34,850+ active investors across sectors and geographies for your startup.",
-    url: "https://myfundinglist.com",
-    siteName: "MyFundingList",
+    url: SITE_URL,
+    siteName: SITE_NAME,
     images: [
       {
-        url: "https://myfundinglist.com/og-preview.jpg",
+        url: DEFAULT_OG_IMAGE,
         width: 1200,
         height: 630,
       },
@@ -72,8 +94,24 @@ export const metadata: Metadata = {
     title: "Find & Connect with 34,850+ Verified Investors",
     description:
       "Access 34,850+ active investors across sectors and geographies.",
-    images: ["https://myfundinglist.com/og-preview.png"], // 🔥 IMPORTANT
+    images: [DEFAULT_OG_IMAGE],
   },
+};
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: SITE_NAME,
+  url: SITE_URL,
+  logo: `${SITE_URL}/Logo.png`,
+  sameAs: [],
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: SITE_NAME,
+  url: SITE_URL,
 };
 
 
@@ -98,6 +136,17 @@ export default function RootLayout({
           antialiased
         `}
       >
+        <Script
+          id="org-jsonld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
+        <Script
+          id="website-jsonld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+
         {children}
 
         {/* Google Analytics */}
