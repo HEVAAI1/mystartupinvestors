@@ -85,6 +85,7 @@ COMMENT ON FUNCTION public.request_withdrawal IS 'SECURITY DEFINER RPC that atom
 
 REVOKE ALL ON FUNCTION public.request_withdrawal(UUID, NUMERIC, JSONB) FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.request_withdrawal(UUID, NUMERIC, JSONB) FROM authenticated;
+REVOKE ALL ON FUNCTION public.request_withdrawal(UUID, NUMERIC, JSONB) FROM anon;
 GRANT EXECUTE ON FUNCTION public.request_withdrawal(UUID, NUMERIC, JSONB) TO service_role;
 
 -- -----------------------------------------------------------------------------
@@ -152,4 +153,5 @@ COMMENT ON FUNCTION public.set_withdrawal_status IS 'SECURITY DEFINER RPC that a
 
 REVOKE ALL ON FUNCTION public.set_withdrawal_status(UUID, TEXT) FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.set_withdrawal_status(UUID, TEXT) FROM authenticated;
+REVOKE ALL ON FUNCTION public.set_withdrawal_status(UUID, TEXT) FROM anon;
 GRANT EXECUTE ON FUNCTION public.set_withdrawal_status(UUID, TEXT) TO service_role;

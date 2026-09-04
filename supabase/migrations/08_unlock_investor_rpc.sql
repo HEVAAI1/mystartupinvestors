@@ -82,4 +82,5 @@ COMMENT ON FUNCTION public.unlock_investor(UUID, INTEGER) IS
 -- never be reachable by an authenticated end user directly.
 REVOKE ALL ON FUNCTION public.unlock_investor(UUID, INTEGER) FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.unlock_investor(UUID, INTEGER) FROM authenticated;
+REVOKE ALL ON FUNCTION public.unlock_investor(UUID, INTEGER) FROM anon;
 GRANT EXECUTE ON FUNCTION public.unlock_investor(UUID, INTEGER) TO service_role;
