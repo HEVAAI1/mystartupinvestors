@@ -79,6 +79,46 @@ The $499 IB add-on is available on Growth and Enterprise plans. It gives you ded
 
 ---
 
+## Finding & Reaching Investors
+
+**How do I find investors for my startup?**
+Search MyFundingList's database of 34,850+ verified investors and filter by sector, funding stage, investor type, and geography. Build a targeted shortlist, then unlock each investor's verified contact details with credits and reach out directly.
+
+**Where can I find investor email addresses?**
+MyFundingList provides direct, verified investor email addresses in the platform itself — you don't need a warm introduction, a premium LinkedIn subscription, or InMail credits. Unlock any investor's contact info with one credit.
+
+**How do I get a list of VC investors?**
+Filter the investor database by "VC fund" or "micro-VC" investor type, then narrow by sector and stage. You can export the resulting list to CSV on Professional, Growth, and Enterprise plans.
+
+**What's the best way to contact investors directly?**
+Unlock their verified email through MyFundingList and send a short, personalized pitch yourself. MyFundingList never emails investors on your behalf — this keeps outreach authentic and improves response rates versus generic mass-outreach tools.
+
+**How do founders find angel investors?**
+Filter the MyFundingList database by "Angel" investor type and by sector or stage to find angels actively investing in companies like yours, then unlock their direct contact details.
+
+**What is the best investor database for startups?**
+The right database depends on what you need. MyFundingList focuses specifically on giving founders verified, direct investor email addresses (not just profiles) with weekly data updates, a free tier, and no subscription lock-in — see [how we compare](https://www.myfundinglist.com/llms/about.md) to alternatives like Crunchbase or AngelList.
+
+**How do I find investors by industry?**
+Use the sector filter in the investor database — MyFundingList covers fintech, SaaS, healthtech, AI, climate tech, ecommerce, biotech, and more — to surface investors actively writing checks in your specific space.
+
+**How do I find investors in my city or region?**
+Filter by geography. The database spans 120+ cities globally, so you can narrow results to investors based in your city, country, or region.
+
+**How much does an investor database cost?**
+MyFundingList's Starter plan is free forever with 5 investor unlocks per month. Paid plans (Professional, Growth, Enterprise) add more monthly credits, CSV export, saved lists, and advanced filters — see [Pricing](https://www.myfundinglist.com/pricing) for current rates.
+
+**Is there a free way to find investor emails?**
+Yes. MyFundingList's free Starter plan includes 5 verified investor contact unlocks per month, no credit card required.
+
+**How do I build an investor list for fundraising?**
+Filter the database by sector, stage, and geography to shortlist relevant investors, save the list (Growth and Enterprise plans), and unlock contacts as you work through outreach — rather than cold-emailing an unfiltered, generic list.
+
+**How do I find the right investor for my startup?**
+Match on three things: sector focus, the stage they typically invest at, and geography. MyFundingList's filters are built around exactly these three signals so you spend credits only on investors relevant to your raise.
+
+---
+
 ## Adding Your Startup
 
 **How do I add my startup to MyFundingList?**
