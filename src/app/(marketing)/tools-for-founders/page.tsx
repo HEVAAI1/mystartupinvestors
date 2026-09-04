@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description:
     "Free startup tools for founders including valuation calculators, burn rate, runway, CAC, churn, and fundraising models. Prepare your startup for investors.",
   alternates: {
-    canonical: "https://myfundinglist.com/tools-for-founders",
+    canonical: "/tools-for-founders",
   },
 };
 
