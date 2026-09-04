@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createSupabaseAdminClient } from "@/lib/supabaseServer";
+import { getClientIp, peekRateLimit } from "@/lib/rate-limit";
 
 const supabaseAdmin = createSupabaseAdminClient();
 
@@ -38,15 +39,12 @@ export async function GET(request: NextRequest) {
         if (!user) {
             const weekId = getWeekId();
             const cookieName = `calc_count_${weekId}`;
-
-            // Get IP address for secondary tracking
-            const forwarded = request.headers.get("x-forwarded-for");
-            const ip = forwarded ? forwarded.split(",")[0] : request.headers.get("x-real-ip") || "unknown";
-            const ipCookieName = `calc_ip_${weekId}_${ip.replace(/\./g, "_")}`;
-
-            // Check both cookie and IP-based count
             const cookieCount = parseInt(cookieStore.get(cookieName)?.value || "0");
-            const ipCount = parseInt(cookieStore.get(ipCookieName)?.value || "0");
+
+            // Same server-side IP bucket used by use-credit; peek only, no increment.
+            const ip = getClientIp(request);
+            const ipRateLimit = peekRateLimit(`calc:${weekId}:${ip}`, 3, 7 * 24 * 60 * 60);
+            const ipCount = 3 - ipRateLimit.remaining;
             const currentCount = Math.max(cookieCount, ipCount);
 
             return NextResponse.json({

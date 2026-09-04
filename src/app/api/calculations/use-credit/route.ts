@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createSupabaseAdminClient } from "@/lib/supabaseServer";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const supabaseAdmin = createSupabaseAdminClient();
 
@@ -75,22 +76,24 @@ export async function POST(request: NextRequest) {
             request.headers.get("Authorization")?.replace("Bearer ", "") || ""
         );
 
-        // CASE 1: Anonymous User (Cookie + IP-based tracking)
+        // CASE 1: Anonymous User (cookie + server-side IP tracking)
         if (!user) {
             const weekId = getWeekId();
             const cookieName = `calc_count_${weekId}`;
-
-            // Get IP address for secondary tracking
-            const forwarded = request.headers.get("x-forwarded-for");
-            const ip = forwarded ? forwarded.split(",")[0] : request.headers.get("x-real-ip") || "unknown";
-            const ipCookieName = `calc_ip_${weekId}_${ip.replace(/\./g, "_")}`;
-
-            // Check both cookie and IP-based count
             const cookieCount = parseInt(cookieStore.get(cookieName)?.value || "0");
-            const ipCount = parseInt(cookieStore.get(ipCookieName)?.value || "0");
-            const currentCount = Math.max(cookieCount, ipCount); // Use the higher count
 
-            if (currentCount >= 3) {
+            // ponytail: the cookie count alone resets whenever cookies are
+            // cleared. The IP bucket is a server-side (in-memory) counter
+            // keyed by a safely-derived IP, not a client-resettable cookie
+            // name, so clearing cookies no longer resets the limit. Ceiling:
+            // resets on server cold start, and a spoofed/rotated IP still
+            // bypasses this — inherent to unauthenticated rate limiting.
+            const ip = getClientIp(request);
+            const ipRateLimit = checkRateLimit(`calc:${weekId}:${ip}`, 3, 7 * 24 * 60 * 60);
+            const ipCount = 3 - ipRateLimit.remaining;
+            const currentCount = Math.max(cookieCount, ipCount);
+
+            if (currentCount >= 3 || !ipRateLimit.allowed) {
                 return NextResponse.json(
                     {
                         success: false,
@@ -114,14 +117,7 @@ export async function POST(request: NextRequest) {
                 message: `${3 - newCount} free calculations remaining this week`,
             });
 
-            // Set both cookies (expires in 7 days)
             response.cookies.set(cookieName, newCount.toString(), {
-                maxAge: 7 * 24 * 60 * 60,
-                httpOnly: true,
-                sameSite: "lax",
-            });
-
-            response.cookies.set(ipCookieName, newCount.toString(), {
                 maxAge: 7 * 24 * 60 * 60,
                 httpOnly: true,
                 sameSite: "lax",

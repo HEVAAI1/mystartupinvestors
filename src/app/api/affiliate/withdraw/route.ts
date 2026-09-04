@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     // Get affiliate record
     const { data: affiliate } = await admin
         .from('affiliates')
-        .select('id, total_earned, total_paid')
+        .select('id')
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -66,54 +66,31 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Not an affiliate' }, { status: 403 });
     }
 
-    const pending = Number(affiliate.total_earned) - Number(affiliate.total_paid);
-
-    const { data: openWithdrawals } = await admin
-        .from('withdrawal_requests')
-        .select('amount')
-        .eq('affiliate_id', affiliate.id)
-        .in('status', ['pending', 'approved']);
-
-    const awaitingWithdrawal =
-        openWithdrawals?.reduce((sum, row) => sum + Number(row.amount), 0) ?? 0;
-    const available = pending - awaitingWithdrawal;
-
-    if (available < MIN_AFFILIATE_WITHDRAWAL_USD) {
-        return NextResponse.json(
-            {
-                error: `You need at least $${MIN_AFFILIATE_WITHDRAWAL_USD} available to withdraw (after open requests). Available: $${available.toFixed(2)}`,
-            },
-            { status: 400 }
-        );
-    }
-
-    if (amount > available) {
-        return NextResponse.json(
-            {
-                error: `Withdrawal amount exceeds available balance of $${available.toFixed(2)} (pending $${pending.toFixed(2)} minus $${awaitingWithdrawal.toFixed(2)} in open requests)`,
-            },
-            { status: 400 }
-        );
-    }
-
+    // Atomic RPC: locks the affiliate row and recomputes available balance
+    // inside the same transaction as the insert, preventing concurrent
+    // requests from double-spending the same balance (TOCTOU).
     const { data: withdrawal, error } = await admin
-        .from('withdrawal_requests')
-        .insert({
-            affiliate_id: affiliate.id,
-            amount,
-            name,
-            account_number: accountNumber,
-            ifsc_code: ifscCode,
-            account_holder_name: accountHolderName,
-            contact_number: contactNumber,
-            email_id: emailId,
-            country,
-            additional_details: additionalDetails || null,
+        .rpc('request_withdrawal', {
+            p_affiliate_id: affiliate.id,
+            p_amount: amount,
+            p_details: {
+                name,
+                account_number: accountNumber,
+                ifsc_code: ifscCode,
+                account_holder_name: accountHolderName,
+                contact_number: contactNumber,
+                email_id: emailId,
+                country,
+                additional_details: additionalDetails || null,
+            },
         })
-        .select()
         .single();
 
     if (error) {
+        const message = error.message || '';
+        if (message.includes('exceeds available balance')) {
+            return NextResponse.json({ error: message }, { status: 400 });
+        }
         return NextResponse.json({ error: 'Failed to create withdrawal request' }, { status: 500 });
     }
 

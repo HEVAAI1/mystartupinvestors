@@ -72,21 +72,8 @@ export async function POST(request: NextRequest) {
       console.log('✅ Amount (USD):', amount);
 
       // ============================================================
-      // 🔒 IDEMPOTENCY CHECK
-      // ============================================================
-      const { data: existingTx } = await supabaseAdmin
-        .from('transactions')
-        .select('id')
-        .eq('transaction_id', transactionId)
-        .maybeSingle();
-
-      if (existingTx) {
-        console.log('⚠️ Duplicate webhook ignored:', transactionId);
-        return NextResponse.json({ received: true });
-      }
-
-      // ============================================================
-      // 💾 STORE TRANSACTION
+      // 💾 STORE TRANSACTION (idempotency via UNIQUE constraint, not
+      // a racy select-then-insert: a duplicate delivery hits 23505)
       // ============================================================
       const { error: txnError } = await supabaseAdmin
         .from('transactions')
@@ -100,41 +87,30 @@ export async function POST(request: NextRequest) {
         });
 
       if (txnError) {
+        if (txnError.code === '23505') {
+          console.log('⚠️ Duplicate webhook ignored:', transactionId);
+          return NextResponse.json({ received: true });
+        }
         console.error('❌ Transaction insert failed:', txnError);
         return NextResponse.json({ error: 'Transaction failed' }, { status: 500 });
       }
 
       // ============================================================
-      // 🎯 CREDIT UPDATE
+      // 🎯 CREDIT UPDATE (atomic RPC — no read-modify-write race)
       // ============================================================
-      const { data: userData } = await supabaseAdmin
-        .from('users')
-        .select('credits_allocated, plan, calculation_credits, weekly_calculation_credits, last_calculation_reset_at')
-        .eq('id', userId)
-        .single();
+      const { error: creditError } = await supabaseAdmin.rpc(
+        'add_purchase_credits',
+        {
+          p_user_id: userId,
+          p_credits: planDetails.credits,
+          p_plan: planDetails.plan,
+        }
+      );
 
-      const newCredits =
-        (userData?.credits_allocated || 0) + planDetails.credits;
-
-      await supabaseAdmin
-        .from('users')
-        .update({
-          // Investor/metadata credits shown in your app
-          credits_allocated: newCredits,
-
-          // Make sure check-credits uses the paid flow.
-          plan: planDetails.plan,
-
-          has_paid: true,
-
-          // Tool credits (used by tools-for-founders calculators).
-          // Migration uses NULL for enterprise=unlimited, but requirement here is
-          // to credit the equal number of Calculation Credits on success.
-          calculation_credits:
-            // If calculation_credits is NULL, treat as 0 and convert to finite credits.
-            Number(userData?.calculation_credits ?? 0) + planDetails.credits,
-        })
-        .eq('id', userId);
+      if (creditError) {
+        console.error('❌ Credit update failed:', creditError);
+        return NextResponse.json({ error: 'Credit update failed' }, { status: 500 });
+      }
 
       console.log(`✅ Credits added: +${planDetails.credits} (credits_allocated + calculation_credits)`);
 
@@ -158,32 +134,38 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ received: true });
           }
 
-          await supabaseAdmin.from('commissions').insert({
-            affiliate_id: referral.affiliate_id,
-            user_id: userId,
-            payment_id: transactionId,
-            amount,
-            commission_amount: commissionAmount,
-            status: 'pending',
-          });
+          const { error: commissionInsertError } = await supabaseAdmin
+            .from('commissions')
+            .insert({
+              affiliate_id: referral.affiliate_id,
+              user_id: userId,
+              payment_id: transactionId,
+              amount,
+              commission_amount: commissionAmount,
+              status: 'pending',
+            });
 
-          const { data: aff } = await supabaseAdmin
-            .from('affiliates')
-            .select('total_earned')
-            .eq('id', referral.affiliate_id)
-            .single();
+          if (commissionInsertError) {
+            if (commissionInsertError.code === '23505') {
+              console.log('⚠️ Duplicate commission ignored:', transactionId);
+            } else {
+              throw commissionInsertError;
+            }
+          } else {
+            const { error: commissionUpdateError } = await supabaseAdmin.rpc(
+              'add_commission',
+              {
+                p_affiliate_id: referral.affiliate_id,
+                p_amount: commissionAmount,
+              }
+            );
 
-          if (aff) {
-            await supabaseAdmin
-              .from('affiliates')
-              .update({
-                total_earned:
-                  Number(aff.total_earned) + commissionAmount,
-              })
-              .eq('id', referral.affiliate_id);
+            if (commissionUpdateError) {
+              throw commissionUpdateError;
+            }
+
+            console.log(`💰 Commission: $${commissionAmount}`);
           }
-
-          console.log(`💰 Commission: $${commissionAmount}`);
         }
       } catch (err) {
         console.error('⚠️ Commission error:', err);

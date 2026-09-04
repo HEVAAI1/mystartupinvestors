@@ -26,65 +26,22 @@ export async function POST(
 
     const admin = createSupabaseAdminClient();
 
-    // Check if already unlocked
-    const { data: existingView } = await admin
-      .from("user_investor_views")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("investor_id", invId)
-      .maybeSingle();
+    // Atomically check credits, record the unlock, and charge a credit
+    // in a single row-locked transaction (see unlock_investor RPC).
+    const { data: unlockResult, error: unlockError } = await admin.rpc(
+      "unlock_investor",
+      { p_user_id: user.id, p_investor_id: invId },
+    );
 
-    if (existingView) {
-      // Already unlocked — return full investor without charging
-      const { data: investor } = await admin
-        .from("investors")
-        .select("*")
-        .eq("id", invId)
-        .single();
-
-      if (!investor) {
-        return NextResponse.json({ error: "Investor not found" }, { status: 404 });
+    if (unlockError) {
+      if (unlockError.message?.includes("insufficient credits")) {
+        return NextResponse.json({ error: "Insufficient credits" }, { status: 403 });
       }
-
-      return NextResponse.json({ investor });
+      throw unlockError;
     }
 
-    // Check remaining credits
-    const { data: userData } = await admin
-      .from("users")
-      .select("credits_allocated, credits_used")
-      .eq("id", user.id)
-      .single();
-
-    const allocated = userData?.credits_allocated ?? 0;
-    const used = userData?.credits_used ?? 0;
-    const remaining = allocated - used;
-
-    if (remaining <= 0) {
-      return NextResponse.json({ error: "Insufficient credits" }, { status: 403 });
-    }
-
-    // Atomically insert view and increment credits
-    const [viewResult, creditResult] = await Promise.allSettled([
-      admin.from("user_investor_views").insert({
-        user_id: user.id,
-        investor_id: invId,
-      }),
-      admin.rpc("increment_credits_used", { user_id: user.id }),
-    ]);
-
-    if (viewResult.status === "rejected" || viewResult.value.error) {
-      throw viewResult.status === "rejected" ? viewResult.reason : viewResult.value.error;
-    }
-
-    if (creditResult.status === "rejected" || creditResult.value?.error) {
-      // Fallback: manually increment
-      const { error: updateError } = await admin
-        .from("users")
-        .update({ credits_used: used + 1 })
-        .eq("id", user.id);
-
-      if (updateError) throw updateError;
+    if (!unlockResult?.unlocked) {
+      return NextResponse.json({ error: "Failed to unlock investor" }, { status: 500 });
     }
 
     // Return full investor profile
