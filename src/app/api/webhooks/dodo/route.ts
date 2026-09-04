@@ -6,15 +6,23 @@ import { calculateCommission } from '@/lib/affiliate-constants';
 
 const supabaseAdmin = createSupabaseAdminClient();
 
-// ✅ Dodo Client
-const client = new DodoPayments({
-  bearerToken: process.env.DODO_PAYMENTS_API_KEY!,
-  environment:
-    process.env.DODO_PAYMENTS_ENVIRONMENT === 'test_mode'
-      ? 'test_mode'
-      : 'live_mode',
-  webhookKey: process.env.DODO_PAYMENTS_WEBHOOK_SECRET!,
-});
+// ✅ Dodo Client — lazily instantiated so a missing env var only breaks
+// requests to this route, not Next.js's build-time page-data collection
+// for every route in the app.
+let client: DodoPayments | undefined;
+function getDodoClient(): DodoPayments {
+  if (!client) {
+    client = new DodoPayments({
+      bearerToken: process.env.DODO_PAYMENTS_API_KEY!,
+      environment:
+        process.env.DODO_PAYMENTS_ENVIRONMENT === 'test_mode'
+          ? 'test_mode'
+          : 'live_mode',
+      webhookKey: process.env.DODO_PAYMENTS_WEBHOOK_SECRET!,
+    });
+  }
+  return client;
+}
 
 /** Narrow shape of Dodo `payment.succeeded` / `payment.failed` webhook payloads */
 type DodoPaymentWebhookData = {
@@ -35,7 +43,7 @@ export async function POST(request: NextRequest) {
     };
 
     // ✅ Verify webhook
-    const event = client.webhooks.unwrap(payload, { headers });
+    const event = getDodoClient().webhooks.unwrap(payload, { headers });
 
     console.log('✅ Webhook verified:', event.type);
 
