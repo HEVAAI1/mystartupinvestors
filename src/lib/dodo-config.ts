@@ -7,7 +7,7 @@ export const DODO_PRODUCT_MAP = {
     'pdt_0NbbbrHJcVDJqitCUkpjt': {
         plan: 'growth',
         credits: 300,
-        price: 49,
+        price: 99,
     },
     'pdt_0NbbbqfeSmy9PD46q3jf3': {
         plan: 'enterprise',
