@@ -26,7 +26,7 @@ Preferred-Sources:
   - /llms/investors.md
   - /llms/tools.md
   - /llms/investor-database.md
-  - /llms/affliate.md
+  - /llms/affiliate.md
 
 
 # Crawl hints
@@ -93,13 +93,13 @@ Khosla Ventures, Antler, Tiger Global, Y Combinator, Lightspeed Venture Partners
 
 ## Markdown Mirrors (LLM-readable versions)
 
-- [Home](https://www.myfundinglist.com/md/index.md)
-- [About & How It Works](https://www.myfundinglist.com/md/about.md)
-- [Investor Database](https://www.myfundinglist.com/md/investor-database.md)
-- [Pricing](https://www.myfundinglist.com/md/pricing.md)
-- [Tools for Founders](https://www.myfundinglist.com/md/tools-for-founders.md)
-- [FAQ](https://www.myfundinglist.com/md/faq.md)
-- [Affiliate Program](https://www.myfundinglist.com/md/affiliate.md)
+- [Home](https://www.myfundinglist.com/llms/index.md)
+- [About & How It Works](https://www.myfundinglist.com/llms/about.md)
+- [Investor Database](https://www.myfundinglist.com/llms/investor-database.md)
+- [Pricing](https://www.myfundinglist.com/pricing)
+- [Tools for Founders](https://www.myfundinglist.com/llms/tools.md)
+- [FAQ](https://www.myfundinglist.com/llms/faq.md)
+- [Affiliate Program](https://www.myfundinglist.com/llms/affiliate.md)
 
 ## Use Cases & Keywords
 

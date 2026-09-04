@@ -62,8 +62,8 @@ Founders who use MyFundingList have:
 ## Related Pages
 
 - [Home](https://www.myfundinglist.com/)
-- [Pricing](https://www.myfundinglist.com/md/pricing.md)
-- [About & How It Works](https://www.myfundinglist.com/md/about.md)
+- [Pricing](https://www.myfundinglist.com/pricing)
+- [About & How It Works](https://www.myfundinglist.com/llms/about.md)
 
 ---
 

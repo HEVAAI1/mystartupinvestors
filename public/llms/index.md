@@ -84,7 +84,7 @@ Our database includes investors from leading firms such as:
 | Growth | $99 | 300 | Scaling fundraising |
 | Enterprise | $999 | 4,000 | Serious fundraisers & funds |
 
-Credits never expire. [See full pricing →](https://www.myfundinglist.com/md/pricing.md)
+Credits never expire. [See full pricing →](https://www.myfundinglist.com/pricing)
 
 ---
 

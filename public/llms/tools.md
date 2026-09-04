@@ -64,9 +64,9 @@ Each tool use costs credits. Credits never expire on paid plans.
 
 ## Related Pages
 
-- [Investor Database](https://www.myfundinglist.com/md/investor-database.md)
-- [Pricing](https://www.myfundinglist.com/md/pricing.md)
-- [About & How It Works](https://www.myfundinglist.com/md/about.md)
+- [Investor Database](https://www.myfundinglist.com/llms/investor-database.md)
+- [Pricing](https://www.myfundinglist.com/pricing)
+- [About & How It Works](https://www.myfundinglist.com/llms/about.md)
 
 ---
 

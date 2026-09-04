@@ -117,9 +117,9 @@ Our database includes investors from top firms including (but not limited to):
 
 ## Related Pages
 
-- [Pricing](https://www.myfundinglist.com/md/pricing.md)
-- [About & How It Works](https://www.myfundinglist.com/md/about.md)
-- [FAQ](https://www.myfundinglist.com/md/faq.md)
+- [Pricing](https://www.myfundinglist.com/pricing)
+- [About & How It Works](https://www.myfundinglist.com/llms/about.md)
+- [FAQ](https://www.myfundinglist.com/llms/faq.md)
 
 ---
 

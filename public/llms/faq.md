@@ -101,10 +101,10 @@ Yes. We follow industry-standard data security practices. See our [Policies page
 
 ## Related Pages
 
-- [Pricing](https://www.myfundinglist.com/md/pricing.md)
-- [Investor Database](https://www.myfundinglist.com/md/investor-database.md)
-- [About & How It Works](https://www.myfundinglist.com/md/about.md)
-- [Tools for Founders](https://www.myfundinglist.com/md/tools-for-founders.md)
+- [Pricing](https://www.myfundinglist.com/pricing)
+- [Investor Database](https://www.myfundinglist.com/llms/investor-database.md)
+- [About & How It Works](https://www.myfundinglist.com/llms/about.md)
+- [Tools for Founders](https://www.myfundinglist.com/llms/tools.md)
 
 ---
 

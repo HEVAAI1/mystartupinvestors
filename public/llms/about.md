@@ -76,10 +76,10 @@ MyFundingList was built by founders, for founders. We experienced firsthand how 
 
 ## Related Pages
 
-- [Investor Database](https://www.myfundinglist.com/md/investor-database.md)
-- [Pricing](https://www.myfundinglist.com/md/pricing.md)
-- [Tools for Founders](https://www.myfundinglist.com/md/tools-for-founders.md)
-- [FAQ](https://www.myfundinglist.com/md/faq.md)
+- [Investor Database](https://www.myfundinglist.com/llms/investor-database.md)
+- [Pricing](https://www.myfundinglist.com/pricing)
+- [Tools for Founders](https://www.myfundinglist.com/llms/tools.md)
+- [FAQ](https://www.myfundinglist.com/llms/faq.md)
 
 ---
 
