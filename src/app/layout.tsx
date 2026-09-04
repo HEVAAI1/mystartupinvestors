@@ -9,6 +9,7 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
+import { headers } from "next/headers";
 import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE } from "@/lib/seo";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -115,11 +116,12 @@ const websiteJsonLd = {
 };
 
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <html lang="en">
       <body
@@ -139,11 +141,13 @@ export default function RootLayout({
         <Script
           id="org-jsonld"
           type="application/ld+json"
+          nonce={nonce}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
         <Script
           id="website-jsonld"
           type="application/ld+json"
+          nonce={nonce}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
 
@@ -153,9 +157,10 @@ export default function RootLayout({
         <Script
   src="https://www.googletagmanager.com/gtag/js?id=G-RSRMCPZL28"
   strategy="afterInteractive"
+  nonce={nonce}
 />
 
-<Script id="google-analytics" strategy="afterInteractive">
+<Script id="google-analytics" strategy="afterInteractive" nonce={nonce}>
   {`
     window.dataLayer = window.dataLayer || [];
     function gtag(){ dataLayer.push(arguments); }

@@ -176,25 +176,8 @@ export default function ToolsForFoundersClient() {
 
   const gridKey = searchTerm.trim() || "all";
 
-  const faqSchema = useMemo(
-    () => ({
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: faqs.map((faq) => ({
-        "@type": "Question",
-        name: faq.q,
-        acceptedAnswer: { "@type": "Answer", text: faq.a },
-      })),
-    }),
-    []
-  );
-
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
       <SmartNavbar />
 
       <main className="min-h-screen bg-background font-inter text-foreground">

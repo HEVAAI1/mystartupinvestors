@@ -1,5 +1,6 @@
 import { fetchSanityPost } from "@/lib/sanity";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import BlogPostClient from "./BlogPostClient";
 import { SITE_URL, SITE_NAME } from "@/lib/seo";
 
@@ -79,10 +80,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     mainEntityOfPage: `${SITE_URL}/blog/${slug}`,
   };
 
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
   return (
     <>
       <script
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <BlogPostClient post={post} />

@@ -217,7 +217,7 @@ ORDER BY tablename, policyname;
 -- Expected: locked=true, name=masked, about=censored, email=null
 
 -- 10c. Unlock investor via RPC (should check credits, create view)
--- SELECT public.unlock_investor_secured(999999);
+-- SELECT public.unlock_investor(auth.uid(), 999999);
 -- Expected: Full investor data returned, credits_used incremented
 
 -- 10d. Get investor again (should now be unlocked)
@@ -237,7 +237,7 @@ ORDER BY tablename, policyname;
 -- | INSERT own row (auth callback)        | authenticated  | ✅ 1 row affected              |
 -- | SELECT all investors (direct table)   | authenticated  | ❌ 0 rows returned             |
 -- | RPC: get_investors_secured            | authenticated  | ✅ Paginated, masked data      |
--- | RPC: unlock_investor_secured          | authenticated  | ✅ Full data, credit debited   |
+-- | RPC: unlock_investor                  | authenticated  | ✅ Full data, credit debited   |
 -- | SELECT own transactions               | authenticated  | ✅ Own transactions only       |
 -- | SELECT another's transactions         | authenticated  | ❌ 0 rows returned             |
 -- | INSERT fake transaction               | authenticated  | ❌ Error / 0 rows              |

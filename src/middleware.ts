@@ -2,15 +2,75 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
+const CSRF_SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+
+// Cookie-based Supabase auth (via @supabase/ssr) means the browser attaches
+// session cookies to any cross-origin request automatically — Route Handlers
+// don't get the CSRF protection Server Actions get for free. Reject
+// state-changing /api requests whose Origin/Sec-Fetch-Site doesn't match
+// this host. Non-browser callers (webhooks, curl) send neither header and
+// are allowed through — they never carry the session cookie anyway.
+function isSameOriginRequest(request: NextRequest): boolean {
+    const secFetchSite = request.headers.get('sec-fetch-site');
+    if (secFetchSite) {
+        return secFetchSite === 'same-origin' || secFetchSite === 'none';
+    }
+    const origin = request.headers.get('origin');
+    if (!origin) return true;
+    try {
+        return new URL(origin).host === request.headers.get('host');
+    } catch {
+        return false;
+    }
+}
+
+function buildCsp(nonce: string): string {
+    return [
+        "default-src 'self'",
+        `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://www.googletagmanager.com`,
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data: https://cdn.sanity.io https://lh3.googleusercontent.com https://*.supabase.co https://www.googletagmanager.com",
+        "font-src 'self' data:",
+        "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com",
+        "object-src 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        "frame-ancestors 'none'",
+        "frame-src 'none'",
+        "upgrade-insecure-requests",
+    ].join('; ');
+}
+
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
+
+    // CSRF: block cross-origin state-changing requests to API routes before
+    // anything else runs. API route handlers do their own auth (requireAdmin,
+    // getUser, etc.) — middleware only adds the origin check here.
+    if (pathname.startsWith('/api/') && !CSRF_SAFE_METHODS.has(request.method) && !isSameOriginRequest(request)) {
+        return NextResponse.json({ error: 'Cross-origin request blocked' }, { status: 403 });
+    }
+
+    // Nonce + CSP header, threaded to Server Components via the request
+    // headers so inline <script> tags (JSON-LD, GA) can use nonce={nonce}.
+    const nonce = crypto.randomUUID();
+    const csp = buildCsp(nonce);
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set('x-nonce', nonce);
 
     // Create a response object
     let response = NextResponse.next({
         request: {
-            headers: request.headers,
+            headers: requestHeaders,
         },
     });
+    response.headers.set('Content-Security-Policy', csp);
+
+    // API routes handle their own auth/authorization; the page-protection
+    // rules below only apply to page routes.
+    if (pathname.startsWith('/api/')) {
+        return response;
+    }
 
     // Create Supabase client
     const supabase = createServerClient(
@@ -30,9 +90,10 @@ export async function middleware(request: NextRequest) {
                     });
                     response = NextResponse.next({
                         request: {
-                            headers: request.headers,
+                            headers: requestHeaders,
                         },
                     });
+                    response.headers.set('Content-Security-Policy', csp);
                     response.cookies.set({
                         name,
                         value,
@@ -48,9 +109,10 @@ export async function middleware(request: NextRequest) {
                     });
                     response = NextResponse.next({
                         request: {
-                            headers: request.headers,
+                            headers: requestHeaders,
                         },
                     });
+                    response.headers.set('Content-Security-Policy', csp);
                     response.cookies.set({
                         name,
                         value: '',
@@ -172,8 +234,9 @@ export const config = {
          * - _next/image (image optimization files)
          * - favicon.ico (favicon file)
          * - public folder
-         * - api routes (they have their own protection)
+         * API routes ARE included now — they need the CSRF origin check;
+         * they otherwise still do their own auth (requireAdmin, getUser).
          */
-        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$|api).*)',
+        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
     ],
 };

@@ -1,6 +1,15 @@
 import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabaseServer";
 import { NextResponse } from "next/server";
 
+// Pitch decks only. Maps allowed extension -> the MIME type(s) browsers send
+// for it, so we never trust either signal alone.
+const ALLOWED_DECK_TYPES: Record<string, string[]> = {
+  pdf: ["application/pdf"],
+  ppt: ["application/vnd.ms-powerpoint"],
+  pptx: ["application/vnd.openxmlformats-officedocument.presentationml.presentation"],
+  key: ["application/x-iwork-keynote-sffkey", "application/octet-stream"],
+};
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -18,6 +27,19 @@ export async function POST(request: Request) {
       );
     }
 
+    // Extension is derived from a fixed allowlist (never from the raw
+    // filename) so it can't be used for a path-traversal storage key, and
+    // the client-sent Content-Type must match what that extension expects.
+    const rawExt = file.name.split(".").pop()?.toLowerCase() ?? "";
+    const allowedMimeTypes = ALLOWED_DECK_TYPES[rawExt];
+    if (!allowedMimeTypes || !allowedMimeTypes.includes(file.type)) {
+      return NextResponse.json(
+        { error: "Unsupported file type. Please upload a PDF, PPT, PPTX, or Keynote deck." },
+        { status: 400 }
+      );
+    }
+    const fileExt = rawExt;
+
     const supabaseAuth = await createSupabaseServerClient();
     const { data: { user } } = await supabaseAuth.auth.getUser();
     if (!user) {
@@ -26,7 +48,6 @@ export async function POST(request: Request) {
 
     const supabase = createSupabaseAdminClient();
 
-    const fileExt = file.name.split(".").pop();
     const fileName = `${user.id}-${Date.now()}.${fileExt}`;
     const filePath = `startup-decks/${fileName}`;
 

@@ -299,59 +299,7 @@ COMMENT ON FUNCTION public.get_investor_by_id_secured IS 'SECURITY DEFINER RPC f
 
 GRANT EXECUTE ON FUNCTION public.get_investor_by_id_secured TO authenticated;
 
--- =============================================================================
--- 3.11 RPC: unlock investor (debit credit, create view record, return full data)
--- =============================================================================
-CREATE OR REPLACE FUNCTION public.unlock_investor_secured(p_investor_id INTEGER)
-RETURNS JSONB
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = ''
-AS $$
-DECLARE
-  v_user_id UUID;
-  v_allocated INTEGER;
-  v_used INTEGER;
-  v_remaining INTEGER;
-  v_investor RECORD;
-BEGIN
-  v_user_id := auth.uid();
-  IF v_user_id IS NULL THEN
-    RETURN jsonb_build_object('error', 'Unauthorized', 'status', 401);
-  END IF;
-
-  -- Check if already unlocked
-  IF EXISTS (SELECT 1 FROM public.user_investor_views WHERE user_id = v_user_id AND investor_id = p_investor_id) THEN
-    SELECT * INTO v_investor FROM public.investors WHERE id = p_investor_id;
-    RETURN jsonb_build_object('investor', row_to_json(v_investor));
-  END IF;
-
-  -- Check credits
-  SELECT credits_allocated, credits_used
-  INTO v_allocated, v_used
-  FROM public.users
-  WHERE id = v_user_id;
-
-  v_remaining := v_allocated - v_used;
-  IF v_remaining <= 0 THEN
-    RETURN jsonb_build_object('error', 'Insufficient credits', 'status', 403);
-  END IF;
-
-  -- Atomically insert view and increment credits used
-  INSERT INTO public.user_investor_views (user_id, investor_id)
-  VALUES (v_user_id, p_investor_id);
-
-  UPDATE public.users
-  SET credits_used = credits_used + 1
-  WHERE id = v_user_id;
-
-  -- Fetch and return full investor
-  SELECT * INTO v_investor FROM public.investors WHERE id = p_investor_id;
-
-  RETURN jsonb_build_object('investor', row_to_json(v_investor));
-END;
-$$;
-
-COMMENT ON FUNCTION public.unlock_investor_secured IS 'SECURITY DEFINER RPC that atomically unlocks an investor: checks credits, inserts view record, debits credit, returns full investor data.';
-
-GRANT EXECUTE ON FUNCTION public.unlock_investor_secured TO authenticated;
+-- NOTE: The unlock-investor RPC (checks credits, inserts view record, debits
+-- credit, returns full investor data) is defined in 08_unlock_investor_rpc.sql
+-- as public.unlock_investor, which fixes a TOCTOU race present in an earlier
+-- version of this function.
