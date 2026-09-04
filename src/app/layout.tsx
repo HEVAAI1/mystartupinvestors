@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   },
 
   description:
-    "Connect with 34,850+ verified investors. MyFundingList helps founders find, filter, and reach the right investors across sectors and geographies.",
+    "Connect with 34,850+ verified investors. MyFundingList helps founders find, filter, and unlock direct investor email addresses across sectors and geographies.",
 
   keywords: [
     "investor database",
@@ -62,6 +62,18 @@ export const metadata: Metadata = {
     "venture capital contacts",
     "startup fundraising platform",
     "investor list for founders",
+    "investor email",
+    "investor email list",
+    "investor email addresses",
+    "find investor emails",
+    "VC email",
+    "VC email list",
+    "venture capital email addresses",
+    "angel investor email list",
+    "email list of investors",
+    "startup investor contact list",
+    "verified investor contacts",
+    "investor contact database",
   ],
 
   robots: {
@@ -77,7 +89,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Find & Connect with 34,850+ Verified Investors",
     description:
-      "Access 34,850+ active investors across sectors and geographies for your startup.",
+      "Access 34,850+ verified investor emails across sectors and geographies for your startup.",
     url: SITE_URL,
     siteName: SITE_NAME,
     images: [
@@ -94,7 +106,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Find & Connect with 34,850+ Verified Investors",
     description:
-      "Access 34,850+ active investors across sectors and geographies.",
+      "Access 34,850+ verified investor emails across sectors and geographies.",
     images: [DEFAULT_OG_IMAGE],
   },
 };
