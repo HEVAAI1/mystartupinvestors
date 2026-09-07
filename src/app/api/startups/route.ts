@@ -1,17 +1,20 @@
-import { createSupabaseAdminClient } from "@/lib/supabaseServer";
+import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabaseServer";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const supabase = createSupabaseAdminClient();
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const supabaseAuth = await createSupabaseServerClient();
+    const { data: { user } } = await supabaseAuth.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const { error: insertError } = await supabase.from("startup_leads").insert(body.data);
+    const supabase = createSupabaseAdminClient();
+    const { error: insertError } = await supabase
+      .from("startup_leads")
+      .insert({ ...body.data, user_id: user.id });
 
     if (insertError) {
       console.error("Insert error:", insertError);

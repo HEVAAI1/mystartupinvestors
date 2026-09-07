@@ -16,6 +16,7 @@ export default function AdvancedValuationEnginePage() {
     const { creditStatus, useCredit: consumeCredit, isLoading } = useCalculationCredits();
     const [showCreditModal, setShowCreditModal] = useState(false);
     const [showResults, setShowResults] = useState(false);
+    const [validationError, setValidationError] = useState<string | null>(null);
 
     // Input states
     const [arr, setArr] = useState<string>("1000000");
@@ -43,18 +44,32 @@ export default function AdvancedValuationEnginePage() {
             return;
         }
 
+        const arrNum = parseFloat(arr);
+        const growthRateNum = parseFloat(growthRate) / 100;
+        const timeToExitNum = parseFloat(timeToExit);
+        const exitMultipleNum = parseFloat(exitMultiple);
+        const targetReturnNum = parseFloat(targetReturn);
+        const futureDilutionNum = parseFloat(futureDilution) / 100;
+        const investmentAmountNum = parseFloat(investmentAmount);
+
+        if (
+            !Number.isFinite(arrNum) ||
+            !Number.isFinite(growthRateNum) ||
+            !Number.isFinite(timeToExitNum) ||
+            !Number.isFinite(exitMultipleNum) ||
+            !Number.isFinite(targetReturnNum) || targetReturnNum <= 0 ||
+            !Number.isFinite(futureDilutionNum) ||
+            !Number.isFinite(investmentAmountNum)
+        ) {
+            setValidationError("Target Investor Return must be greater than 0, and every field needs a valid number.");
+            return;
+        }
+        setValidationError(null);
+
         // Consume credit
         const result = await consumeCredit();
 
         if (result.success) {
-            // Calculate valuation AFTER credit is consumed
-            const arrNum = parseFloat(arr) || 0;
-            const growthRateNum = parseFloat(growthRate) / 100 || 0;
-            const timeToExitNum = parseFloat(timeToExit) || 0;
-            const exitMultipleNum = parseFloat(exitMultiple) || 0;
-            const targetReturnNum = parseFloat(targetReturn) || 0;
-            const futureDilutionNum = parseFloat(futureDilution) / 100 || 0;
-            const investmentAmountNum = parseFloat(investmentAmount) || 0;
 
             // VC Method Calculation
             const exitRevenue = arrNum * Math.pow(1 + growthRateNum, timeToExitNum);
@@ -217,6 +232,8 @@ export default function AdvancedValuationEnginePage() {
                                     <div className="relative">
                                         <input
                                             type="number"
+                                            min={0.01}
+                                            step="any"
                                             value={targetReturn}
                                             onChange={(e) => setTargetReturn(e.target.value)}
                                             className="w-full pr-8 pl-4 py-3 border border-[#31372B1F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#31372B]/20"
@@ -257,6 +274,10 @@ export default function AdvancedValuationEnginePage() {
                                         />
                                     </div>
                                 </div>
+
+                                {validationError && (
+                                    <p className="text-sm text-red-600">{validationError}</p>
+                                )}
 
                                 {/* Calculate Button */}
                                 <button
@@ -455,7 +476,7 @@ export default function AdvancedValuationEnginePage() {
                             </Link>
 
                             <Link
-                                href="/tools-for-founders/cac"
+                                href="/tools-for-founders/cac-optimizer"
                                 className="p-5 border border-black/[0.06] rounded-2xl bg-white/70 hover:shadow-md hover:border-[#C6FF55]/40 transition-all duration-300"
                             >
                                 <div className="text-[24px] mb-2">📈</div>

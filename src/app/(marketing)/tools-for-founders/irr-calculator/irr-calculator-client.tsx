@@ -10,21 +10,13 @@ export default function IRRCalculatorClient() {
     const { creditStatus, useCredit: consumeCredit, isLoading } = useCalculationCredits();
     const [showCreditModal, setShowCreditModal] = useState(false);
     const [showResults, setShowResults] = useState(false);
+    const [validationError, setValidationError] = useState<string | null>(null);
 
     // Inputs
     const [initialInvestment, setInitialInvestment] = useState<string>("1000000");
     const [exitAmount, setExitAmount] = useState<string>("10000000");
     const [exitYear, setExitYear] = useState<string>("5");
-    const [interimCashFlows, setInterimCashFlows] = useState<string>("0"); // Assumed constant annual? Or I should allow per year?
-
-    // Prompt says "Cash Flows by Year".
-    // Let's allow users to specific specific flows if they want, but default to simple model.
-    // I'll stick to: Initial, Exit, and "Annual Interim Cash Flow" (usually 0).
-    // And "Exit Year".
-    // This covers 99% of VC cases.
-    // But to respect "Cash Flows by Year", I'll add an "Advanced Mode" or just use a textarea/list?
-    // Let's start simple: Investment, Exit Year, Exit Amount.
-    // And maybe "Interim Dividends".
+    const [interimCashFlows, setInterimCashFlows] = useState<string>("0"); // constant annual dividend, applied every year until exit
 
     // Results
     const [results, setResults] = useState({
@@ -75,14 +67,25 @@ export default function IRRCalculatorClient() {
             return;
         }
 
+        const investment = parseFloat(initialInvestment);
+        const exit = parseFloat(exitAmount);
+        const years = parseInt(exitYear, 10);
+        const interim = parseFloat(interimCashFlows);
+
+        if (
+            !Number.isFinite(investment) || investment <= 0 ||
+            !Number.isFinite(exit) ||
+            !Number.isInteger(years) || years < 1 ||
+            !Number.isFinite(interim)
+        ) {
+            setValidationError("Initial Investment must be greater than 0, and Exit Year must be at least 1.");
+            return;
+        }
+        setValidationError(null);
+
         const creditResult = await consumeCredit();
 
         if (creditResult.success) {
-            const investment = parseFloat(initialInvestment) || 0;
-            const exit = parseFloat(exitAmount) || 0;
-            const years = parseInt(exitYear) || 5;
-            const interim = parseFloat(interimCashFlows) || 0;
-
             const flows = [];
             // Year 0: Investment (Negative)
             flows.push(-Math.abs(investment));
@@ -159,6 +162,8 @@ export default function IRRCalculatorClient() {
                                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#717182]">$</span>
                                 <input
                                     type="number"
+                                    min={0.01}
+                                    step="any"
                                     value={initialInvestment}
                                     onChange={(e) => setInitialInvestment(e.target.value)}
                                     className="w-full pl-8 pr-4 py-3 border border-[#31372B1F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#31372B]/20"
@@ -188,6 +193,8 @@ export default function IRRCalculatorClient() {
                                 </label>
                                 <input
                                     type="number"
+                                    min={1}
+                                    step={1}
                                     value={exitYear}
                                     onChange={(e) => setExitYear(e.target.value)}
                                     className="w-full px-4 py-3 border border-[#31372B1F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#31372B]/20"
@@ -208,6 +215,10 @@ export default function IRRCalculatorClient() {
                                 </div>
                             </div>
                         </div>
+
+                        {validationError && (
+                            <p className="text-sm text-red-600 mt-2">{validationError}</p>
+                        )}
 
                         <button
                             onClick={handleCalculate}

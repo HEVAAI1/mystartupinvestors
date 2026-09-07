@@ -393,7 +393,7 @@ export default function BreakEvenCalculatorPage() {
                             </Link>
 
                             <Link
-                                href="/tools-for-founders/cap-table"
+                                href="/tools-for-founders/cap-table-model"
                                 className="p-5 border border-black/[0.06] rounded-2xl bg-white/70 hover:shadow-md hover:border-[#C6FF55]/40 transition-all duration-300"
                             >
                                 <div className="text-[24px] mb-2">📋</div>

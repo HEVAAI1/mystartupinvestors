@@ -32,6 +32,7 @@ const FilterPillDropdown = memo(function FilterPillDropdown({
   onSelect,
 }: FilterPillDropdownProps) {
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -44,6 +45,14 @@ const FilterPillDropdown = memo(function FilterPillDropdown({
     document.addEventListener("mousedown", handlePointerDown);
     return () => document.removeEventListener("mousedown", handlePointerDown);
   }, []);
+
+  useEffect(() => {
+    if (!open) setQuery("");
+  }, [open]);
+
+  const filteredOptions = query.trim()
+    ? options.filter((option) => option.toLowerCase().includes(query.trim().toLowerCase()))
+    : options;
 
   return (
     <div ref={containerRef} className="relative w-full sm:w-auto">
@@ -76,28 +85,56 @@ const FilterPillDropdown = memo(function FilterPillDropdown({
                 {label}
               </p>
             </div>
+            <div className="border-b border-black/[0.05] px-3 py-2">
+              <input
+                type="text"
+                autoFocus
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search..."
+                className="w-full rounded-lg border border-black/[0.08] bg-black/[0.02] px-3 py-1.5 text-sm font-inter text-[#31372B] outline-none focus:ring-2 focus:ring-[#C6FF55]/40 placeholder:text-[#ABABAB]"
+              />
+            </div>
             <div className="max-h-64 overflow-y-auto py-1.5">
-              {[label, ...options].map((option) => {
-                const optionValue = option === label ? "All" : option;
-                const isActive = value === option;
+              {!query.trim() && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onSelect("All");
+                    setOpen(false);
+                  }}
+                  className={`flex w-full items-center px-4 py-2.5 text-sm font-inter transition ${value === label
+                    ? "bg-[#C6FF55]/12 text-[#1E1E1E] font-semibold"
+                    : "text-[#4B4B4B] hover:bg-black/[0.03]"
+                    }`}
+                >
+                  <span className="truncate">{label}</span>
+                </button>
+              )}
+              {filteredOptions.length === 0 ? (
+                <p className="px-4 py-2.5 text-sm font-inter text-[#ABABAB]">No matches</p>
+              ) : (
+                filteredOptions.map((option) => {
+                  const isActive = value === option;
 
-                return (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => {
-                      onSelect(optionValue);
-                      setOpen(false);
-                    }}
-                    className={`flex w-full items-center px-4 py-2.5 text-sm font-inter transition ${isActive
-                      ? "bg-[#C6FF55]/12 text-[#1E1E1E] font-semibold"
-                      : "text-[#4B4B4B] hover:bg-black/[0.03]"
-                      }`}
-                  >
-                    <span className="truncate">{option}</span>
-                  </button>
-                );
-              })}
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => {
+                        onSelect(option);
+                        setOpen(false);
+                      }}
+                      className={`flex w-full items-center px-4 py-2.5 text-sm font-inter transition ${isActive
+                        ? "bg-[#C6FF55]/12 text-[#1E1E1E] font-semibold"
+                        : "text-[#4B4B4B] hover:bg-black/[0.03]"
+                        }`}
+                    >
+                      <span className="truncate">{option}</span>
+                    </button>
+                  );
+                })
+              )}
             </div>
           </motion.div>
         )}
@@ -137,7 +174,8 @@ const Dashboard = () => {
   const [industries, setIndustries] = useState<string[]>([]);
 
   // ⭐⭐⭐ USE CREDITS FROM CONTEXT ⭐⭐⭐
-  const { decrementCredit, hasPaid } = useCredits();
+  const { credits, decrementCredit, hasPaid } = useCredits();
+  const LOW_CREDITS_THRESHOLD = 10;
 
   const listAnimationKey = useMemo(
     () =>
@@ -442,39 +480,41 @@ const Dashboard = () => {
           )}
         </div>
 
-        {/* Upgrade CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mt-12 relative bg-[#1E1E1E] rounded-3xl p-8 md:p-12 overflow-hidden text-center"
-        >
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[200px] bg-[#C6FF55]/10 blur-[80px] pointer-events-none" />
-          <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 bg-[#C6FF55]/10 border border-[#C6FF55]/20 rounded-full px-4 py-2 mb-6">
-              <Zap className="w-4 h-4 text-[#C6FF55]" />
-              <span className="text-xs font-inter font-semibold text-[#C6FF55] uppercase tracking-wider">Unlock More</span>
+        {/* Upgrade CTA — only surfaced once the user is actually running low */}
+        {credits < LOW_CREDITS_THRESHOLD && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-12 relative bg-[#1E1E1E] rounded-3xl p-8 md:p-12 overflow-hidden text-center"
+          >
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[200px] bg-[#C6FF55]/10 blur-[80px] pointer-events-none" />
+            <div className="relative z-10">
+              <div className="inline-flex items-center gap-2 bg-[#C6FF55]/10 border border-[#C6FF55]/20 rounded-full px-4 py-2 mb-6">
+                <Zap className="w-4 h-4 text-[#C6FF55]" />
+                <span className="text-xs font-inter font-semibold text-[#C6FF55] uppercase tracking-wider">Unlock More</span>
+              </div>
+              <h2 className="text-2xl md:text-3xl font-space font-bold text-white mb-3">
+                Get instant access to all 34,850+ investors
+              </h2>
+              <p className="text-white/50 font-inter max-w-lg mx-auto mb-8">
+                Upgrade your plan to unlock verified emails, direct contact info, and full investor profiles.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Link href="/pricing">
+                  <button className="inline-flex items-center gap-2 bg-[#C6FF55] text-[#1E1E1E] font-inter font-semibold px-8 py-4 rounded-2xl hover:bg-[#d4ff77] transition-colors shadow-lg">
+                    <Zap className="w-4 h-4" /> Upgrade Plan
+                  </button>
+                </Link>
+                <Link href="/pricing">
+                  <button className="inline-flex items-center gap-2 bg-white/10 text-white font-inter font-medium px-8 py-4 rounded-2xl hover:bg-white/15 transition-colors">
+                    View all plans
+                  </button>
+                </Link>
+              </div>
             </div>
-            <h2 className="text-2xl md:text-3xl font-space font-bold text-white mb-3">
-              Get instant access to all 34,850+ investors
-            </h2>
-            <p className="text-white/50 font-inter max-w-lg mx-auto mb-8">
-              Upgrade your plan to unlock verified emails, direct contact info, and full investor profiles.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link href="/pricing">
-                <button className="inline-flex items-center gap-2 bg-[#C6FF55] text-[#1E1E1E] font-inter font-semibold px-8 py-4 rounded-2xl hover:bg-[#d4ff77] transition-colors shadow-lg">
-                  <Zap className="w-4 h-4" /> Upgrade Plan
-                </button>
-              </Link>
-              <Link href="/pricing">
-                <button className="inline-flex items-center gap-2 bg-white/10 text-white font-inter font-medium px-8 py-4 rounded-2xl hover:bg-white/15 transition-colors">
-                  View all plans
-                </button>
-              </Link>
-            </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
       </div>
 
       <div className="mt-16">
