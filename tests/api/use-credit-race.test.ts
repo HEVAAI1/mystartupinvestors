@@ -6,6 +6,8 @@ function nextTick() {
     return new Promise((resolve) => setTimeout(resolve, 0));
 }
 
+// Paid plans now get unlimited tool calculations (no credit tracking), so the
+// only remaining atomic-decrement path is the free tier's weekly allowance.
 // Simulates two concurrent requests both reaching the conditional update
 // with the same stale read, the way two overlapping Postgres transactions
 // would. Only the request whose WHERE clause (id + previous value) still
@@ -20,6 +22,10 @@ function createUsersTable(initialCredits: number) {
         releaseFirst = resolve;
     });
 
+    // Recent enough that needsWeeklyReset() is false, so both requests go
+    // straight to the credit check/decrement instead of the reset branch.
+    const lastResetAt = new Date().toISOString();
+
     return {
         from(table: string) {
             if (table !== "users") {
@@ -33,10 +39,10 @@ function createUsersTable(initialCredits: number) {
                             eq: () => ({
                                 single: async () => ({
                                     data: {
-                                        plan: "paid",
-                                        calculation_credits: credits,
-                                        weekly_calculation_credits: null,
-                                        last_calculation_reset_at: null,
+                                        plan: "free",
+                                        calculation_credits: null,
+                                        weekly_calculation_credits: credits,
+                                        last_calculation_reset_at: lastResetAt,
                                     },
                                     error: null,
                                 }),
@@ -48,14 +54,14 @@ function createUsersTable(initialCredits: number) {
                     return {
                         eq: () => ({
                             single: async () => ({
-                                data: { calculation_credits: credits },
+                                data: { weekly_calculation_credits: credits },
                                 error: null,
                             }),
                         }),
                     };
                 },
                 update(patch: Record<string, number>) {
-                    const nextValue = patch.calculation_credits;
+                    const nextValue = patch.weekly_calculation_credits;
 
                     return {
                         eq() {
@@ -65,7 +71,7 @@ function createUsersTable(initialCredits: number) {
                                         gt() {
                                             return {
                                                 async select(selectCol: string) {
-                                                    if (matchCol !== "calculation_credits") {
+                                                    if (matchCol !== "weekly_calculation_credits") {
                                                         throw new Error(`unexpected match column: ${matchCol}`);
                                                     }
 
@@ -138,7 +144,7 @@ function makeRequest() {
 }
 
 describe("use-credit race", () => {
-    it("lets exactly one of two concurrent requests spend the last credit", async () => {
+    it("lets exactly one of two concurrent requests spend the last free weekly credit", async () => {
         const [first, second] = await Promise.all([
             POST(makeRequest()),
             POST(makeRequest()),

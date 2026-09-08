@@ -13,6 +13,7 @@ export default function CapTableModelPage() {
     const { creditStatus, useCredit: consumeCredit, isLoading } = useCalculationCredits();
     const [showCreditModal, setShowCreditModal] = useState(false);
     const [showResults, setShowResults] = useState(false);
+    const [validationError, setValidationError] = useState<string | null>(null);
 
     // Input states
     const [preMoneyValuation, setPreMoneyValuation] = useState<string>("8000000");
@@ -39,15 +40,27 @@ export default function CapTableModelPage() {
             return;
         }
 
+        const preMoneyNum = parseFloat(preMoneyValuation);
+        const investmentNum = parseFloat(investmentAmount);
+        const founderOwnershipBeforeNum = parseFloat(founderOwnershipBefore);
+        const optionPoolNum = parseFloat(optionPoolSize);
+
+        if (
+            !Number.isFinite(preMoneyNum) || preMoneyNum < 0 ||
+            !Number.isFinite(investmentNum) || investmentNum < 0 ||
+            !Number.isFinite(founderOwnershipBeforeNum) || founderOwnershipBeforeNum < 0 || founderOwnershipBeforeNum > 100 ||
+            !Number.isFinite(optionPoolNum) || optionPoolNum < 0 || optionPoolNum > 100
+        ) {
+            setValidationError("Enter valid, non-negative numbers, with ownership and option pool percentages between 0 and 100.");
+            return;
+        }
+        setValidationError(null);
+
         // Consume credit
         const result = await consumeCredit();
 
         if (result.success) {
             // Calculate cap table AFTER credit is consumed
-            const preMoneyNum = parseFloat(preMoneyValuation) || 0;
-            const investmentNum = parseFloat(investmentAmount) || 0;
-            const founderOwnershipBeforeNum = parseFloat(founderOwnershipBefore) || 0;
-            const optionPoolNum = parseFloat(optionPoolSize) || 0;
 
             // Cap Table Calculation
             // Post-Money Valuation = Pre-Money + Investment
@@ -238,6 +251,10 @@ export default function CapTableModelPage() {
                                         Equity reserved for employee options
                                     </p>
                                 </div>
+
+                                {validationError && (
+                                    <p className="text-sm text-red-600 mt-2">{validationError}</p>
+                                )}
 
                                 {/* Calculate Button */}
                                 <button

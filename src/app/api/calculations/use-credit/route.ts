@@ -89,19 +89,19 @@ export async function POST(request: NextRequest) {
             // resets on server cold start, and a spoofed/rotated IP still
             // bypasses this — inherent to unauthenticated rate limiting.
             const ip = getClientIp(request);
-            const ipRateLimit = checkRateLimit(`calc:${weekId}:${ip}`, 3, 7 * 24 * 60 * 60);
-            const ipCount = 3 - ipRateLimit.remaining;
+            const ipRateLimit = checkRateLimit(`calc:${weekId}:${ip}`, 5, 7 * 24 * 60 * 60);
+            const ipCount = 5 - ipRateLimit.remaining;
             const currentCount = Math.max(cookieCount, ipCount);
 
-            if (currentCount >= 3 || !ipRateLimit.allowed) {
+            if (currentCount >= 5 || !ipRateLimit.allowed) {
                 return NextResponse.json(
                     {
                         success: false,
                         error: "LIMIT_REACHED",
-                        message: "You've used all 3 free calculations this week. Create a free account to continue.",
+                        message: "You've used all 5 free calculations this week. Create a free account to continue.",
                         userState: "anonymous",
                         remaining: 0,
-                        limit: 3,
+                        limit: 5,
                     },
                     { status: 403 }
                 );
@@ -112,9 +112,9 @@ export async function POST(request: NextRequest) {
             const response = NextResponse.json({
                 success: true,
                 userState: "anonymous",
-                remaining: 3 - newCount,
-                limit: 3,
-                message: `${3 - newCount} free calculations remaining this week`,
+                remaining: 5 - newCount,
+                limit: 5,
+                message: `${5 - newCount} free calculations remaining this week`,
             });
 
             response.cookies.set(cookieName, newCount.toString(), {
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
                 let resetQuery = supabaseAdmin
                     .from("users")
                     .update({
-                        weekly_calculation_credits: 3,
+                        weekly_calculation_credits: 5,
                         last_calculation_reset_at: newResetAt,
                     })
                     .eq("id", user.id);
@@ -164,7 +164,7 @@ export async function POST(request: NextRequest) {
                 const { data: resetRows } = await resetQuery.select();
 
                 if (resetRows && resetRows.length > 0) {
-                    weeklyCredits = 3;
+                    weeklyCredits = 5;
                     lastResetAt = newResetAt;
                 } else {
                     const { data: freshUserData } = await supabaseAdmin
@@ -187,7 +187,7 @@ export async function POST(request: NextRequest) {
                         message: "You've used all your free calculations this week. Upgrade for more!",
                         userState: "free",
                         remaining: 0,
-                        limit: 3,
+                        limit: 5,
                         resetDate: new Date(new Date(lastResetAt).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
                     },
                     { status: 403 }
@@ -205,7 +205,7 @@ export async function POST(request: NextRequest) {
                         message: "You've used all your free calculations this week. Upgrade for more!",
                         userState: "free",
                         remaining: 0,
-                        limit: 3,
+                        limit: 5,
                         resetDate: new Date(new Date(lastResetAt).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
                     },
                     { status: 403 }
@@ -216,64 +216,21 @@ export async function POST(request: NextRequest) {
                 success: true,
                 userState: "free",
                 remaining: newWeeklyCredits,
-                limit: 3,
+                limit: 5,
                 message: `${newWeeklyCredits} calculations left this week`,
                 resetDate: new Date(new Date(lastResetAt).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
             });
         }
 
-        // CASE 3: Paid User (Persistent credits)
-        const calculationCredits = userData.calculation_credits;
-
-        // Enterprise (unlimited)
-        if (calculationCredits === null) {
-            return NextResponse.json({
-                success: true,
-                userState: "paid",
-                plan: userData.plan,
-                unlimited: true,
-                message: "Unlimited calculations",
-            });
-        }
-
-        // Check if credits available
-        if (calculationCredits <= 0) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    error: "CREDITS_EXHAUSTED",
-                    message: "You've used all your calculation credits. Contact support to purchase more.",
-                    userState: "paid",
-                    plan: userData.plan,
-                    remaining: 0,
-                },
-                { status: 403 }
-            );
-        }
-
-        // Consume 1 credit
-        const newCalculationCredits = await consumeCredit("calculation_credits", user.id, calculationCredits);
-
-        if (newCalculationCredits === null) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    error: "CREDITS_EXHAUSTED",
-                    message: "You've used all your calculation credits. Contact support to purchase more.",
-                    userState: "paid",
-                    plan: userData.plan,
-                    remaining: 0,
-                },
-                { status: 403 }
-            );
-        }
-
+        // CASE 3: Paid User — any paid plan gets unlimited tool calculations,
+        // no credit tracking at all. calculation_credits is still granted on
+        // purchase (shared RPC with investor unlocks) but is unused here.
         return NextResponse.json({
             success: true,
             userState: "paid",
             plan: userData.plan,
-            remaining: newCalculationCredits,
-            message: `${newCalculationCredits} calculation credits remaining`,
+            unlimited: true,
+            message: "Unlimited calculations",
         });
 
     } catch (error) {

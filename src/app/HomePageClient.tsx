@@ -4,7 +4,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Search, Zap, ArrowRight, Sparkles, Users, DollarSign, Check, Mail } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { getUser, signInWithGoogle } from "@/lib/api";
 import Footer from "@/components/Footer";
 import PublicNavbar from "@/components/PublicNavbar";
@@ -14,6 +14,19 @@ import { FAQS } from "./faq-data";
 export default function HomePageClient() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  // Surface a failed Google sign-in (denied consent, provider outage) instead
+  // of silently landing back on the homepage with no explanation.
+  useEffect(() => {
+    const error = searchParams.get("auth_error");
+    if (error) {
+      setAuthError(error);
+      router.replace("/", { scroll: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const investorLogos = [
     { src: "/KhoslaLogo.svg", name: "Khosla" },
     { src: "/AntlerLogo.svg", name: "Antler" },
@@ -71,6 +84,21 @@ export default function HomePageClient() {
     <main className="min-h-screen bg-[#FAF7EE] font-inter text-[#31372B] relative overflow-hidden">
 
       <PublicNavbar />
+
+      {authError && (
+        <div className="relative z-20 mx-auto mt-24 max-w-2xl px-6">
+          <div className="flex items-center justify-between gap-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <span>{authError}</span>
+            <button
+              type="button"
+              onClick={() => setAuthError(null)}
+              className="shrink-0 font-semibold hover:underline"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── HERO SECTION ─────────────────────────────────────────── */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">

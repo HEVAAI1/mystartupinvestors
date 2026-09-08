@@ -27,13 +27,18 @@ export default function ReferralLinker() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ referral_code: code }),
     })
-      .then(() => {
-        // Clean up regardless of outcome
-        localStorage.removeItem("mfl_ref_code");
-        localStorage.removeItem("mfl_ref_expiry");
+      .then((res) => {
+        // Only clear on genuine success or a terminal validation failure
+        // (invalid code, self-referral) — a transient error (401 session not
+        // ready yet, 500 DB hiccup) must leave the code in place so the next
+        // page load retries it, instead of losing the attribution forever.
+        if (res.ok || res.status === 400 || res.status === 404) {
+          localStorage.removeItem("mfl_ref_code");
+          localStorage.removeItem("mfl_ref_expiry");
+        }
       })
       .catch(() => {
-        // Silently ignore errors — will retry next page load
+        // Network-level failure — silently ignore, will retry next page load
       });
   }, []);
 

@@ -13,6 +13,7 @@ export default function BreakEvenCalculatorPage() {
     const { creditStatus, useCredit: consumeCredit, isLoading } = useCalculationCredits();
     const [showCreditModal, setShowCreditModal] = useState(false);
     const [showResults, setShowResults] = useState(false);
+    const [validationError, setValidationError] = useState<string | null>(null);
     // Input states
     const [fixedCosts, setFixedCosts] = useState<string>("50000");
     const [revenuePerUnit, setRevenuePerUnit] = useState<string>("100");
@@ -32,12 +33,22 @@ export default function BreakEvenCalculatorPage() {
             setShowCreditModal(true);
             return;
         }
+        const fixedCostsNum = parseFloat(fixedCosts);
+        const revenuePerUnitNum = parseFloat(revenuePerUnit);
+        const variableCostPerUnitNum = parseFloat(variableCostPerUnit);
+
+        if (
+            !Number.isFinite(fixedCostsNum) || fixedCostsNum < 0 ||
+            !Number.isFinite(revenuePerUnitNum) || revenuePerUnitNum <= 0 ||
+            !Number.isFinite(variableCostPerUnitNum) || variableCostPerUnitNum < 0
+        ) {
+            setValidationError("Enter valid, non-negative numbers, with a Revenue Per Unit greater than 0.");
+            return;
+        }
+        setValidationError(null);
+
         const result = await consumeCredit();
         if (result.success) {
-            // Calculate break-even AFTER credit is consumed
-            const fixedCostsNum = parseFloat(fixedCosts) || 0;
-            const revenuePerUnitNum = parseFloat(revenuePerUnit) || 0;
-            const variableCostPerUnitNum = parseFloat(variableCostPerUnit) || 0;
 
             const contributionMargin = revenuePerUnitNum - variableCostPerUnitNum;
             const contributionMarginPercent = revenuePerUnitNum > 0
@@ -193,6 +204,10 @@ export default function BreakEvenCalculatorPage() {
                                         Direct costs per unit (materials, delivery, etc.)
                                     </p>
                                 </div>
+
+                                {validationError && (
+                                    <p className="text-sm text-red-600 mt-2">{validationError}</p>
+                                )}
 
                                 {/* Calculate Button */}
                                 <button

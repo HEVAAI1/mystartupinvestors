@@ -16,8 +16,18 @@ function sanitizeNextPath(nextPath: string | null) {
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
+  const providerError = requestUrl.searchParams.get("error_description") || requestUrl.searchParams.get("error");
   const nextPath = sanitizeNextPath(requestUrl.searchParams.get("next"));
-  const fallbackRedirect = new URL("/", request.url);
+
+  const errorRedirect = (reason: string) => {
+    const url = new URL("/", request.url);
+    url.searchParams.set("auth_error", reason);
+    return NextResponse.redirect(url);
+  };
+
+  const fallbackRedirect = providerError
+    ? errorRedirect(providerError)
+    : errorRedirect("Sign-in failed. Please try again.");
 
   const cookieCarrier = NextResponse.next({
     request: {
@@ -44,14 +54,14 @@ export async function GET(request: NextRequest) {
 
   try {
     if (!code) {
-      return NextResponse.redirect(fallbackRedirect);
+      return fallbackRedirect;
     }
 
     const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
     if (exchangeError) {
       console.error("Auth code exchange failed:", exchangeError);
-      return NextResponse.redirect(fallbackRedirect);
+      return fallbackRedirect;
     }
 
     const {
@@ -61,7 +71,7 @@ export async function GET(request: NextRequest) {
 
     if (userError || !user) {
       console.error("Auth user lookup failed:", userError);
-      return NextResponse.redirect(fallbackRedirect);
+      return fallbackRedirect;
     }
 
     const { data: existingUser, error: existingUserError } = await supabase
@@ -72,7 +82,7 @@ export async function GET(request: NextRequest) {
 
     if (existingUserError) {
       console.error("User bootstrap lookup failed:", existingUserError);
-      return NextResponse.redirect(fallbackRedirect);
+      return fallbackRedirect;
     }
 
     const userPayload = {
@@ -105,7 +115,7 @@ export async function GET(request: NextRequest) {
 
       if (insertError) {
         console.error("User creation failed:", insertError);
-        return NextResponse.redirect(fallbackRedirect);
+        return fallbackRedirect;
       }
     }
 
@@ -119,6 +129,6 @@ export async function GET(request: NextRequest) {
     return response;
   } catch (error) {
     console.error("Unexpected auth callback error:", error);
-    return NextResponse.redirect(fallbackRedirect);
+    return fallbackRedirect;
   }
 }

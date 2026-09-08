@@ -13,6 +13,7 @@ export default function BurnRateCalculatorPage() {
     const { creditStatus, useCredit: consumeCredit, isLoading } = useCalculationCredits();
     const [showCreditModal, setShowCreditModal] = useState(false);
     const [showResults, setShowResults] = useState(false);
+    const [validationError, setValidationError] = useState<string | null>(null);
     // Input states
     const [monthlyExpenses, setMonthlyExpenses] = useState<string>("150000");
     const [monthlyRevenue, setMonthlyRevenue] = useState<string>("50000");
@@ -32,12 +33,22 @@ export default function BurnRateCalculatorPage() {
             setShowCreditModal(true);
             return;
         }
+        const monthlyExpensesNum = parseFloat(monthlyExpenses);
+        const monthlyRevenueNum = parseFloat(monthlyRevenue);
+        const cashBalanceNum = parseFloat(cashBalance);
+
+        if (
+            !Number.isFinite(monthlyExpensesNum) || monthlyExpensesNum < 0 ||
+            !Number.isFinite(monthlyRevenueNum) || monthlyRevenueNum < 0 ||
+            !Number.isFinite(cashBalanceNum) || cashBalanceNum < 0
+        ) {
+            setValidationError("Enter valid, non-negative numbers for every field.");
+            return;
+        }
+        setValidationError(null);
+
         const result = await consumeCredit();
         if (result.success) {
-            // Calculate burn rate AFTER credit is consumed
-            const monthlyExpensesNum = parseFloat(monthlyExpenses) || 0;
-            const monthlyRevenueNum = parseFloat(monthlyRevenue) || 0;
-            const cashBalanceNum = parseFloat(cashBalance) || 0;
 
             const grossBurn = monthlyExpensesNum;
             const netBurn = monthlyExpensesNum - monthlyRevenueNum;
@@ -202,6 +213,10 @@ export default function BurnRateCalculatorPage() {
                                         Total cash available in bank
                                     </p>
                                 </div>
+
+                                {validationError && (
+                                    <p className="text-sm text-red-600 mt-2">{validationError}</p>
+                                )}
 
                                 {/* Calculate Button */}
                                 <button

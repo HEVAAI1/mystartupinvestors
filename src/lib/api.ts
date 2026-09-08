@@ -112,9 +112,11 @@ export async function updateUser(id: string, data: Record<string, unknown>) {
   return res.json();
 }
 
-export async function getAdminInvestors(search?: string) {
-  const query = search ? `?search=${encodeURIComponent(search)}` : "";
-  const res = await fetch(`/api/admin/investors${query}`);
+export async function getAdminInvestors(search?: string, page: number = 1) {
+  const params = new URLSearchParams();
+  if (search) params.set("search", search);
+  params.set("page", String(page));
+  const res = await fetch(`/api/admin/investors?${params.toString()}`);
   return res.json();
 }
 

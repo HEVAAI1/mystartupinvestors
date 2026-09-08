@@ -43,18 +43,18 @@ export async function GET(request: NextRequest) {
 
             // Same server-side IP bucket used by use-credit; peek only, no increment.
             const ip = getClientIp(request);
-            const ipRateLimit = peekRateLimit(`calc:${weekId}:${ip}`, 3, 7 * 24 * 60 * 60);
-            const ipCount = 3 - ipRateLimit.remaining;
+            const ipRateLimit = peekRateLimit(`calc:${weekId}:${ip}`, 5, 7 * 24 * 60 * 60);
+            const ipCount = 5 - ipRateLimit.remaining;
             const currentCount = Math.max(cookieCount, ipCount);
 
             return NextResponse.json({
                 userState: "anonymous",
-                remaining: Math.max(0, 3 - currentCount),
-                limit: 3,
-                canCalculate: currentCount < 3,
-                message: currentCount >= 3
-                    ? "Create a free account to get 3 calculations every week"
-                    : `${3 - currentCount} free calculations remaining this week`,
+                remaining: Math.max(0, 5 - currentCount),
+                limit: 5,
+                canCalculate: currentCount < 5,
+                message: currentCount >= 5
+                    ? "Create a free account to get 5 calculations every week"
+                    : `${5 - currentCount} free calculations remaining this week`,
             });
         }
 
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
 
             // Check if reset is needed
             if (needsWeeklyReset(lastResetAt)) {
-                weeklyCredits = 3;
+                weeklyCredits = 5;
                 lastResetAt = new Date().toISOString();
             }
 
@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({
                 userState: "free",
                 remaining: weeklyCredits,
-                limit: 3,
+                limit: 5,
                 canCalculate: weeklyCredits > 0,
                 resetDate: resetDate.toISOString(),
                 message: weeklyCredits > 0
@@ -97,28 +97,13 @@ export async function GET(request: NextRequest) {
             });
         }
 
-        // CASE 3: Paid User
-        const calculationCredits = userData.calculation_credits;
-
-        // Enterprise (unlimited)
-        if (calculationCredits === null) {
-            return NextResponse.json({
-                userState: "paid",
-                plan: userData.plan,
-                unlimited: true,
-                canCalculate: true,
-                message: "Unlimited calculations",
-            });
-        }
-
+        // CASE 3: Paid User — any paid plan gets unlimited tool calculations.
         return NextResponse.json({
             userState: "paid",
             plan: userData.plan,
-            remaining: calculationCredits,
-            canCalculate: calculationCredits > 0,
-            message: calculationCredits > 0
-                ? `${calculationCredits} calculation credits remaining`
-                : "Purchase more credits to continue",
+            unlimited: true,
+            canCalculate: true,
+            message: "Unlimited calculations",
         });
 
     } catch (error) {

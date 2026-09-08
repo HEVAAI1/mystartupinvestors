@@ -25,7 +25,7 @@ export default function CreditExhaustedModal({
             case "anonymous":
                 return {
                     title: "Create a Free Account",
-                    message: "You've used all 3 free calculations this week. Create a free account to get 3 calculations every week!",
+                    message: "You've used all 5 free calculations this week. Create a free account to get 5 calculations every week!",
                     ctaText: "Sign Up Free",
                     ctaAction: () => router.push("/"),
                     secondaryText: "Already have an account?",

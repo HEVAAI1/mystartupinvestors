@@ -14,6 +14,8 @@ export async function GET(request: NextRequest) {
     const supabase = createSupabaseAdminClient();
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search") || "";
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10) || 1);
+    const pageSize = 50;
 
     let query = supabase.from("investors").select("*", { count: "exact" });
 
@@ -27,7 +29,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { data, count, error } = await query.order("id", { ascending: true });
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+
+    const { data, count, error } = await query.order("id", { ascending: true }).range(from, to);
 
     if (error) throw error;
     return NextResponse.json({ data: data || [], count: count || 0 });

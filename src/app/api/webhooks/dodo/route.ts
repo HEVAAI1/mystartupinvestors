@@ -132,8 +132,10 @@ export async function POST(request: NextRequest) {
           .eq('referred_user_id', userId)
           .maybeSingle();
 
-        // ❌ Prevent self-referral abuse
-        if (referral?.affiliate_id && referral.affiliate_id !== userId) {
+        // Self-referral is already blocked at attribution time
+        // (api/affiliate/link-referral/route.ts), so no referral row can
+        // exist here for a self-referral in the first place.
+        if (referral?.affiliate_id) {
           const commissionAmount = calculateCommission(amount);
 
           // 🚨 SAFETY CHECK

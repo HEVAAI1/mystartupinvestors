@@ -58,7 +58,7 @@ export default function InvestorListPage() {
   const fetchInvestors = useCallback(async () => {
     setLoading(true);
     try {
-      const result = await getAdminInvestors(debouncedSearch);
+      const result = await getAdminInvestors(debouncedSearch, currentPage);
       setCurrentPageData(result.data || []);
       setTotalCount(result.count || 0);
     } catch (error) {
@@ -68,7 +68,7 @@ export default function InvestorListPage() {
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch]);
+  }, [debouncedSearch, currentPage]);
 
   // Fetch investors with server-side pagination and search
   useEffect(() => {

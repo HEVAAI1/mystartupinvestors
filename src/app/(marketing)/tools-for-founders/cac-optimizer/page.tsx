@@ -13,6 +13,7 @@ export default function CACOptimizerPage() {
     const { creditStatus, useCredit: consumeCredit, isLoading } = useCalculationCredits();
     const [showCreditModal, setShowCreditModal] = useState(false);
     const [showResults, setShowResults] = useState(false);
+    const [validationError, setValidationError] = useState<string | null>(null);
 
     // Input states for multiple channels
     const [channels, setChannels] = useState([
@@ -42,13 +43,29 @@ export default function CACOptimizerPage() {
             return;
         }
 
+        const ltvNum = parseFloat(ltv);
+        const monthlyGrossProfitNum = parseFloat(monthlyGrossProfit);
+        const parsedChannels = channels.map((c) => ({
+            spend: parseFloat(c.spend),
+            customers: parseFloat(c.customers),
+        }));
+
+        if (
+            !Number.isFinite(ltvNum) || ltvNum < 0 ||
+            !Number.isFinite(monthlyGrossProfitNum) || monthlyGrossProfitNum < 0 ||
+            parsedChannels.some((c) => !Number.isFinite(c.spend) || c.spend < 0 || !Number.isFinite(c.customers) || c.customers < 0) ||
+            parsedChannels.every((c) => c.customers === 0)
+        ) {
+            setValidationError("Enter valid, non-negative numbers for every channel, with at least one channel reporting customers acquired.");
+            return;
+        }
+        setValidationError(null);
+
         // Consume credit
         const result = await consumeCredit();
 
         if (result.success) {
             // Calculate CAC metrics AFTER credit is consumed
-            const ltvNum = parseFloat(ltv) || 0;
-            const monthlyGrossProfitNum = parseFloat(monthlyGrossProfit) || 0;
 
             // Calculate per-channel CAC
             const channelCACs = channels.map(channel => {
@@ -288,6 +305,10 @@ export default function CACOptimizerPage() {
                                         For payback period calculation
                                     </p>
                                 </div>
+
+                                {validationError && (
+                                    <p className="text-sm text-red-600 mt-2">{validationError}</p>
+                                )}
 
                                 {/* Calculate Button */}
                                 <button

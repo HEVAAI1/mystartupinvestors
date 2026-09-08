@@ -10,6 +10,7 @@ export default function FundraisingCalculatorClient() {
     const { creditStatus, useCredit: consumeCredit, isLoading } = useCalculationCredits();
     const [showCreditModal, setShowCreditModal] = useState(false);
     const [showResults, setShowResults] = useState(false);
+    const [validationError, setValidationError] = useState<string | null>(null);
 
     // Inputs
     const [currentRunway, setCurrentRunway] = useState<string>("6");
@@ -48,14 +49,27 @@ export default function FundraisingCalculatorClient() {
             return;
         }
 
+        const currentR = parseFloat(currentRunway);
+        const targetR = parseFloat(targetRunway);
+        const burn = parseFloat(monthlyBurnRate);
+        const preMoney = parseFloat(preMoneyValuation);
+        const founderOwn = parseFloat(founderOwnership);
+
+        if (
+            !Number.isFinite(currentR) || currentR < 0 ||
+            !Number.isFinite(targetR) || targetR < 0 ||
+            !Number.isFinite(burn) || burn < 0 ||
+            !Number.isFinite(preMoney) || preMoney < 0 ||
+            !Number.isFinite(founderOwn) || founderOwn < 0 || founderOwn > 100
+        ) {
+            setValidationError("Enter valid, non-negative numbers, with Founder Ownership between 0 and 100.");
+            return;
+        }
+        setValidationError(null);
+
         const creditResult = await consumeCredit();
 
         if (creditResult.success) {
-            const currentR = parseFloat(currentRunway) || 0;
-            const targetR = parseFloat(targetRunway) || 0;
-            const burn = parseFloat(monthlyBurnRate) || 0;
-            const preMoney = parseFloat(preMoneyValuation) || 0;
-            const founderOwn = parseFloat(founderOwnership) || 0;
 
             // Required Capital = Burn Rate × (Target Runway − Current Runway)
             const requiredCapital = Math.max(0, burn * (targetR - currentR));
@@ -186,6 +200,10 @@ export default function FundraisingCalculatorClient() {
                                 className="w-full px-4 py-3 border border-[#31372B1F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#31372B]/20"
                             />
                         </div>
+
+                        {validationError && (
+                            <p className="text-sm text-red-600 mt-2">{validationError}</p>
+                        )}
 
                         <button
                             onClick={handleCalculate}

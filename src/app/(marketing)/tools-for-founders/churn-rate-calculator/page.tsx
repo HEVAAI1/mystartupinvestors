@@ -13,6 +13,7 @@ export default function ChurnRateCalculatorPage() {
     const { creditStatus, useCredit: consumeCredit, isLoading } = useCalculationCredits();
     const [showCreditModal, setShowCreditModal] = useState(false);
     const [showResults, setShowResults] = useState(false);
+    const [validationError, setValidationError] = useState<string | null>(null);
 
     // Input states
     const [startingCustomers, setStartingCustomers] = useState<string>("1000");
@@ -37,15 +38,27 @@ export default function ChurnRateCalculatorPage() {
             return;
         }
 
+        const startingCustomersNum = parseFloat(startingCustomers);
+        const customersLostNum = parseFloat(customersLost);
+        const startingMRRNum = parseFloat(startingMRR);
+        const churnedMRRNum = parseFloat(churnedMRR);
+
+        if (
+            !Number.isFinite(startingCustomersNum) || startingCustomersNum < 0 ||
+            !Number.isFinite(customersLostNum) || customersLostNum < 0 || customersLostNum > startingCustomersNum ||
+            !Number.isFinite(startingMRRNum) || startingMRRNum < 0 ||
+            !Number.isFinite(churnedMRRNum) || churnedMRRNum < 0 || churnedMRRNum > startingMRRNum
+        ) {
+            setValidationError("Customers Lost and Churned MRR can't exceed their starting totals, and every field needs a valid, non-negative number.");
+            return;
+        }
+        setValidationError(null);
+
         // Consume credit
         const result = await consumeCredit();
 
         if (result.success) {
             // Calculate churn metrics AFTER credit is consumed
-            const startingCustomersNum = parseFloat(startingCustomers) || 0;
-            const customersLostNum = parseFloat(customersLost) || 0;
-            const startingMRRNum = parseFloat(startingMRR) || 0;
-            const churnedMRRNum = parseFloat(churnedMRR) || 0;
 
             // Churn Rate Calculations
             // Customer Churn (%) = Customers Lost / Starting Customers × 100
@@ -258,6 +271,10 @@ export default function ChurnRateCalculatorPage() {
                                         </div>
                                     </div>
                                 </div>
+
+                                {validationError && (
+                                    <p className="text-sm text-red-600 mt-2">{validationError}</p>
+                                )}
 
                                 {/* Calculate Button */}
                                 <button
