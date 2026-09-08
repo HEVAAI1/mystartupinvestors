@@ -603,25 +603,25 @@ export default function HomePageClient() {
               {
                 name: "Starter", price: "Free", subtitle: "Get started with basics",
                 description: "Perfect for exploring our investor database",
-                features: ["Access 5 investors per month", "Basic search filters", "View investor profiles", "Basic Email Support"],
+                features: ["Access 5 investors per month", "5 free tool calculations per week", "Basic search filters", "View investor profiles", "Basic Email Support"],
                 popular: false, dark: false,
               },
               {
                 name: "Professional", price: "$19", subtitle: "60 credits",
                 description: "Unlock verified investor contacts",
-                features: ["Everything in Starter", "60 investor contact unlocks", "60 startup tool credits", "Verified email addresses", "Advanced search filters", "Export to CSV", "Priority email support"],
+                features: ["Everything in Starter", "60 investor contact unlocks", "Unlimited startup tool calculations", "Verified email addresses", "Advanced search filters", "Export to CSV", "Priority email support"],
                 popular: true, dark: false,
               },
               {
                 name: "Growth", price: "$99", subtitle: "300 credits",
                 description: "Scale your fundraising outreach",
-                features: ["Everything in Professional", "300 investor contact unlocks", "300 startup tool credits", "Unlimited searches", "Save investor lists", "Dedicated Investment Banking service (add-on $499)"],
+                features: ["Everything in Professional", "300 investor contact unlocks", "Unlimited startup tool calculations", "Unlimited searches", "Save investor lists", "Dedicated Investment Banking service (add-on $499)"],
                 popular: false, dark: false,
               },
               {
                 name: "Enterprise", price: "$999", subtitle: "4,000 credits",
                 description: "For serious fundraisers",
-                features: ["Everything in Growth", "4,000 investor contact unlocks", "4,000 startup tool credits", "Dedicated support team", "Dedicated Investment Banking service (add-on $499)"],
+                features: ["Everything in Growth", "4,000 investor contact unlocks", "Unlimited startup tool calculations", "Dedicated support team", "Dedicated Investment Banking service (add-on $499)"],
                 popular: false, dark: true,
               },
             ].map((plan, i) => (
