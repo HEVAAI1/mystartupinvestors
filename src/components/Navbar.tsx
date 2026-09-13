@@ -203,12 +203,12 @@ export default function AuthenticatedNavbar() {
                       >
                         Become an Affiliate
                       </button>
-                      <a
-                        href="mailto:hi@eaglegrowthpartners.com"
-                        className="block px-4 py-2.5 text-sm font-inter text-[#31372B] hover:bg-black/[0.04] transition"
+                      <button
+                        onClick={() => { router.push("/contact"); setOpen(false); }}
+                        className="w-full text-left px-4 py-2.5 text-sm font-inter text-[#31372B] hover:bg-black/[0.04] transition"
                       >
                         Contact Us
-                      </a>
+                      </button>
                       <div className="mx-3 my-1 h-px bg-black/[0.06]" />
                       <button
                         onClick={handleLogout}
