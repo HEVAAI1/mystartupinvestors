@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { z } from "zod";
+import { checkRateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
 
 const CONTACT_EMAILS = ["hi@eaglegrowthpartners.com", "saqlain@heva.ai"];
 
@@ -13,7 +14,13 @@ const contactSchema = z.object({
   company: z.string().max(0).optional().or(z.literal("")),
 });
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const clientIp = getClientIp(request);
+  const rateLimit = checkRateLimit(`contact-form:${clientIp}`, 5, 60);
+  if (!rateLimit.allowed) {
+    return rateLimitResponse(rateLimit.retryAfterSeconds);
+  }
+
   const body = await request.json().catch(() => null);
   const parsed = contactSchema.safeParse(body);
 
