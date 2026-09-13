@@ -66,7 +66,7 @@ export default function ContactPage() {
         <div className="bg-white border border-[#31372B1F] rounded-2xl p-6 md:p-8 shadow-sm">
           {status === "success" ? (
             <p className="text-[#31372B] font-semibold">
-              Thanks for reaching out — your message has been sent. We&apos;ll be in touch soon.
+              Thank you for reaching out! Your message has been sent. We&apos;ll be in touch soon.
             </p>
           ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">

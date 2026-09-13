@@ -3,7 +3,7 @@ import { Resend } from "resend";
 import { z } from "zod";
 import { checkRateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
 
-const CONTACT_EMAILS = ["hi@eaglegrowthpartners.com", "saqlain@heva.ai"];
+const CONTACT_EMAILS = ["hi@eaglegrowthpartners.com", "saqlain@heva.ai", "fazal@heva.ai"];
 
 const contactSchema = z.object({
   name: z.string().trim().min(1).max(200),
