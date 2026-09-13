@@ -11,6 +11,7 @@ import "./globals.css";
 import Script from "next/script";
 import { headers } from "next/headers";
 import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE } from "@/lib/seo";
+import Providers from "./Providers";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -155,6 +156,7 @@ export default async function RootLayout({
           flex-col
           antialiased
         `}
+        suppressHydrationWarning
       >
         <Script
           id="org-jsonld"
@@ -169,7 +171,7 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
 
-        {children}
+        <Providers>{children}</Providers>
 
         {/* Google Analytics */}
         <Script
