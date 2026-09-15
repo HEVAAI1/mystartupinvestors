@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("server-only", () => ({}));
+vi.mock("@/lib/email/outbox", () => ({
+    enqueueEmailEvent: vi.fn(async () => ({})),
+}));
+
 // A null or unrecognized plan must never resolve to unlimited use. The
 // route treats an RPC error (which consume_calculator_credit raises for
 // exactly this case) as a hard block, not a pass-through.

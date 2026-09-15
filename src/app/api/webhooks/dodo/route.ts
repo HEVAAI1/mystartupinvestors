@@ -3,6 +3,10 @@ import DodoPayments from 'dodopayments';
 import { createSupabaseAdminClient } from '@/lib/supabaseServer';
 import { DODO_PRODUCT_MAP } from '@/lib/dodo-config';
 import { calculateCommission } from '@/lib/affiliate-constants';
+import { enqueueEmailEvent } from '@/lib/email/outbox';
+import { getAffiliateOwnerEmail } from '@/lib/email/affiliate-recipients';
+
+const AFFILIATE_WITHDRAWAL_AVAILABLE_THRESHOLD_USD = 76;
 
 const supabaseAdmin = createSupabaseAdminClient();
 
@@ -80,47 +84,69 @@ export async function POST(request: NextRequest) {
       console.log('✅ Amount (USD):', amount);
 
       // ============================================================
-      // 💾 STORE TRANSACTION (idempotency via UNIQUE constraint, not
-      // a racy select-then-insert: a duplicate delivery hits 23505)
+      // 💾 STORE TRANSACTION + 🎯 GRANT CREDITS (one atomic RPC)
+      //
+      // These used to be two separate statements. If the credit RPC
+      // failed after the transaction insert had already succeeded, a
+      // retried webhook delivery hit the transaction's UNIQUE constraint
+      // (23505) and short-circuited as "duplicate, already handled" —
+      // silently never granting credits for that payment. Doing both in
+      // one DB transaction means a retry after any failure redoes both.
       // ============================================================
-      const { error: txnError } = await supabaseAdmin
-        .from('transactions')
-        .insert({
-          user_id: userId,
-          transaction_id: transactionId,
-          amount,
-          plan_type: planDetails.plan,
-          status: 'succeeded',
-          location,
-        });
-
-      if (txnError) {
-        if (txnError.code === '23505') {
-          console.log('⚠️ Duplicate webhook ignored:', transactionId);
-          return NextResponse.json({ received: true });
-        }
-        console.error('❌ Transaction insert failed:', txnError);
-        return NextResponse.json({ error: 'Transaction failed' }, { status: 500 });
-      }
-
-      // ============================================================
-      // 🎯 CREDIT UPDATE (atomic RPC — no read-modify-write race)
-      // ============================================================
-      const { error: creditError } = await supabaseAdmin.rpc(
-        'add_purchase_credits',
+      const { error: recordError } = await supabaseAdmin.rpc(
+        'record_payment_and_grant_credits',
         {
           p_user_id: userId,
+          p_transaction_id: transactionId,
+          p_amount: amount,
+          p_plan_type: planDetails.plan,
           p_credits: planDetails.credits,
-          p_plan: planDetails.plan,
+          p_location: location,
         }
       );
 
-      if (creditError) {
-        console.error('❌ Credit update failed:', creditError);
+      if (recordError) {
+        console.error('❌ Payment recording / credit grant failed:', recordError);
         return NextResponse.json({ error: 'Credit update failed' }, { status: 500 });
       }
 
       console.log(`✅ Credits added: +${planDetails.credits} (credits_allocated + calculation_credits)`);
+
+      // ============================================================
+      // 📧 PURCHASE RECEIPT — only after the credit grant above is
+      // durably complete. enqueueEmailEvent is idempotent on event_key,
+      // so this is safe to call on every delivery (including a
+      // duplicate one where credits were granted by an earlier delivery
+      // but the email step may not have run yet).
+      // ============================================================
+      try {
+        const { data: buyer } = await supabaseAdmin
+          .from('users')
+          .select('email, name')
+          .eq('id', userId)
+          .maybeSingle();
+
+        if (buyer?.email) {
+          await enqueueEmailEvent({
+            eventKey: `purchase_receipt:${transactionId}`,
+            eventType: 'purchase_receipt',
+            userId,
+            recipientEmail: buyer.email,
+            payload: {
+              plan: planDetails.plan,
+              amountUsd: amount,
+              credits: planDetails.credits,
+              paymentId: transactionId,
+            },
+          });
+        } else {
+          console.error('⚠️ Could not enqueue purchase receipt: no email on file for user', userId);
+        }
+      } catch (emailError) {
+        // Never fail the webhook (and risk Dodo retrying a completed
+        // payment) because the receipt email couldn't be enqueued.
+        console.error('⚠️ Failed to enqueue purchase receipt email:', emailError);
+      }
 
       // ============================================================
       // 💸 AFFILIATE COMMISSION (SAFE)
@@ -162,6 +188,15 @@ export async function POST(request: NextRequest) {
               throw commissionInsertError;
             }
           } else {
+            // Balance before/after this commission, to detect the exact
+            // payment that first crosses the withdrawal-available
+            // threshold (not fired again on every commission afterward).
+            const { data: affiliateBefore } = await supabaseAdmin
+              .from('affiliates')
+              .select('total_earned, total_paid')
+              .eq('id', referral.affiliate_id)
+              .maybeSingle();
+
             const { error: commissionUpdateError } = await supabaseAdmin.rpc(
               'add_commission',
               {
@@ -175,6 +210,49 @@ export async function POST(request: NextRequest) {
             }
 
             console.log(`💰 Commission: $${commissionAmount}`);
+
+            try {
+              const affiliateEmail = await getAffiliateOwnerEmail(supabaseAdmin, referral.affiliate_id);
+              if (affiliateEmail && affiliateBefore) {
+                // Match request_withdrawal's own "available" calculation
+                // (09_withdrawal_rpcs.sql) so the emailed figure never
+                // overstates what can actually be withdrawn right now.
+                const { data: openWithdrawals } = await supabaseAdmin
+                  .from('withdrawal_requests')
+                  .select('amount')
+                  .eq('affiliate_id', referral.affiliate_id)
+                  .in('status', ['pending', 'approved']);
+                const openAmount = (openWithdrawals ?? []).reduce(
+                  (sum: number, row: { amount: number }) => sum + row.amount,
+                  0
+                );
+
+                const previousBalance = affiliateBefore.total_earned - affiliateBefore.total_paid - openAmount;
+                const newBalance = previousBalance + commissionAmount;
+
+                await enqueueEmailEvent({
+                  eventKey: `affiliate_commission_earned:${transactionId}`,
+                  eventType: 'affiliate_commission_earned',
+                  recipientEmail: affiliateEmail,
+                  payload: { amountUsd: commissionAmount, availableBalanceUsd: newBalance },
+                });
+
+                if (previousBalance < AFFILIATE_WITHDRAWAL_AVAILABLE_THRESHOLD_USD && newBalance >= AFFILIATE_WITHDRAWAL_AVAILABLE_THRESHOLD_USD) {
+                  // total_paid only changes on payout, so it doubles as a
+                  // re-arm cycle: after a payout drops the balance back
+                  // down, the next crossing uses a new total_paid value.
+                  await enqueueEmailEvent({
+                    eventKey: `affiliate_withdrawal_available:${referral.affiliate_id}:${affiliateBefore.total_paid}`,
+                    eventType: 'affiliate_withdrawal_available',
+                    recipientEmail: affiliateEmail,
+                    payload: { availableBalanceUsd: newBalance },
+                  });
+                }
+              }
+            } catch (emailError) {
+              // Never let an email failure surface as a commission error.
+              console.error('⚠️ Failed to enqueue affiliate commission emails:', emailError);
+            }
           }
         }
       } catch (err) {
@@ -208,7 +286,7 @@ export async function POST(request: NextRequest) {
 
       const amount = planDetails.price; // ✅ FIXED
 
-      await supabaseAdmin.from('transactions').insert({
+      const { error: failedTxnError } = await supabaseAdmin.from('transactions').insert({
         user_id: userId,
         transaction_id: transactionId,
         amount,
@@ -217,7 +295,36 @@ export async function POST(request: NextRequest) {
         location,
       });
 
-      console.log('❌ Payment failed logged');
+      // Only email once the failed transaction record is durable (this
+      // insert, or an earlier delivery's — 23505 means it already is).
+      const failedTxnDurable = !failedTxnError || failedTxnError.code === '23505';
+      if (failedTxnDurable) {
+        console.log('❌ Payment failed logged');
+      } else {
+        console.error('❌ Failed-payment transaction insert failed (no email sent):', failedTxnError);
+      }
+
+      if (failedTxnDurable) {
+        try {
+          const { data: buyer } = await supabaseAdmin
+            .from('users')
+            .select('email')
+            .eq('id', userId)
+            .maybeSingle();
+
+          if (buyer?.email) {
+            await enqueueEmailEvent({
+              eventKey: `payment_failed:${transactionId}`,
+              eventType: 'payment_failed',
+              userId,
+              recipientEmail: buyer.email,
+              payload: {},
+            });
+          }
+        } catch (emailError) {
+          console.error('⚠️ Failed to enqueue payment-failed email:', emailError);
+        }
+      }
 
       return NextResponse.json({ received: true });
     }

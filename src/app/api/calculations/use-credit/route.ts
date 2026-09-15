@@ -3,8 +3,35 @@ import { cookies } from "next/headers";
 import { createSupabaseAdminClient } from "@/lib/supabaseServer";
 import { checkRateLimit, getClientIp, peekRateLimit } from "@/lib/rate-limit";
 import { FREE_WEEKLY_LIMIT, formatCreditMessage, getUtcWeekKey, getWeekResetAt } from "@/lib/calculatorCredits";
+import { enqueueEmailEvent } from "@/lib/email/outbox";
 
 const supabaseAdmin = createSupabaseAdminClient();
+
+async function notifyCalculatorCreditLevel(
+    userId: string,
+    userEmail: string | undefined,
+    remaining: number,
+    resetAt: string,
+) {
+    if (!userEmail || (remaining !== 0 && remaining !== 1)) {
+        return;
+    }
+
+    const eventType = remaining === 0 ? "calculator_credits_zero" : "calculator_credits_low";
+
+    try {
+        await enqueueEmailEvent({
+            eventKey: `${eventType}:${userId}:${resetAt}`,
+            eventType,
+            userId,
+            recipientEmail: userEmail,
+            payload: { resetAt },
+        });
+    } catch (emailError) {
+        // Never block the calculator response on email enqueue failure.
+        console.error("Failed to enqueue calculator credit-level email:", emailError);
+    }
+}
 
 export async function POST(request: NextRequest) {
     try {
@@ -15,7 +42,8 @@ export async function POST(request: NextRequest) {
             request.headers.get("Authorization")?.replace("Bearer ", "") || ""
         );
 
-        // CASE 1: Anonymous User (cookie + server-side IP tracking)
+        // CASE 1: Anonymous User (cookie + server-side IP tracking).
+        // No email notifications for anonymous users — see design boundary rules.
         if (!user) {
             const weekKey = getUtcWeekKey();
             const resetAt = getWeekResetAt();
@@ -142,6 +170,8 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // Paid/unlimited plans never receive low/zero calculator-credit
+        // emails — see design boundary rules.
         if (result.unlimited) {
             return NextResponse.json({
                 success: true,
@@ -153,6 +183,10 @@ export async function POST(request: NextRequest) {
         }
 
         if (!result.success) {
+            // No email here: the zero-credit notice already fired on the
+            // successful use that spent the last credit (below). Re-sending
+            // it on every subsequent blocked attempt would violate the
+            // "no email for a failed insufficient-credit attempt" rule.
             return NextResponse.json(
                 {
                     success: false,
@@ -166,6 +200,8 @@ export async function POST(request: NextRequest) {
                 { status: 403 }
             );
         }
+
+        await notifyCalculatorCreditLevel(user.id, user.email, result.remaining, result.resetAt);
 
         return NextResponse.json({
             success: true,

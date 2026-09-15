@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServerClient, createSupabaseAdminClient } from '@/lib/supabaseServer';
+import { enqueueEmailEvent } from '@/lib/email/outbox';
+import { getAffiliateOwnerEmail } from '@/lib/email/affiliate-recipients';
 
 export async function POST(req: NextRequest) {
     const supabase = await createSupabaseServerClient();
@@ -53,6 +55,21 @@ export async function POST(req: NextRequest) {
 
     if (error) {
         return NextResponse.json({ error: 'Failed to link referral' }, { status: 500 });
+    }
+
+    try {
+        const affiliateEmail = await getAffiliateOwnerEmail(admin, affiliate.id);
+        if (affiliateEmail) {
+            await enqueueEmailEvent({
+                eventKey: `affiliate_referral_joined:${affiliate.id}:${user.id}`,
+                eventType: 'affiliate_referral_joined',
+                recipientEmail: affiliateEmail,
+                payload: {},
+            });
+        }
+    } catch (emailError) {
+        // Never block referral attribution on email enqueue failure.
+        console.error('Failed to enqueue affiliate_referral_joined email:', emailError);
     }
 
     return NextResponse.json({ success: true });

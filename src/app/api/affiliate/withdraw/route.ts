@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MIN_AFFILIATE_WITHDRAWAL_USD } from '@/lib/affiliate-constants';
 import { createSupabaseServerClient, createSupabaseAdminClient } from '@/lib/supabaseServer';
+import { enqueueEmailEvent } from '@/lib/email/outbox';
 
 export async function POST(req: NextRequest) {
     const supabase = await createSupabaseServerClient();
@@ -69,7 +70,7 @@ export async function POST(req: NextRequest) {
     // Atomic RPC: locks the affiliate row and recomputes available balance
     // inside the same transaction as the insert, preventing concurrent
     // requests from double-spending the same balance (TOCTOU).
-    const { data: withdrawal, error } = await admin
+    const { data: withdrawalData, error } = await admin
         .rpc('request_withdrawal', {
             p_affiliate_id: affiliate.id,
             p_amount: amount,
@@ -92,6 +93,26 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: message }, { status: 400 });
         }
         return NextResponse.json({ error: 'Failed to create withdrawal request' }, { status: 500 });
+    }
+
+    const withdrawal = withdrawalData as { id: string; amount: number } | null;
+
+    if (user.email && withdrawal) {
+        try {
+            await enqueueEmailEvent({
+                eventKey: `withdrawal_requested:${withdrawal.id}`,
+                eventType: 'withdrawal_requested',
+                userId: user.id,
+                recipientEmail: user.email,
+                // Amount/reference only — never the bank/IFSC/contact details
+                // just submitted (also DB-enforced by the outbox's own
+                // sensitive-field check).
+                payload: { amountUsd: amount, reference: String(withdrawal.id) },
+            });
+        } catch (emailError) {
+            // Never block a durable withdrawal request on email enqueue failure.
+            console.error('Failed to enqueue withdrawal_requested email:', emailError);
+        }
     }
 
     return NextResponse.json({ withdrawal }, { status: 201 });

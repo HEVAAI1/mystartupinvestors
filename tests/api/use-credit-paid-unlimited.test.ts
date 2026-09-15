@@ -1,8 +1,16 @@
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("server-only", () => ({}));
+vi.mock("@/lib/email/outbox", () => ({
+    enqueueEmailEvent: vi.fn(async () => ({})),
+}));
+
 // Any known paid plan should get unlimited tool calculations, delegated
 // entirely to consume_calculator_credit(), which returns { unlimited: true }
-// without touching weekly_credits_used at all.
+// without touching weekly_credits_used at all. Verifies the route never even
+// inspects calculation_credits for a paid user, and that concurrent requests
+// don't contend with each other the way the free tier's weekly credits do,
+// and never enqueues a credit-level email for a paid/unlimited user.
 function createUsersTable() {
     return {
         from(table: string) {

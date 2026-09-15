@@ -1,9 +1,9 @@
+import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
 import { z } from "zod";
 import { checkRateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
-
-const CONTACT_EMAILS = ["hi@eaglegrowthpartners.com", "saqlain@heva.ai", "fazal@heva.ai"];
+import { enqueueEmailEvent } from "@/lib/email/outbox";
+import { INTERNAL_NOTICE_EMAILS as CONTACT_EMAILS } from "@/lib/email/internal-recipients";
 
 const contactSchema = z.object({
   name: z.string().trim().min(1).max(200),
@@ -30,23 +30,29 @@ export async function POST(request: NextRequest) {
 
   const { name, email, subject, message } = parsed.data;
 
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    console.error("RESEND_API_KEY is not configured");
+  if (!process.env.RESEND_API_KEY || !process.env.CONTACT_FROM_EMAIL) {
+    console.error("RESEND_API_KEY or CONTACT_FROM_EMAIL is not configured");
     return NextResponse.json({ error: "Contact form is not configured." }, { status: 500 });
   }
 
-  const resend = new Resend(apiKey);
-  const { error } = await resend.emails.send({
-    from: process.env.CONTACT_FROM_EMAIL || "MyFundingList Contact Form <onboarding@resend.dev>",
-    to: CONTACT_EMAILS,
-    replyTo: email,
-    subject: `[Contact Us] ${subject}`,
-    text: `Name: ${name}\nEmail: ${email}\n\n${message}`,
-  });
+  const requestId = randomUUID();
 
-  if (error) {
-    console.error("Failed to send contact email:", error);
+  try {
+    await enqueueEmailEvent({
+      eventKey: `contact_received:${requestId}`,
+      eventType: "contact_received",
+      recipientEmail: email,
+      payload: { subject },
+    });
+
+    await enqueueEmailEvent({
+      eventKey: `internal_contact_request:${requestId}`,
+      eventType: "internal_contact_request",
+      recipientEmail: CONTACT_EMAILS.join(","),
+      payload: { name, subject, message, replyTo: email },
+    });
+  } catch (enqueueError) {
+    console.error("Failed to enqueue contact email:", enqueueError);
     return NextResponse.json({ error: "Failed to send message." }, { status: 502 });
   }
 

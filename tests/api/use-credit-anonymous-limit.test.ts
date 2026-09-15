@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("server-only", () => ({}));
+vi.mock("@/lib/email/outbox", () => ({
+    enqueueEmailEvent: vi.fn(async () => ({})),
+}));
+
 // Anonymous users get exactly 5 free calculations, no more, no fewer.
 // The previous version called the incrementing rate-limit check before
 // deciding whether to allow the request, so its own increment got counted

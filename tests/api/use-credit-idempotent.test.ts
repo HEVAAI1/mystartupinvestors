@@ -1,7 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("server-only", () => ({}));
+vi.mock("@/lib/email/outbox", () => ({
+    enqueueEmailEvent: vi.fn(async () => ({})),
+}));
+
 // In-memory double of consume_calculator_credit()
-// (supabase/migrations/13_calculator_weekly_credits.sql). This repo has no
+// (supabase/migrations/15_calculator_weekly_credits.sql). This repo has no
 // local/disposable Postgres to run the real SQL against, so this mock
 // mirrors its documented contract (idempotent per (user_id, request_id),
 // fails closed on unknown plan) to prove the API route's wiring against
