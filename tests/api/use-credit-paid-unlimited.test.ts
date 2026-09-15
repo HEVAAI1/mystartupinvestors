@@ -1,9 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
-// Any paid plan should get unlimited tool calculations with no credit
-// tracking at all — verifies the route never even inspects
-// calculation_credits for a paid user, and that concurrent requests don't
-// contend with each other the way the free tier's weekly credits do.
+// Any known paid plan should get unlimited tool calculations, delegated
+// entirely to consume_calculator_credit(), which returns { unlimited: true }
+// without touching weekly_credits_used at all.
 function createUsersTable() {
     return {
         from(table: string) {
@@ -13,27 +12,27 @@ function createUsersTable() {
 
             return {
                 select(columns: string) {
-                    if (columns === "plan, calculation_credits, weekly_calculation_credits, last_calculation_reset_at") {
+                    if (columns === "plan") {
                         return {
                             eq: () => ({
-                                single: async () => ({
-                                    data: {
-                                        plan: "growth",
-                                        calculation_credits: 0,
-                                        weekly_calculation_credits: null,
-                                        last_calculation_reset_at: null,
-                                    },
-                                    error: null,
-                                }),
+                                single: async () => ({ data: { plan: "growth" }, error: null }),
                             }),
                         };
                     }
                     throw new Error(`unexpected select: ${columns}`);
                 },
                 update() {
-                    throw new Error("a paid user's calculation_credits should never be written to");
+                    throw new Error("a paid user's row should never be written to by this route");
                 },
             };
+        },
+        rpc(fn: string, args: Record<string, unknown>) {
+            if (fn !== "consume_calculator_credit") throw new Error(`unexpected rpc: ${fn}`);
+            expect(args.p_plan).toBe("growth");
+            return Promise.resolve({
+                data: { unlimited: true, success: true, remaining: null, resetAt: null },
+                error: null,
+            });
         },
     };
 }
@@ -46,6 +45,7 @@ vi.mock("@/lib/supabaseServer", () => ({
             getUser: async () => ({ data: { user: { id: "user-1" } }, error: null }),
         },
         from: table.from.bind(table),
+        rpc: table.rpc.bind(table),
     }),
 }));
 
@@ -65,7 +65,7 @@ function makeRequest() {
 }
 
 describe("use-credit paid plan", () => {
-    it("is unlimited even with calculation_credits at 0, for any number of concurrent requests", async () => {
+    it("is unlimited for any number of concurrent requests", async () => {
         const [first, second, third] = await Promise.all([
             POST(makeRequest()),
             POST(makeRequest()),
