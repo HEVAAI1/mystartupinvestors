@@ -12,33 +12,6 @@ const claimedRows: Record<string, unknown>[] = [];
 let eventStatus = "sending";
 
 const emailOutboxTable = {
-    insert(row: InsertRow) {
-        return {
-            select() {
-                return {
-                    async maybeSingle() {
-                        if (rows.some((existing) => existing.event_key === row.event_key)) {
-                            return { data: null, error: { code: "23505", message: "duplicate key" } };
-                        }
-
-                        rows.push(row);
-                        return { data: row, error: null };
-                    },
-                };
-            },
-        };
-    },
-    select() {
-        return {
-            eq(_column: string, eventKey: string) {
-                return {
-                    async maybeSingle() {
-                        return { data: rows.find((row) => row.event_key === eventKey) ?? null, error: null };
-                    },
-                };
-            },
-        };
-    },
     update(patch: Record<string, unknown>) {
         const filters: Array<[string, unknown]> = [];
         const query = {
@@ -79,15 +52,32 @@ vi.mock("@/lib/supabaseServer", () => ({
             return emailOutboxTable;
         },
         rpc: async (functionName: string, parameters: Record<string, unknown>) => {
-            if (functionName !== "claim_pending_email_events") {
-                throw new Error(`unexpected function: ${functionName}`);
+            if (functionName === "claim_pending_email_events") {
+                if (parameters.p_limit !== 25) {
+                    throw new Error(`unexpected claim limit: ${parameters.p_limit}`);
+                }
+
+                return { data: claimedRows, error: null };
             }
 
-            if (parameters.p_limit !== 25) {
-                throw new Error(`unexpected claim limit: ${parameters.p_limit}`);
+            if (functionName === "enqueue_email_event") {
+                const row: InsertRow = {
+                    event_key: parameters.p_event_key as string,
+                    event_type: parameters.p_event_type as string,
+                    recipient_email: parameters.p_recipient_email as string,
+                    payload: parameters.p_payload as Record<string, unknown>,
+                };
+
+                const existing = rows.find((existingRow) => existingRow.event_key === row.event_key);
+                if (existing) {
+                    return { data: existing, error: null };
+                }
+
+                rows.push(row);
+                return { data: row, error: null };
             }
 
-            return { data: claimedRows, error: null };
+            throw new Error(`unexpected function: ${functionName}`);
         },
     }),
 }));

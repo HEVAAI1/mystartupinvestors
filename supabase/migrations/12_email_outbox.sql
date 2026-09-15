@@ -84,6 +84,12 @@ CREATE TABLE public.email_outbox (
     CHECK (NOT public.email_payload_has_sensitive_payout_field(payload))
 );
 
+-- Speeds up claim_pending_email_events' scan; most rows settle into 'sent'
+-- and never need to be looked up by this predicate again.
+CREATE INDEX email_outbox_claimable_idx
+  ON public.email_outbox (created_at)
+  WHERE status IN ('pending', 'sending');
+
 ALTER TABLE public.email_outbox ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.email_outbox FORCE ROW LEVEL SECURITY;
 

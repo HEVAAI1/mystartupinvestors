@@ -33,42 +33,23 @@ export async function enqueueEmailEvent(input: EnqueueEmailEventInput): Promise<
         throw new Error("sensitive payout fields are not allowed");
     }
 
-    const supabase = createSupabaseAdminClient();
-    const { data, error } = await supabase
-        .from("email_outbox")
-        .insert({
-            event_key: input.eventKey,
-            event_type: input.eventType,
-            user_id: input.userId ?? null,
-            recipient_email: input.recipientEmail,
-            payload: input.payload,
-        })
-        .select()
-        .maybeSingle();
+    const { data, error } = await createSupabaseAdminClient().rpc("enqueue_email_event", {
+        p_event_key: input.eventKey,
+        p_event_type: input.eventType,
+        p_user_id: input.userId ?? null,
+        p_recipient_email: input.recipientEmail,
+        p_payload: input.payload,
+    });
 
-    if (!error) {
-        if (!data) {
-            throw new Error("email outbox insert returned no event");
-        }
-
-        return data as EmailOutboxEvent;
-    }
-
-    if (error.code !== "23505") {
+    if (error) {
         throw toError(error, "enqueue");
     }
 
-    const { data: existingEvent, error: existingEventError } = await supabase
-        .from("email_outbox")
-        .select()
-        .eq("event_key", input.eventKey)
-        .maybeSingle();
-
-    if (existingEventError || !existingEvent) {
-        throw toError(existingEventError, "duplicate lookup");
+    if (!data) {
+        throw new Error("email outbox enqueue returned no event");
     }
 
-    return existingEvent as EmailOutboxEvent;
+    return data as EmailOutboxEvent;
 }
 
 export async function claimPendingEmailEvents(limit: number): Promise<EmailOutboxEvent[]> {
