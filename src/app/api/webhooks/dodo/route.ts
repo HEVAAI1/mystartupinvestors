@@ -240,11 +240,16 @@ export async function POST(request: NextRequest) {
         location,
       });
 
-      console.log('❌ Payment failed logged');
-
       // Only email once the failed transaction record is durable (this
       // insert, or an earlier delivery's — 23505 means it already is).
-      if (!failedTxnError || failedTxnError.code === '23505') {
+      const failedTxnDurable = !failedTxnError || failedTxnError.code === '23505';
+      if (failedTxnDurable) {
+        console.log('❌ Payment failed logged');
+      } else {
+        console.error('❌ Failed-payment transaction insert failed (no email sent):', failedTxnError);
+      }
+
+      if (failedTxnDurable) {
         try {
           const { data: buyer } = await supabaseAdmin
             .from('users')

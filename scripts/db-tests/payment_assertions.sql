@@ -37,8 +37,11 @@ begin
     );
     raise exception 'expected an exception for unknown user';
   exception when others then
-    if sqlerrm not like '%not found%' and sqlerrm not like '%foreign key%' then
-      raise exception 'unexpected error: %', sqlerrm;
+    -- No FK on transactions.user_id (matches production, which trusts the
+    -- webhook's metadata user_id as-is), so this must fail specifically at
+    -- the credit UPDATE's "not found" check, not an earlier FK violation.
+    if sqlerrm not like '%user%not found%' then
+      raise exception 'unexpected error (expected the not-found branch): %', sqlerrm;
     end if;
   end;
 end $$;

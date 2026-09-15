@@ -19,9 +19,14 @@ create table public.users (
   has_paid boolean not null default false
 );
 
+-- No FK from user_id to public.users: the webhook trusts Dodo's metadata
+-- user_id as-is (see route.ts), so this table doesn't enforce it either.
+-- Leaving it unconstrained here also lets the migration test exercise the
+-- function's own "user not found" branch directly, rather than always
+-- failing earlier at a foreign-key violation on the insert.
 create table public.transactions (
   id bigint generated always as identity primary key,
-  user_id uuid not null references public.users(id),
+  user_id uuid not null,
   transaction_id text not null unique,
   amount numeric not null,
   plan_type text not null,
