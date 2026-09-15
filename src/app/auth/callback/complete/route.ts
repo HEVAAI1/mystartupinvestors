@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
+import { enqueueEmailEvent } from "@/lib/email/outbox";
 
 function sanitizeNextPath(nextPath: string | null) {
   if (!nextPath || !nextPath.startsWith("/")) {
@@ -116,6 +117,21 @@ export async function GET(request: NextRequest) {
       if (insertError) {
         console.error("User creation failed:", insertError);
         return fallbackRedirect;
+      }
+
+      if (userPayload.email) {
+        try {
+          await enqueueEmailEvent({
+            eventKey: `welcome:${user.id}`,
+            eventType: "welcome",
+            userId: user.id,
+            recipientEmail: userPayload.email,
+            payload: { name: userPayload.name || null },
+          });
+        } catch (emailError) {
+          // Never block account creation on email enqueue failure.
+          console.error("Failed to enqueue welcome email:", emailError);
+        }
       }
     }
 

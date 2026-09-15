@@ -67,6 +67,18 @@ npm run dev
 ```
 Open [http://localhost:3000](http://localhost:3000) with your browser.
 
+## 📧 Transactional Email
+
+Account, billing, credit, startup, contact, and affiliate emails are sent through a durable outbox (`email_outbox` table, see `supabase/migrations/13_email_outbox.sql`) and a shared Resend dispatcher. Product routes enqueue an event after their database mutation succeeds; a Vercel Cron job retries anything still pending.
+
+Requires these environment variables — set locally in `.env.local`, and **separately in the Vercel project's environment variable settings**, since `.env.local` is never deployed:
+
+- `RESEND_API_KEY` — Resend API key used to send outbound mail.
+- `CONTACT_FROM_EMAIL` — the verified "from" identity emails are sent as (e.g. `MyFundingList <hello@myfundinglist.com>`).
+- `CRON_SECRET` — bearer token the retry route (`/api/cron/email-dispatch`) requires; Vercel Cron sends it automatically as `Authorization: Bearer $CRON_SECRET` when this variable is set on the project.
+
+The retry schedule is defined in `vercel.json` (`/api/cron/email-dispatch`, every 15 minutes) and only takes effect once deployed to Vercel — it does not run under `npm run dev`.
+
 ## 🔒 Security & Route Protection
 
 The application implements a 3-layer security system:

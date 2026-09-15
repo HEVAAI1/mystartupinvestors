@@ -136,7 +136,7 @@ export default function PaymentSuccessPage() {
 
             {/* Email Confirmation */}
             <p className="text-[#6B6B6B] text-[12px] font-inter">
-              An email receipt has been sent to your registered email address.
+              An email receipt will be sent to your registered email address shortly.
             </p>
           </div>
         </main>

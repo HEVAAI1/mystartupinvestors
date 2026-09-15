@@ -1,70 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createSupabaseAdminClient } from "@/lib/supabaseServer";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { checkRateLimit, getClientIp, peekRateLimit } from "@/lib/rate-limit";
+import { FREE_WEEKLY_LIMIT, formatCreditMessage, getUtcWeekKey, getWeekResetAt } from "@/lib/calculatorCredits";
+import { enqueueEmailEvent } from "@/lib/email/outbox";
 
 const supabaseAdmin = createSupabaseAdminClient();
 
-// Helper to get week ID for anonymous tracking
-function getWeekId(): string {
-    const now = new Date();
-    const year = now.getFullYear();
-    const week = Math.ceil(
-        ((now.getTime() - new Date(year, 0, 1).getTime()) / 86400000 + 1) / 7
-    );
-    return `${year}-W${week}`;
-}
-
-// Helper to check if weekly reset is needed
-function needsWeeklyReset(lastResetAt: string | null): boolean {
-    if (!lastResetAt) return true;
-
-    const lastReset = new Date(lastResetAt);
-    const now = new Date();
-    const daysSinceReset = (now.getTime() - lastReset.getTime()) / (1000 * 60 * 60 * 24);
-
-    return daysSinceReset >= 7;
-}
-
-type CreditColumn = "weekly_calculation_credits" | "calculation_credits";
-
-// Atomically decrements a credit column, retrying if a concurrent request
-// already consumed the previously-read value. Returns the authoritative
-// post-update balance, or null if there were no credits left to spend.
-async function consumeCredit(
-    column: CreditColumn,
+async function notifyCalculatorCreditLevel(
     userId: string,
-    current: number
-): Promise<number | null> {
-    let credits = current;
-
-    for (let attempt = 0; attempt < 3; attempt++) {
-        if (credits <= 0) {
-            return null;
-        }
-
-        const { data: updated } = await supabaseAdmin
-            .from("users")
-            .update({ [column]: credits - 1 })
-            .eq("id", userId)
-            .eq(column, credits)
-            .gt(column, 0)
-            .select(column);
-
-        if (updated && updated.length > 0) {
-            return (updated[0] as unknown as Record<CreditColumn, number>)[column];
-        }
-
-        const { data: userData } = await supabaseAdmin
-            .from("users")
-            .select(column)
-            .eq("id", userId)
-            .single();
-
-        credits = (userData as unknown as Record<CreditColumn, number> | null)?.[column] ?? 0;
+    userEmail: string | undefined,
+    remaining: number,
+    resetAt: string,
+) {
+    if (!userEmail || (remaining !== 0 && remaining !== 1)) {
+        return;
     }
 
-    return null;
+    const eventType = remaining === 0 ? "calculator_credits_zero" : "calculator_credits_low";
+
+    try {
+        await enqueueEmailEvent({
+            eventKey: `${eventType}:${userId}:${resetAt}`,
+            eventType,
+            userId,
+            recipientEmail: userEmail,
+            payload: { resetAt },
+        });
+    } catch (emailError) {
+        // Never block the calculator response on email enqueue failure.
+        console.error("Failed to enqueue calculator credit-level email:", emailError);
+    }
 }
 
 export async function POST(request: NextRequest) {
@@ -76,11 +42,15 @@ export async function POST(request: NextRequest) {
             request.headers.get("Authorization")?.replace("Bearer ", "") || ""
         );
 
-        // CASE 1: Anonymous User (cookie + server-side IP tracking)
+        // CASE 1: Anonymous User (cookie + server-side IP tracking).
+        // No email notifications for anonymous users — see design boundary rules.
         if (!user) {
-            const weekId = getWeekId();
-            const cookieName = `calc_count_${weekId}`;
+            const weekKey = getUtcWeekKey();
+            const resetAt = getWeekResetAt();
+            const cookieName = `calc_count_${weekKey}`;
             const cookieCount = parseInt(cookieStore.get(cookieName)?.value || "0");
+            const ip = getClientIp(request);
+            const rateLimitKey = `calc:${weekKey}:${ip}`;
 
             // ponytail: the cookie count alone resets whenever cookies are
             // cleared. The IP bucket is a server-side (in-memory) counter
@@ -88,12 +58,18 @@ export async function POST(request: NextRequest) {
             // name, so clearing cookies no longer resets the limit. Ceiling:
             // resets on server cold start, and a spoofed/rotated IP still
             // bypasses this — inherent to unauthenticated rate limiting.
-            const ip = getClientIp(request);
-            const ipRateLimit = checkRateLimit(`calc:${weekId}:${ip}`, 5, 7 * 24 * 60 * 60);
-            const ipCount = 5 - ipRateLimit.remaining;
+            //
+            // Fixed off-by-one: this must PEEK the IP bucket (no side
+            // effect) to compute how many uses have already happened, then
+            // only consume a slot once we've decided to actually grant one.
+            // The previous version called the incrementing checkRateLimit
+            // before deciding, so its own increment was double-counted into
+            // currentCount and then counted again via `+1` below.
+            const peek = peekRateLimit(rateLimitKey, FREE_WEEKLY_LIMIT, 7 * 24 * 60 * 60);
+            const ipCount = FREE_WEEKLY_LIMIT - peek.remaining;
             const currentCount = Math.max(cookieCount, ipCount);
 
-            if (currentCount >= 5 || !ipRateLimit.allowed) {
+            if (currentCount >= FREE_WEEKLY_LIMIT) {
                 return NextResponse.json(
                     {
                         success: false,
@@ -101,20 +77,39 @@ export async function POST(request: NextRequest) {
                         message: "You've used all 5 free calculations this week. Create a free account to continue.",
                         userState: "anonymous",
                         remaining: 0,
-                        limit: 5,
+                        limit: FREE_WEEKLY_LIMIT,
+                        resetDate: resetAt.toISOString(),
                     },
                     { status: 403 }
                 );
             }
 
-            // Increment counter
+            // Now actually consume one IP-bucket slot for this use.
+            const ipRateLimit = checkRateLimit(rateLimitKey, FREE_WEEKLY_LIMIT, 7 * 24 * 60 * 60);
+            if (!ipRateLimit.allowed) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        error: "LIMIT_REACHED",
+                        message: "You've used all 5 free calculations this week. Create a free account to continue.",
+                        userState: "anonymous",
+                        remaining: 0,
+                        limit: FREE_WEEKLY_LIMIT,
+                        resetDate: resetAt.toISOString(),
+                    },
+                    { status: 403 }
+                );
+            }
+
             const newCount = currentCount + 1;
+            const remaining = FREE_WEEKLY_LIMIT - newCount;
             const response = NextResponse.json({
                 success: true,
                 userState: "anonymous",
-                remaining: 5 - newCount,
-                limit: 5,
-                message: `${5 - newCount} free calculations remaining this week`,
+                remaining,
+                limit: FREE_WEEKLY_LIMIT,
+                message: formatCreditMessage(remaining, resetAt),
+                resetDate: resetAt.toISOString(),
             });
 
             response.cookies.set(cookieName, newCount.toString(), {
@@ -126,10 +121,23 @@ export async function POST(request: NextRequest) {
             return response;
         }
 
-        // CASE 2 & 3: Authenticated User
+        // CASE 2 & 3: Authenticated User — delegate entirely to the shared,
+        // idempotent, fail-closed RPC. request_id defaults to a fresh UUID
+        // per call; a caller that wants retry-safety (e.g. a client-side
+        // retry after a network timeout) can pass its own in the body to
+        // reuse the same logical attempt.
+        let requestId: string | undefined;
+        try {
+            const body = await request.json();
+            if (typeof body?.requestId === "string") requestId = body.requestId;
+        } catch {
+            // No/invalid JSON body is fine — we just generate a request id.
+        }
+        requestId ??= crypto.randomUUID();
+
         const { data: userData, error: userError } = await supabaseAdmin
             .from("users")
-            .select("plan, calculation_credits, weekly_calculation_credits, last_calculation_reset_at")
+            .select("plan")
             .eq("id", user.id)
             .single();
 
@@ -140,97 +148,68 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // CASE 2: Free User (Weekly reset logic)
-        if (userData.plan === "free") {
-            let weeklyCredits = userData.weekly_calculation_credits || 0;
-            let lastResetAt = userData.last_calculation_reset_at;
+        const { data: result, error: rpcError } = await supabaseAdmin.rpc("consume_calculator_credit", {
+            p_user_id: user.id,
+            p_plan: userData.plan,
+            p_request_id: requestId,
+        });
 
-            // Check if reset is needed (lazy evaluation)
-            if (needsWeeklyReset(lastResetAt)) {
-                const newResetAt = new Date().toISOString();
+        if (rpcError || !result) {
+            // Fail CLOSED: an RPC error (including the deliberate raise on
+            // an unknown/null plan) must never be treated as "allow".
+            console.error("consume_calculator_credit failed:", rpcError);
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: "CREDITS_UNAVAILABLE",
+                    message: "We couldn't verify your calculation credits. Please try again.",
+                    userState: "free",
+                    remaining: 0,
+                },
+                { status: 403 }
+            );
+        }
 
-                let resetQuery = supabaseAdmin
-                    .from("users")
-                    .update({
-                        weekly_calculation_credits: 5,
-                        last_calculation_reset_at: newResetAt,
-                    })
-                    .eq("id", user.id);
-
-                resetQuery = lastResetAt
-                    ? resetQuery.eq("last_calculation_reset_at", lastResetAt)
-                    : resetQuery.is("last_calculation_reset_at", null);
-
-                const { data: resetRows } = await resetQuery.select();
-
-                if (resetRows && resetRows.length > 0) {
-                    weeklyCredits = 5;
-                    lastResetAt = newResetAt;
-                } else {
-                    const { data: freshUserData } = await supabaseAdmin
-                        .from("users")
-                        .select("weekly_calculation_credits, last_calculation_reset_at")
-                        .eq("id", user.id)
-                        .single();
-
-                    weeklyCredits = freshUserData?.weekly_calculation_credits || 0;
-                    lastResetAt = freshUserData?.last_calculation_reset_at ?? lastResetAt;
-                }
-            }
-
-            // Check if credits available
-            if (weeklyCredits <= 0) {
-                return NextResponse.json(
-                    {
-                        success: false,
-                        error: "CREDITS_EXHAUSTED",
-                        message: "You've used all your free calculations this week. Upgrade for more!",
-                        userState: "free",
-                        remaining: 0,
-                        limit: 5,
-                        resetDate: new Date(new Date(lastResetAt).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-                    },
-                    { status: 403 }
-                );
-            }
-
-            // Consume 1 credit
-            const newWeeklyCredits = await consumeCredit("weekly_calculation_credits", user.id, weeklyCredits);
-
-            if (newWeeklyCredits === null) {
-                return NextResponse.json(
-                    {
-                        success: false,
-                        error: "CREDITS_EXHAUSTED",
-                        message: "You've used all your free calculations this week. Upgrade for more!",
-                        userState: "free",
-                        remaining: 0,
-                        limit: 5,
-                        resetDate: new Date(new Date(lastResetAt).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-                    },
-                    { status: 403 }
-                );
-            }
-
+        // Paid/unlimited plans never receive low/zero calculator-credit
+        // emails — see design boundary rules.
+        if (result.unlimited) {
             return NextResponse.json({
                 success: true,
-                userState: "free",
-                remaining: newWeeklyCredits,
-                limit: 5,
-                message: `${newWeeklyCredits} calculations left this week`,
-                resetDate: new Date(new Date(lastResetAt).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                userState: "paid",
+                plan: userData.plan,
+                unlimited: true,
+                message: "Unlimited calculations",
             });
         }
 
-        // CASE 3: Paid User — any paid plan gets unlimited tool calculations,
-        // no credit tracking at all. calculation_credits is still granted on
-        // purchase (shared RPC with investor unlocks) but is unused here.
+        if (!result.success) {
+            // No email here: the zero-credit notice already fired on the
+            // successful use that spent the last credit (below). Re-sending
+            // it on every subsequent blocked attempt would violate the
+            // "no email for a failed insufficient-credit attempt" rule.
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: "CREDITS_EXHAUSTED",
+                    message: "You've used all your free calculations this week. Upgrade for more!",
+                    userState: "free",
+                    remaining: 0,
+                    limit: result.limit,
+                    resetDate: result.resetAt,
+                },
+                { status: 403 }
+            );
+        }
+
+        await notifyCalculatorCreditLevel(user.id, user.email, result.remaining, result.resetAt);
+
         return NextResponse.json({
             success: true,
-            userState: "paid",
-            plan: userData.plan,
-            unlimited: true,
-            message: "Unlimited calculations",
+            userState: "free",
+            remaining: result.remaining,
+            limit: result.limit,
+            message: formatCreditMessage(result.remaining, result.resetAt),
+            resetDate: result.resetAt,
         });
 
     } catch (error) {
