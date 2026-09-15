@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { randomInt } from 'crypto';
 import { createSupabaseServerClient, createSupabaseAdminClient } from '@/lib/supabaseServer';
+import { enqueueEmailEvent } from '@/lib/email/outbox';
 
 function generateReferralCode(): string {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -54,6 +55,21 @@ export async function POST() {
 
     if (error) {
         return NextResponse.json({ error: 'Failed to register affiliate' }, { status: 500 });
+    }
+
+    if (user.email) {
+        try {
+            await enqueueEmailEvent({
+                eventKey: `affiliate_ready:${affiliate.id}`,
+                eventType: 'affiliate_ready',
+                userId: user.id,
+                recipientEmail: user.email,
+                payload: { referralLink: `https://www.myfundinglist.com?ref=${affiliate.referral_code}` },
+            });
+        } catch (emailError) {
+            // Never block affiliate registration on email enqueue failure.
+            console.error('Failed to enqueue affiliate_ready email:', emailError);
+        }
     }
 
     return NextResponse.json({ affiliate }, { status: 201 });

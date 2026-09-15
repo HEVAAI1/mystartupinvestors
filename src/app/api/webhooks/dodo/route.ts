@@ -4,6 +4,9 @@ import { createSupabaseAdminClient } from '@/lib/supabaseServer';
 import { DODO_PRODUCT_MAP } from '@/lib/dodo-config';
 import { calculateCommission } from '@/lib/affiliate-constants';
 import { enqueueEmailEvent } from '@/lib/email/outbox';
+import { getAffiliateOwnerEmail } from '@/lib/email/affiliate-recipients';
+
+const AFFILIATE_WITHDRAWAL_AVAILABLE_THRESHOLD_USD = 76;
 
 const supabaseAdmin = createSupabaseAdminClient();
 
@@ -185,6 +188,15 @@ export async function POST(request: NextRequest) {
               throw commissionInsertError;
             }
           } else {
+            // Balance before/after this commission, to detect the exact
+            // payment that first crosses the withdrawal-available
+            // threshold (not fired again on every commission afterward).
+            const { data: affiliateBefore } = await supabaseAdmin
+              .from('affiliates')
+              .select('total_earned, total_paid')
+              .eq('id', referral.affiliate_id)
+              .maybeSingle();
+
             const { error: commissionUpdateError } = await supabaseAdmin.rpc(
               'add_commission',
               {
@@ -198,6 +210,36 @@ export async function POST(request: NextRequest) {
             }
 
             console.log(`💰 Commission: $${commissionAmount}`);
+
+            try {
+              const affiliateEmail = await getAffiliateOwnerEmail(supabaseAdmin, referral.affiliate_id);
+              if (affiliateEmail && affiliateBefore) {
+                const previousBalance = affiliateBefore.total_earned - affiliateBefore.total_paid;
+                const newBalance = previousBalance + commissionAmount;
+
+                await enqueueEmailEvent({
+                  eventKey: `affiliate_commission_earned:${transactionId}`,
+                  eventType: 'affiliate_commission_earned',
+                  recipientEmail: affiliateEmail,
+                  payload: { amountUsd: commissionAmount, availableBalanceUsd: newBalance },
+                });
+
+                if (previousBalance < AFFILIATE_WITHDRAWAL_AVAILABLE_THRESHOLD_USD && newBalance >= AFFILIATE_WITHDRAWAL_AVAILABLE_THRESHOLD_USD) {
+                  // total_paid only changes on payout, so it doubles as a
+                  // re-arm cycle: after a payout drops the balance back
+                  // down, the next crossing uses a new total_paid value.
+                  await enqueueEmailEvent({
+                    eventKey: `affiliate_withdrawal_available:${referral.affiliate_id}:${affiliateBefore.total_paid}`,
+                    eventType: 'affiliate_withdrawal_available',
+                    recipientEmail: affiliateEmail,
+                    payload: { availableBalanceUsd: newBalance },
+                  });
+                }
+              }
+            } catch (emailError) {
+              // Never let an email failure surface as a commission error.
+              console.error('⚠️ Failed to enqueue affiliate commission emails:', emailError);
+            }
           }
         }
       } catch (err) {
