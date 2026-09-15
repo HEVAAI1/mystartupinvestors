@@ -1,6 +1,56 @@
 import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabaseServer";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { NextRequest, NextResponse } from "next/server";
+import { enqueueEmailEvent } from "@/lib/email/outbox";
+
+const FREE_LOW_THRESHOLD = 2;
+const PAID_LOW_THRESHOLD = 10;
+
+async function notifyInvestorCreditLevel(
+  admin: ReturnType<typeof createSupabaseAdminClient>,
+  userId: string,
+  userEmail: string | undefined,
+  remaining: number,
+) {
+  const { data: userRow } = await admin
+    .from("users")
+    .select("plan, credits_allocated")
+    .eq("id", userId)
+    .single();
+
+  if (!userRow || !userEmail) {
+    return;
+  }
+
+  const lowThreshold = userRow.plan === "free" ? FREE_LOW_THRESHOLD : PAID_LOW_THRESHOLD;
+  // The current allocation total acts as the "credit cycle" id: it only
+  // changes when a new purchase grants more credits, so the same low/zero
+  // notice is not re-sent again within the same cycle.
+  const creditCycle = userRow.credits_allocated;
+
+  try {
+    if (remaining <= 0) {
+      await enqueueEmailEvent({
+        eventKey: `investor_credits_zero:${userId}:${creditCycle}`,
+        eventType: "investor_credits_zero",
+        userId,
+        recipientEmail: userEmail,
+        payload: { remaining: 0 },
+      });
+    } else if (remaining <= lowThreshold) {
+      await enqueueEmailEvent({
+        eventKey: `investor_credits_low:${userId}:${creditCycle}`,
+        eventType: "investor_credits_low",
+        userId,
+        recipientEmail: userEmail,
+        payload: { remaining },
+      });
+    }
+  } catch (emailError) {
+    // Never block the unlock response on email enqueue failure.
+    console.error("Failed to enqueue investor credit-level email:", emailError);
+  }
+}
 
 export async function POST(
   _request: NextRequest,
@@ -42,6 +92,10 @@ export async function POST(
 
     if (!unlockResult?.unlocked) {
       return NextResponse.json({ error: "Failed to unlock investor" }, { status: 500 });
+    }
+
+    if (!unlockResult.alreadyUnlocked) {
+      await notifyInvestorCreditLevel(admin, user.id, user.email, unlockResult.remaining);
     }
 
     // Return full investor profile

@@ -2,8 +2,35 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createSupabaseAdminClient } from "@/lib/supabaseServer";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { enqueueEmailEvent } from "@/lib/email/outbox";
 
 const supabaseAdmin = createSupabaseAdminClient();
+
+async function notifyCalculatorCreditLevel(
+    userId: string,
+    userEmail: string | undefined,
+    remaining: number,
+    resetAt: string,
+) {
+    if (!userEmail || (remaining !== 0 && remaining !== 1)) {
+        return;
+    }
+
+    const eventType = remaining === 0 ? "calculator_credits_zero" : "calculator_credits_low";
+
+    try {
+        await enqueueEmailEvent({
+            eventKey: `${eventType}:${userId}:${resetAt}`,
+            eventType,
+            userId,
+            recipientEmail: userEmail,
+            payload: { resetAt },
+        });
+    } catch (emailError) {
+        // Never block the calculator response on email enqueue failure.
+        console.error("Failed to enqueue calculator credit-level email:", emailError);
+    }
+}
 
 // Helper to get week ID for anonymous tracking
 function getWeekId(): string {
@@ -211,6 +238,8 @@ export async function POST(request: NextRequest) {
                     { status: 403 }
                 );
             }
+
+            await notifyCalculatorCreditLevel(user.id, user.email, newWeeklyCredits, lastResetAt);
 
             return NextResponse.json({
                 success: true,

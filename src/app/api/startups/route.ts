@@ -1,5 +1,7 @@
 import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabaseServer";
 import { NextResponse } from "next/server";
+import { enqueueEmailEvent } from "@/lib/email/outbox";
+import { INTERNAL_NOTICE_EMAILS } from "@/lib/email/internal-recipients";
 
 export async function POST(request: Request) {
   try {
@@ -12,9 +14,11 @@ export async function POST(request: Request) {
     }
 
     const supabase = createSupabaseAdminClient();
-    const { error: insertError } = await supabase
+    const { data: insertedStartup, error: insertError } = await supabase
       .from("startup_leads")
-      .insert({ ...body.data, user_id: user.id });
+      .insert({ ...body.data, user_id: user.id })
+      .select("id, company_name")
+      .single();
 
     if (insertError) {
       console.error("Insert error:", insertError);
@@ -26,6 +30,31 @@ export async function POST(request: Request) {
         .from("users")
         .update({ startup_form_submitted: true })
         .eq("id", user.id);
+    }
+
+    if (insertedStartup) {
+      const companyName = typeof insertedStartup.company_name === "string" ? insertedStartup.company_name : "your startup";
+      try {
+        await enqueueEmailEvent({
+          eventKey: `startup_submitted:${insertedStartup.id}`,
+          eventType: "startup_submitted",
+          userId: user.id,
+          recipientEmail: user.email ?? "",
+          payload: { companyName },
+        });
+        await enqueueEmailEvent({
+          eventKey: `internal_startup_submitted:${insertedStartup.id}`,
+          eventType: "internal_startup_submitted",
+          recipientEmail: INTERNAL_NOTICE_EMAILS.join(","),
+          payload: {
+            companyName,
+            adminUrl: "https://www.myfundinglist.com/admin/startup-list",
+          },
+        });
+      } catch (emailError) {
+        // Never block a durable startup submission on email enqueue failure.
+        console.error("Failed to enqueue startup submission emails:", emailError);
+      }
     }
 
     return NextResponse.json({ success: true });

@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("server-only", () => ({}));
+vi.mock("@/lib/email/outbox", () => ({
+    enqueueEmailEvent: vi.fn(async () => ({})),
+}));
+
 // Any paid plan should get unlimited tool calculations with no credit
 // tracking at all — verifies the route never even inspects
 // calculation_credits for a paid user, and that concurrent requests don't

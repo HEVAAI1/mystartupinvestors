@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("server-only", () => ({}));
+vi.mock("@/lib/email/outbox", () => ({
+    enqueueEmailEvent: vi.fn(async () => ({})),
+}));
+
 const STARTING_CREDITS = 1;
 
 function nextTick() {

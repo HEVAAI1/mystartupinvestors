@@ -3,8 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { checkRateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
 import { enqueueEmailEvent } from "@/lib/email/outbox";
-
-const CONTACT_EMAILS = ["hi@eaglegrowthpartners.com", "saqlain@heva.ai", "fazal@heva.ai"];
+import { INTERNAL_NOTICE_EMAILS as CONTACT_EMAILS } from "@/lib/email/internal-recipients";
 
 const contactSchema = z.object({
   name: z.string().trim().min(1).max(200),
