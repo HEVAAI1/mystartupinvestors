@@ -11,6 +11,7 @@ vi.mock("@/lib/email/outbox", () => ({
 vi.mock("@/lib/rate-limit", () => ({
     checkRateLimit: () => ({ allowed: true, remaining: 10, retryAfterSeconds: 0 }),
     getClientIp: () => "127.0.0.1",
+    peekRateLimit: () => ({ allowed: true, remaining: 10, retryAfterSeconds: 0 }),
 }));
 
 vi.mock("next/headers", () => ({
@@ -18,12 +19,13 @@ vi.mock("next/headers", () => ({
 }));
 
 let authUser: { id: string; email: string } | null;
-let userRow: {
-    plan: string;
-    calculation_credits: number;
-    weekly_calculation_credits: number;
-    last_calculation_reset_at: string;
-};
+let plan: string;
+// Weekly uses remaining BEFORE this call, mirroring consume_calculator_credit's
+// stored state — the RPC mock below decrements it exactly like the real SQL.
+let remainingBeforeCall: number;
+
+const RESET_AT = "2026-09-21T00:00:00.000Z";
+const LIMIT = 5;
 
 vi.mock("@/lib/supabaseServer", () => ({
     createSupabaseAdminClient: () => ({
@@ -33,39 +35,30 @@ vi.mock("@/lib/supabaseServer", () => ({
             return {
                 select: () => ({
                     eq: () => ({
-                        single: async () => ({ data: userRow, error: null }),
+                        single: async () => ({ data: { plan }, error: null }),
                     }),
                 }),
-                update: (patch: Record<string, unknown>) => {
-                    const query = {
-                        eq: (column: string, value: unknown) => {
-                            if (column === "id") return query;
-                            // Column-value guard used by consumeCredit's optimistic check.
-                            if (userRow[column as keyof typeof userRow] !== value) {
-                                return { ...query, gt: () => ({ select: async () => ({ data: [] }) }), select: async () => ({ data: [] }) };
-                            }
-                            return query;
-                        },
-                        gt: () => ({
-                            select: async () => {
-                                Object.assign(userRow, patch);
-                                return { data: [{ ...patch }] };
-                            },
-                        }),
-                        is: () => ({
-                            select: async () => {
-                                Object.assign(userRow, patch);
-                                return { data: [{ ...patch }] };
-                            },
-                        }),
-                        select: async () => {
-                            Object.assign(userRow, patch);
-                            return { data: [{ ...patch }] };
-                        },
-                    };
-                    return query;
-                },
             };
+        },
+        rpc: (fn: string, args: Record<string, unknown>) => {
+            if (fn !== "consume_calculator_credit") throw new Error(`unexpected rpc ${fn}`);
+            if (args.p_plan !== "free") {
+                return Promise.resolve({
+                    data: { unlimited: true, success: true, remaining: null, limit: null, resetAt: null },
+                    error: null,
+                });
+            }
+            if (remainingBeforeCall <= 0) {
+                return Promise.resolve({
+                    data: { unlimited: false, success: false, remaining: 0, limit: LIMIT, resetAt: RESET_AT },
+                    error: null,
+                });
+            }
+            remainingBeforeCall -= 1;
+            return Promise.resolve({
+                data: { unlimited: false, success: true, remaining: remainingBeforeCall, limit: LIMIT, resetAt: RESET_AT },
+                error: null,
+            });
         },
     }),
 }));
@@ -87,29 +80,24 @@ describe("calculator credit-level emails", () => {
     beforeEach(() => {
         enqueueEmailEvent.mockClear();
         authUser = { id: "user-1", email: "free@example.com" };
-        userRow = {
-            plan: "free",
-            calculation_credits: 0,
-            weekly_calculation_credits: 2,
-            last_calculation_reset_at: new Date().toISOString(),
-        };
+        plan = "free";
+        remainingBeforeCall = 2;
     });
 
     it("enqueues calculator_credits_low when one weekly use remains after a successful use", async () => {
-        userRow.weekly_calculation_credits = 2;
+        remainingBeforeCall = 2;
         await POST(useCreditRequest());
         expect(eventTypes()).toEqual(["calculator_credits_low"]);
     });
 
     it("enqueues calculator_credits_zero when the last weekly use is spent", async () => {
-        userRow.weekly_calculation_credits = 1;
+        remainingBeforeCall = 1;
         await POST(useCreditRequest());
         expect(eventTypes()).toEqual(["calculator_credits_zero"]);
     });
 
     it("does not enqueue anything for a failed insufficient-credit attempt", async () => {
-        userRow.weekly_calculation_credits = 0;
-        userRow.last_calculation_reset_at = new Date().toISOString();
+        remainingBeforeCall = 0;
 
         const response = await POST(useCreditRequest());
 
@@ -118,7 +106,7 @@ describe("calculator credit-level emails", () => {
     });
 
     it("does not enqueue anything for a paid user", async () => {
-        userRow.plan = "professional";
+        plan = "professional";
         await POST(useCreditRequest());
         expect(eventTypes()).toEqual([]);
     });
@@ -130,7 +118,7 @@ describe("calculator credit-level emails", () => {
     });
 
     it("does not enqueue anything with plenty of weekly credits remaining", async () => {
-        userRow.weekly_calculation_credits = 5;
+        remainingBeforeCall = 5;
         await POST(useCreditRequest());
         expect(eventTypes()).toEqual([]);
     });

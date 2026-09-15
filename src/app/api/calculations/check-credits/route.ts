@@ -2,29 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createSupabaseAdminClient } from "@/lib/supabaseServer";
 import { getClientIp, peekRateLimit } from "@/lib/rate-limit";
+import { FREE_WEEKLY_LIMIT, formatCreditMessage, getUtcWeekKey, getWeekResetAt, isPaidPlan } from "@/lib/calculatorCredits";
 
 const supabaseAdmin = createSupabaseAdminClient();
-
-// Helper to get week ID for anonymous tracking
-function getWeekId(): string {
-    const now = new Date();
-    const year = now.getFullYear();
-    const week = Math.ceil(
-        ((now.getTime() - new Date(year, 0, 1).getTime()) / 86400000 + 1) / 7
-    );
-    return `${year}-W${week}`;
-}
-
-// Helper to check if weekly reset is needed
-function needsWeeklyReset(lastResetAt: string | null): boolean {
-    if (!lastResetAt) return true;
-
-    const lastReset = new Date(lastResetAt);
-    const now = new Date();
-    const daysSinceReset = (now.getTime() - lastReset.getTime()) / (1000 * 60 * 60 * 24);
-
-    return daysSinceReset >= 7;
-}
 
 export async function GET(request: NextRequest) {
     try {
@@ -35,33 +15,40 @@ export async function GET(request: NextRequest) {
             request.headers.get("Authorization")?.replace("Bearer ", "") || ""
         );
 
+        const resetAt = getWeekResetAt();
+
         // CASE 1: Anonymous User
         if (!user) {
-            const weekId = getWeekId();
-            const cookieName = `calc_count_${weekId}`;
+            const weekKey = getUtcWeekKey();
+            const cookieName = `calc_count_${weekKey}`;
             const cookieCount = parseInt(cookieStore.get(cookieName)?.value || "0");
 
             // Same server-side IP bucket used by use-credit; peek only, no increment.
             const ip = getClientIp(request);
-            const ipRateLimit = peekRateLimit(`calc:${weekId}:${ip}`, 5, 7 * 24 * 60 * 60);
-            const ipCount = 5 - ipRateLimit.remaining;
+            const ipRateLimit = peekRateLimit(`calc:${weekKey}:${ip}`, FREE_WEEKLY_LIMIT, 7 * 24 * 60 * 60);
+            const ipCount = FREE_WEEKLY_LIMIT - ipRateLimit.remaining;
             const currentCount = Math.max(cookieCount, ipCount);
+            const remaining = Math.max(0, FREE_WEEKLY_LIMIT - currentCount);
 
             return NextResponse.json({
                 userState: "anonymous",
-                remaining: Math.max(0, 5 - currentCount),
-                limit: 5,
-                canCalculate: currentCount < 5,
-                message: currentCount >= 5
+                remaining,
+                limit: FREE_WEEKLY_LIMIT,
+                canCalculate: currentCount < FREE_WEEKLY_LIMIT,
+                resetDate: resetAt.toISOString(),
+                message: currentCount >= FREE_WEEKLY_LIMIT
                     ? "Create a free account to get 5 calculations every week"
-                    : `${5 - currentCount} free calculations remaining this week`,
+                    : formatCreditMessage(remaining, resetAt),
             });
         }
 
-        // CASE 2 & 3: Authenticated User
+        // CASE 2 & 3: Authenticated User. Read-only — safe to compute the
+        // week rollover in JS here since nothing is written; the
+        // authoritative, concurrency-safe write path is
+        // consume_calculator_credit() in use-credit/route.ts.
         const { data: userData, error: userError } = await supabaseAdmin
             .from("users")
-            .select("plan, calculation_credits, weekly_calculation_credits, last_calculation_reset_at")
+            .select("plan, weekly_credit_week_key, weekly_credits_used")
             .eq("id", user.id)
             .single();
 
@@ -72,32 +59,27 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        // CASE 2: Free User
-        if (userData.plan === "free") {
-            let weeklyCredits = userData.weekly_calculation_credits || 0;
-            let lastResetAt = userData.last_calculation_reset_at;
-
-            // Check if reset is needed
-            if (needsWeeklyReset(lastResetAt)) {
-                weeklyCredits = 5;
-                lastResetAt = new Date().toISOString();
-            }
-
-            const resetDate = new Date(new Date(lastResetAt).getTime() + 7 * 24 * 60 * 60 * 1000);
+        // Fail CLOSED: an unrecognized/null plan is never treated as unlimited.
+        if (userData.plan === "free" || !isPaidPlan(userData.plan)) {
+            // Postgres DATE columns come back from supabase-js as "YYYY-MM-DD",
+            // the same format getUtcWeekKey() produces, so this compares directly.
+            const currentWeekKey = getUtcWeekKey();
+            const used = userData.weekly_credit_week_key === currentWeekKey ? (userData.weekly_credits_used ?? 0) : 0;
+            const remaining = Math.max(0, FREE_WEEKLY_LIMIT - used);
 
             return NextResponse.json({
                 userState: "free",
-                remaining: weeklyCredits,
-                limit: 5,
-                canCalculate: weeklyCredits > 0,
-                resetDate: resetDate.toISOString(),
-                message: weeklyCredits > 0
-                    ? `${weeklyCredits} calculations left this week`
+                remaining,
+                limit: FREE_WEEKLY_LIMIT,
+                canCalculate: remaining > 0,
+                resetDate: resetAt.toISOString(),
+                message: remaining > 0
+                    ? formatCreditMessage(remaining, resetAt)
                     : "Upgrade to get more calculation credits",
             });
         }
 
-        // CASE 3: Paid User — any paid plan gets unlimited tool calculations.
+        // CASE 3: Known paid plan — unlimited tool calculations.
         return NextResponse.json({
             userState: "paid",
             plan: userData.plan,
