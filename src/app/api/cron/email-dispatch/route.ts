@@ -36,6 +36,11 @@ export async function GET(request: NextRequest) {
     let retryableFailures = 0;
     let permanentFailures = 0;
 
+    // No per-event try/catch: a thrown dispatch aborts the rest of this
+    // batch, but any row left in 'sending' is reclaimed by the next
+    // invocation via claim_pending_email_events' 15-minute lease, so
+    // nothing is stranded — just retried on the next run instead of later
+    // in this one.
     for (const event of events) {
         const result = await dispatchEmailEvent(event);
         if (result === "sent") {
