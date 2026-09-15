@@ -35,13 +35,15 @@ export async function POST(request: Request) {
     if (insertedStartup) {
       const companyName = typeof insertedStartup.company_name === "string" ? insertedStartup.company_name : "your startup";
       try {
-        await enqueueEmailEvent({
-          eventKey: `startup_submitted:${insertedStartup.id}`,
-          eventType: "startup_submitted",
-          userId: user.id,
-          recipientEmail: user.email ?? "",
-          payload: { companyName },
-        });
+        if (user.email) {
+          await enqueueEmailEvent({
+            eventKey: `startup_submitted:${insertedStartup.id}`,
+            eventType: "startup_submitted",
+            userId: user.id,
+            recipientEmail: user.email,
+            payload: { companyName },
+          });
+        }
         await enqueueEmailEvent({
           eventKey: `internal_startup_submitted:${insertedStartup.id}`,
           eventType: "internal_startup_submitted",

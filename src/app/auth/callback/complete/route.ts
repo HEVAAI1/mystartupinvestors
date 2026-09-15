@@ -119,17 +119,19 @@ export async function GET(request: NextRequest) {
         return fallbackRedirect;
       }
 
-      try {
-        await enqueueEmailEvent({
-          eventKey: `welcome:${user.id}`,
-          eventType: "welcome",
-          userId: user.id,
-          recipientEmail: userPayload.email,
-          payload: { name: userPayload.name || null },
-        });
-      } catch (emailError) {
-        // Never block account creation on email enqueue failure.
-        console.error("Failed to enqueue welcome email:", emailError);
+      if (userPayload.email) {
+        try {
+          await enqueueEmailEvent({
+            eventKey: `welcome:${user.id}`,
+            eventType: "welcome",
+            userId: user.id,
+            recipientEmail: userPayload.email,
+            payload: { name: userPayload.name || null },
+          });
+        } catch (emailError) {
+          // Never block account creation on email enqueue failure.
+          console.error("Failed to enqueue welcome email:", emailError);
+        }
       }
     }
 
