@@ -50,7 +50,7 @@ export default function ContactPage() {
 
   return (
     <main className="min-h-screen bg-[#FAF7EE] font-[Arial] text-[#31372B]">
-      <SmartNavbar />
+      <SmartNavbar hideCreditUi />
 
       <div className="max-w-[700px] mx-auto pt-28 pb-20 px-6">
         <div className="mb-10">

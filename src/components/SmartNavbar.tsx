@@ -7,7 +7,7 @@ import { getUser } from "@/lib/api";
 import AuthenticatedNavbar from "./Navbar";
 import PublicNavbar from "./PublicNavbar";
 
-export default function SmartNavbar() {
+export default function SmartNavbar({ hideCreditUi = false }: { hideCreditUi?: boolean }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -35,7 +35,7 @@ export default function SmartNavbar() {
     }
 
     if (isAuthenticated) {
-        return <AuthenticatedNavbar />;
+        return <AuthenticatedNavbar hideCreditUi={hideCreditUi} />;
     }
 
     return <PublicNavbar />;
