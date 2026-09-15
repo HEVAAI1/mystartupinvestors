@@ -38,6 +38,7 @@ export type EmailOutboxEvent = {
     payload: EmailOutboxPayload;
     status: EmailOutboxStatus;
     attempt_count: number;
+    claimed_at: string | null;
     last_error: string | null;
     resend_email_id: string | null;
     sent_at: string | null;

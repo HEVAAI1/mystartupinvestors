@@ -8,6 +8,8 @@ type InsertRow = {
 };
 
 const rows: InsertRow[] = [];
+const claimedRows: Record<string, unknown>[] = [];
+let eventStatus = "sending";
 
 const emailOutboxTable = {
     insert(row: InsertRow) {
@@ -37,7 +39,35 @@ const emailOutboxTable = {
             },
         };
     },
+    update(patch: Record<string, unknown>) {
+        const filters: Array<[string, unknown]> = [];
+        const query = {
+            eq(column: string, value: unknown) {
+                filters.push([column, value]);
+                return query;
+            },
+            select() {
+                return {
+                    async maybeSingle() {
+                        const idMatches = filters.some(([column, value]) => column === "id" && value === "event-1");
+                        const statusMatches = filters.some(([column, value]) => column === "status" && value === eventStatus);
+
+                        if (!idMatches || !statusMatches) {
+                            return { data: null, error: null };
+                        }
+
+                        eventStatus = String(patch.status);
+                        return { data: { id: "event-1" }, error: null };
+                    },
+                };
+            },
+        };
+
+        return query;
+    },
 };
+
+vi.mock("server-only", () => ({}));
 
 vi.mock("@/lib/supabaseServer", () => ({
     createSupabaseAdminClient: () => ({
@@ -48,10 +78,26 @@ vi.mock("@/lib/supabaseServer", () => ({
 
             return emailOutboxTable;
         },
+        rpc: async (functionName: string, parameters: Record<string, unknown>) => {
+            if (functionName !== "claim_pending_email_events") {
+                throw new Error(`unexpected function: ${functionName}`);
+            }
+
+            if (parameters.p_limit !== 25) {
+                throw new Error(`unexpected claim limit: ${parameters.p_limit}`);
+            }
+
+            return { data: claimedRows, error: null };
+        },
     }),
 }));
 
-const { enqueueEmailEvent } = await import("@/lib/email/outbox");
+const {
+    claimPendingEmailEvents,
+    enqueueEmailEvent,
+    markEmailAttemptFailed,
+    markEmailSent,
+} = await import("@/lib/email/outbox");
 
 const receiptInput = (eventKey: string) => ({
     eventKey,
@@ -69,6 +115,8 @@ const withdrawalInput = {
 describe("enqueueEmailEvent", () => {
     beforeEach(() => {
         rows.splice(0, rows.length);
+        claimedRows.splice(0, claimedRows.length);
+        eventStatus = "sending";
     });
 
     it("enqueues one event for a repeated event key", async () => {
@@ -83,5 +131,41 @@ describe("enqueueEmailEvent", () => {
             ...withdrawalInput,
             payload: { account_number: "123" },
         })).rejects.toThrow("sensitive payout fields are not allowed");
+    });
+
+    it("does not persist nested IFSC payout fields in payload", async () => {
+        await expect(enqueueEmailEvent({
+            ...withdrawalInput,
+            payload: { payout: { ifsc_code: "ABCD0123456" } },
+        })).rejects.toThrow("sensitive payout fields are not allowed");
+
+        expect(rows).toHaveLength(0);
+    });
+
+    it("returns events reclaimed from an interrupted worker lease", async () => {
+        claimedRows.push({
+            id: "event-1",
+            event_key: "purchase_receipt:pay_1",
+            status: "sending",
+            attempt_count: 2,
+        });
+
+        const events = await claimPendingEmailEvents(25);
+
+        expect(events).toEqual(claimedRows);
+    });
+
+    it("rejects marking sent when the event is no longer sending", async () => {
+        eventStatus = "sent";
+
+        await expect(markEmailSent("event-1", "resend-1"))
+            .rejects.toThrow("email outbox mark sent did not update a sending event");
+    });
+
+    it("rejects marking failed when the event is no longer sending", async () => {
+        eventStatus = "failed";
+
+        await expect(markEmailAttemptFailed("event-1", "temporary provider failure", true))
+            .rejects.toThrow("email outbox mark failed did not update a sending event");
     });
 });

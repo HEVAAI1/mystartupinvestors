@@ -1,3 +1,5 @@
+import "server-only";
+
 import { createSupabaseAdminClient } from "@/lib/supabaseServer";
 import type {
     EmailOutboxEvent,
@@ -82,35 +84,50 @@ export async function claimPendingEmailEvents(limit: number): Promise<EmailOutbo
 }
 
 export async function markEmailSent(id: string, resendEmailId: string): Promise<void> {
-    const { error } = await createSupabaseAdminClient()
+    const timestamp = new Date().toISOString();
+    const { data, error } = await createSupabaseAdminClient()
         .from("email_outbox")
         .update({
             status: "sent",
             resend_email_id: resendEmailId,
-            sent_at: new Date().toISOString(),
+            sent_at: timestamp,
+            claimed_at: null,
             last_error: null,
-            updated_at: new Date().toISOString(),
+            updated_at: timestamp,
         })
         .eq("id", id)
-        .eq("status", "sending");
+        .eq("status", "sending")
+        .select("id")
+        .maybeSingle();
 
     if (error) {
         throw toError(error, "mark sent");
     }
+
+    if (!data) {
+        throw new Error("email outbox mark sent did not update a sending event");
+    }
 }
 
 export async function markEmailAttemptFailed(id: string, message: string, retryable: boolean): Promise<void> {
-    const { error } = await createSupabaseAdminClient()
+    const { data, error } = await createSupabaseAdminClient()
         .from("email_outbox")
         .update({
             status: retryable ? "pending" : "failed",
+            claimed_at: null,
             last_error: message.slice(0, MAX_ERROR_LENGTH),
             updated_at: new Date().toISOString(),
         })
         .eq("id", id)
-        .eq("status", "sending");
+        .eq("status", "sending")
+        .select("id")
+        .maybeSingle();
 
     if (error) {
         throw toError(error, "mark failed");
+    }
+
+    if (!data) {
+        throw new Error("email outbox mark failed did not update a sending event");
     }
 }
