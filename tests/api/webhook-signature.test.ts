@@ -4,10 +4,15 @@ import { Webhook } from "standardwebhooks";
 process.env.DODO_PAYMENTS_API_KEY ??= "test_api_key";
 process.env.DODO_PAYMENTS_WEBHOOK_SECRET ??= "whsec_MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw";
 
-const transactionsInsert = vi.fn(async () => ({ error: null }));
+vi.mock("server-only", () => ({}));
+vi.mock("@/lib/email/outbox", () => ({
+  enqueueEmailEvent: vi.fn(async () => ({})),
+}));
+
 const referralsMaybeSingle = vi.fn(async () => ({ data: null }));
+const usersMaybeSingle = vi.fn(async () => ({ data: { email: "buyer@example.com", name: "Buyer" } }));
 const adminFrom = vi.fn();
-const adminRpc = vi.fn(async () => ({ error: null }));
+const adminRpc = vi.fn(async () => ({ data: { granted: true, duplicate: false }, error: null }));
 
 vi.mock("@/lib/supabaseServer", () => ({
   createSupabaseAdminClient: () => ({ from: adminFrom, rpc: adminRpc }),
@@ -15,17 +20,21 @@ vi.mock("@/lib/supabaseServer", () => ({
 
 function configureAdminFrom() {
   adminFrom.mockImplementation((table: string) => {
-    if (table === "transactions") {
-      return {
-        insert: transactionsInsert,
-      };
-    }
-
     if (table === "referrals") {
       return {
         select: () => ({
           eq: () => ({
             maybeSingle: referralsMaybeSingle,
+          }),
+        }),
+      };
+    }
+
+    if (table === "users") {
+      return {
+        select: () => ({
+          eq: () => ({
+            maybeSingle: usersMaybeSingle,
           }),
         }),
       };
@@ -77,13 +86,12 @@ function makeRequest(payload: string, headers: Record<string, string>) {
 }
 
 function allWritesUncalled() {
-  expect(transactionsInsert).not.toHaveBeenCalled();
   expect(adminRpc).not.toHaveBeenCalled();
 }
 
 beforeEach(() => {
-  transactionsInsert.mockClear();
   referralsMaybeSingle.mockClear();
+  usersMaybeSingle.mockClear();
   adminRpc.mockClear();
   adminFrom.mockReset();
   configureAdminFrom();
@@ -140,10 +148,9 @@ describe("POST /api/webhooks/dodo signature verification", () => {
 
     expect(response.status).toBe(200);
     expect(body).toEqual({ received: true });
-    expect(transactionsInsert).toHaveBeenCalledTimes(1);
     expect(adminRpc).toHaveBeenCalledWith(
-      "add_purchase_credits",
-      expect.objectContaining({ p_user_id: "user-1" })
+      "record_payment_and_grant_credits",
+      expect.objectContaining({ p_user_id: "user-1", p_transaction_id: "pay_1" })
     );
   });
 });

@@ -3,6 +3,7 @@ import DodoPayments from 'dodopayments';
 import { createSupabaseAdminClient } from '@/lib/supabaseServer';
 import { DODO_PRODUCT_MAP } from '@/lib/dodo-config';
 import { calculateCommission } from '@/lib/affiliate-constants';
+import { enqueueEmailEvent } from '@/lib/email/outbox';
 
 const supabaseAdmin = createSupabaseAdminClient();
 
@@ -80,47 +81,69 @@ export async function POST(request: NextRequest) {
       console.log('✅ Amount (USD):', amount);
 
       // ============================================================
-      // 💾 STORE TRANSACTION (idempotency via UNIQUE constraint, not
-      // a racy select-then-insert: a duplicate delivery hits 23505)
+      // 💾 STORE TRANSACTION + 🎯 GRANT CREDITS (one atomic RPC)
+      //
+      // These used to be two separate statements. If the credit RPC
+      // failed after the transaction insert had already succeeded, a
+      // retried webhook delivery hit the transaction's UNIQUE constraint
+      // (23505) and short-circuited as "duplicate, already handled" —
+      // silently never granting credits for that payment. Doing both in
+      // one DB transaction means a retry after any failure redoes both.
       // ============================================================
-      const { error: txnError } = await supabaseAdmin
-        .from('transactions')
-        .insert({
-          user_id: userId,
-          transaction_id: transactionId,
-          amount,
-          plan_type: planDetails.plan,
-          status: 'succeeded',
-          location,
-        });
-
-      if (txnError) {
-        if (txnError.code === '23505') {
-          console.log('⚠️ Duplicate webhook ignored:', transactionId);
-          return NextResponse.json({ received: true });
-        }
-        console.error('❌ Transaction insert failed:', txnError);
-        return NextResponse.json({ error: 'Transaction failed' }, { status: 500 });
-      }
-
-      // ============================================================
-      // 🎯 CREDIT UPDATE (atomic RPC — no read-modify-write race)
-      // ============================================================
-      const { error: creditError } = await supabaseAdmin.rpc(
-        'add_purchase_credits',
+      const { error: recordError } = await supabaseAdmin.rpc(
+        'record_payment_and_grant_credits',
         {
           p_user_id: userId,
+          p_transaction_id: transactionId,
+          p_amount: amount,
+          p_plan_type: planDetails.plan,
           p_credits: planDetails.credits,
-          p_plan: planDetails.plan,
+          p_location: location,
         }
       );
 
-      if (creditError) {
-        console.error('❌ Credit update failed:', creditError);
+      if (recordError) {
+        console.error('❌ Payment recording / credit grant failed:', recordError);
         return NextResponse.json({ error: 'Credit update failed' }, { status: 500 });
       }
 
       console.log(`✅ Credits added: +${planDetails.credits} (credits_allocated + calculation_credits)`);
+
+      // ============================================================
+      // 📧 PURCHASE RECEIPT — only after the credit grant above is
+      // durably complete. enqueueEmailEvent is idempotent on event_key,
+      // so this is safe to call on every delivery (including a
+      // duplicate one where credits were granted by an earlier delivery
+      // but the email step may not have run yet).
+      // ============================================================
+      try {
+        const { data: buyer } = await supabaseAdmin
+          .from('users')
+          .select('email, name')
+          .eq('id', userId)
+          .maybeSingle();
+
+        if (buyer?.email) {
+          await enqueueEmailEvent({
+            eventKey: `purchase_receipt:${transactionId}`,
+            eventType: 'purchase_receipt',
+            userId,
+            recipientEmail: buyer.email,
+            payload: {
+              plan: planDetails.plan,
+              amountUsd: amount,
+              credits: planDetails.credits,
+              paymentId: transactionId,
+            },
+          });
+        } else {
+          console.error('⚠️ Could not enqueue purchase receipt: no email on file for user', userId);
+        }
+      } catch (emailError) {
+        // Never fail the webhook (and risk Dodo retrying a completed
+        // payment) because the receipt email couldn't be enqueued.
+        console.error('⚠️ Failed to enqueue purchase receipt email:', emailError);
+      }
 
       // ============================================================
       // 💸 AFFILIATE COMMISSION (SAFE)
@@ -208,7 +231,7 @@ export async function POST(request: NextRequest) {
 
       const amount = planDetails.price; // ✅ FIXED
 
-      await supabaseAdmin.from('transactions').insert({
+      const { error: failedTxnError } = await supabaseAdmin.from('transactions').insert({
         user_id: userId,
         transaction_id: transactionId,
         amount,
@@ -218,6 +241,30 @@ export async function POST(request: NextRequest) {
       });
 
       console.log('❌ Payment failed logged');
+
+      // Only email once the failed transaction record is durable (this
+      // insert, or an earlier delivery's — 23505 means it already is).
+      if (!failedTxnError || failedTxnError.code === '23505') {
+        try {
+          const { data: buyer } = await supabaseAdmin
+            .from('users')
+            .select('email')
+            .eq('id', userId)
+            .maybeSingle();
+
+          if (buyer?.email) {
+            await enqueueEmailEvent({
+              eventKey: `payment_failed:${transactionId}`,
+              eventType: 'payment_failed',
+              userId,
+              recipientEmail: buyer.email,
+              payload: {},
+            });
+          }
+        } catch (emailError) {
+          console.error('⚠️ Failed to enqueue payment-failed email:', emailError);
+        }
+      }
 
       return NextResponse.json({ received: true });
     }
