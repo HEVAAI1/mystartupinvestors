@@ -41,10 +41,12 @@ describe("renderEmailEvent", () => {
     it("escapes user-provided content in the internal contact notice", () => {
         const email = renderEmailEvent(baseEvent({
             event_type: "internal_contact_request",
+            recipient_email: "hi@eaglegrowthpartners.com,saqlain@heva.ai",
             payload: {
                 name: "<script>alert(1)</script>",
                 subject: "Hello & welcome",
                 message: "line one\n<b>line two</b>",
+                replyTo: "submitter@example.com",
             },
         }));
 
@@ -52,6 +54,17 @@ describe("renderEmailEvent", () => {
         expect(email.html).toContain("&lt;script&gt;");
         expect(email.html).toContain("&amp;");
         expect(email.html).not.toContain("<b>line two</b>");
+    });
+
+    it("shows the submitter's own address, not the internal recipient list, in the internal contact notice body", () => {
+        const email = renderEmailEvent(baseEvent({
+            event_type: "internal_contact_request",
+            recipient_email: "hi@eaglegrowthpartners.com,saqlain@heva.ai",
+            payload: { name: "Jane Doe", subject: "Question", message: "Hi", replyTo: "jane@example.com" },
+        }));
+
+        expect(email.html).toContain("jane@example.com");
+        expect(email.html).not.toContain("hi@eaglegrowthpartners.com");
     });
 
     it("never sends bank/IFSC details in withdrawal-status content", () => {

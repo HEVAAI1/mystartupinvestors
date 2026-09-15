@@ -161,11 +161,15 @@ function renderInternalContactRequest(event: EmailOutboxEvent): RenderedEmail {
     const name = typeof event.payload.name === "string" ? event.payload.name : "Someone";
     const subject = typeof event.payload.subject === "string" ? event.payload.subject : "(no subject)";
     const message = typeof event.payload.message === "string" ? event.payload.message : "";
+    // event.recipient_email is the internal support list for this event type
+    // (see src/app/api/contact/route.ts); the submitter's own address is
+    // carried in payload.replyTo, not recipient_email.
+    const submitterEmail = typeof event.payload.replyTo === "string" ? event.payload.replyTo : "unknown sender";
     return renderLayout({
         title: `[Contact Us] ${subject}`,
         preheader: `New contact request from ${name}.`,
         bodyLines: [
-            `<strong>${escapeHtml(name)}</strong> (${escapeHtml(event.recipient_email)}) sent a message:`,
+            `<strong>${escapeHtml(name)}</strong> (${escapeHtml(submitterEmail)}) sent a message:`,
             escapeHtml(message).replace(/\n/g, "<br />"),
         ],
     });

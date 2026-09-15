@@ -10,8 +10,8 @@ vi.mock("resend", () => ({
     },
 }));
 
-const markEmailSent = vi.fn(async (_id: string, _resendEmailId: string) => {});
-const markEmailAttemptFailed = vi.fn(async (_id: string, _message: string, _retryable: boolean) => {});
+const markEmailSent = vi.fn<(id: string, resendEmailId: string) => Promise<void>>(async () => {});
+const markEmailAttemptFailed = vi.fn<(id: string, message: string, retryable: boolean) => Promise<void>>(async () => {});
 vi.mock("@/lib/email/outbox", () => ({
     markEmailSent: (id: string, resendEmailId: string) => markEmailSent(id, resendEmailId),
     markEmailAttemptFailed: (id: string, message: string, retryable: boolean) => markEmailAttemptFailed(id, message, retryable),
