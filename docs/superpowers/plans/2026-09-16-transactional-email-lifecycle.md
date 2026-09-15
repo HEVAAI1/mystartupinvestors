@@ -26,7 +26,7 @@
 
 | File | Responsibility |
 |---|---|
-| `supabase/migrations/12_email_outbox.sql` | Outbox schema, RLS, event-key uniqueness, atomic enqueue RPC. |
+| `supabase/migrations/13_email_outbox.sql` | Outbox schema, RLS, event-key uniqueness, atomic enqueue RPC. |
 | `src/lib/email/types.ts` | Event type, payload, status, and dispatcher interfaces. |
 | `src/lib/email/templates.ts` | Shared branded renderer and typed template variants. |
 | `src/lib/email/outbox.ts` | Server-only enqueue/read/claim/send-result helpers. |
@@ -39,7 +39,7 @@
 ### Task 1: Durable email outbox and server interfaces
 
 **Files:**
-- Create: `supabase/migrations/12_email_outbox.sql`
+- Create: `supabase/migrations/13_email_outbox.sql`
 - Create: `src/lib/email/types.ts`
 - Create: `src/lib/email/outbox.ts`
 - Test: `tests/lib/email/outbox.test.ts`
@@ -100,7 +100,7 @@ Expected: PASS.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add supabase/migrations/12_email_outbox.sql src/lib/email/types.ts src/lib/email/outbox.ts tests/lib/email/outbox.test.ts
+git add supabase/migrations/13_email_outbox.sql src/lib/email/types.ts src/lib/email/outbox.ts tests/lib/email/outbox.test.ts
 git commit -m "feat: add durable email outbox"
 ```
 

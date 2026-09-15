@@ -1,5 +1,5 @@
 -- Minimal stand-in for the pieces of a real Supabase project that
--- 12_email_outbox.sql assumes exist (extensions, auth.role(), public.users,
+-- 13_email_outbox.sql assumes exist (extensions, auth.role(), public.users,
 -- and the anon/authenticated/service_role roles). Lets the real migration
 -- run unmodified against a disposable Postgres container.
 create extension if not exists pgcrypto;

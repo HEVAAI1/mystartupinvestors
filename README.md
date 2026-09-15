@@ -69,7 +69,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser.
 
 ## 📧 Transactional Email
 
-Account, billing, credit, startup, contact, and affiliate emails are sent through a durable outbox (`email_outbox` table, see `supabase/migrations/12_email_outbox.sql`) and a shared Resend dispatcher. Product routes enqueue an event after their database mutation succeeds; a Vercel Cron job retries anything still pending.
+Account, billing, credit, startup, contact, and affiliate emails are sent through a durable outbox (`email_outbox` table, see `supabase/migrations/13_email_outbox.sql`) and a shared Resend dispatcher. Product routes enqueue an event after their database mutation succeeds; a Vercel Cron job retries anything still pending.
 
 Requires these environment variables — set locally in `.env.local`, and **separately in the Vercel project's environment variable settings**, since `.env.local` is never deployed:
 

@@ -1,4 +1,4 @@
--- Exercises 12_email_outbox.sql's real SQL (not a TS mock): the recursive
+-- Exercises 13_email_outbox.sql's real SQL (not a TS mock): the recursive
 -- sensitive-payload CHECK, enqueue_email_event idempotency/auth, and
 -- claim_pending_email_events' reclaim-lease + SKIP LOCKED behavior.
 \set ON_ERROR_STOP on
