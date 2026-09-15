@@ -16,6 +16,7 @@ let affiliateBalance: { total_earned: number; total_paid: number } = { total_ear
 const affiliateOwnerUserId = "affiliate-owner";
 let ownerEmail: string | null = "affiliate-owner@example.com";
 let existingCommissionForPayment = false;
+let openWithdrawals: Array<{ amount: number }> = [];
 
 const adminRpc = vi.fn(async (fn: string) => {
     if (fn === "record_payment_and_grant_credits") return { data: { granted: true, duplicate: false }, error: null };
@@ -66,6 +67,9 @@ const adminFrom = vi.fn((table: string) => {
         return {
             insert: async () => (existingCommissionForPayment ? { error: { code: "23505" } } : { error: null }),
         };
+    }
+    if (table === "withdrawal_requests") {
+        return { select: () => ({ eq: () => ({ in: async () => ({ data: openWithdrawals, error: null }) }) }) };
     }
     throw new Error(`unexpected table: ${table}`);
 });
@@ -121,6 +125,7 @@ describe("Dodo webhook affiliate commission emails", () => {
         enqueueEmailEvent.mockClear();
         existingCommissionForPayment = false;
         ownerEmail = "affiliate-owner@example.com";
+        openWithdrawals = [];
     });
 
     it("enqueues a withdrawal-available event only when commission balance crosses $76", async () => {
@@ -152,5 +157,18 @@ describe("Dodo webhook affiliate commission emails", () => {
         await POST(signedRequest(succeededPayload("pay_3")));
 
         expect(affiliateEventTypes()).toEqual([]);
+    });
+
+    it("excludes open (pending/approved) withdrawal amounts from the emailed available balance", async () => {
+        affiliateBalance = { total_earned: 100, total_paid: 0 };
+        openWithdrawals = [{ amount: 80 }];
+
+        await POST(signedRequest(succeededPayload("pay_4")));
+
+        const commissionEvent = enqueueEmailEvent.mock.calls.find(
+            ([input]) => input.eventType === "affiliate_commission_earned"
+        )?.[0];
+        // (100 - 0 - 80 open) + 4.75 commission = 24.75, not 104.75.
+        expect(commissionEvent?.payload.availableBalanceUsd).toBe(24.75);
     });
 });

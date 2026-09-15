@@ -214,7 +214,20 @@ export async function POST(request: NextRequest) {
             try {
               const affiliateEmail = await getAffiliateOwnerEmail(supabaseAdmin, referral.affiliate_id);
               if (affiliateEmail && affiliateBefore) {
-                const previousBalance = affiliateBefore.total_earned - affiliateBefore.total_paid;
+                // Match request_withdrawal's own "available" calculation
+                // (09_withdrawal_rpcs.sql) so the emailed figure never
+                // overstates what can actually be withdrawn right now.
+                const { data: openWithdrawals } = await supabaseAdmin
+                  .from('withdrawal_requests')
+                  .select('amount')
+                  .eq('affiliate_id', referral.affiliate_id)
+                  .in('status', ['pending', 'approved']);
+                const openAmount = (openWithdrawals ?? []).reduce(
+                  (sum: number, row: { amount: number }) => sum + row.amount,
+                  0
+                );
+
+                const previousBalance = affiliateBefore.total_earned - affiliateBefore.total_paid - openAmount;
                 const newBalance = previousBalance + commissionAmount;
 
                 await enqueueEmailEvent({
