@@ -6,6 +6,7 @@ import SmartNavbar from "@/components/SmartNavbar";
 import CreditExhaustedModal from "@/components/CreditExhaustedModal";
 import { useState } from "react";
 import { useCalculationCredits } from "@/hooks/useCalculationCredits";
+import { useCalculationSubmission } from "@/hooks/useCalculationSubmission";
 import DownloadPDFButton from "@/components/tools/DownloadPDFButton";
 
 export default function BurnRateCalculatorPage() {
@@ -28,7 +29,7 @@ export default function BurnRateCalculatorPage() {
     });
 
     // Handle calculate button click
-    const handleCalculate = async () => {
+    const { isSubmitting, submit: handleCalculate } = useCalculationSubmission(async () => {
         if (!creditStatus.canCalculate) {
             setShowCreditModal(true);
             return;
@@ -68,7 +69,7 @@ export default function BurnRateCalculatorPage() {
         } else {
             setShowCreditModal(true);
         }
-    };
+    });
 
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('en-US', {
@@ -221,10 +222,11 @@ export default function BurnRateCalculatorPage() {
                                 {/* Calculate Button */}
                                 <button
                                     onClick={handleCalculate}
-                                    disabled={isLoading}
+                                    disabled={isLoading || isSubmitting}
+                                    aria-busy={isSubmitting}
                                     className="w-full bg-[#31372B] text-[#FAF7EE] px-6 py-3 rounded-lg font-bold text-[16px] hover:opacity-90 transition disabled:opacity-50 mt-6"
                                 >
-                                    {isLoading ? "Loading..." : "Calculate Burn Rate"}
+                                    {isSubmitting ? "Calculating…" : isLoading ? "Loading..." : "Calculate Burn Rate"}
                                 </button>
                             </div>
 

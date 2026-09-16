@@ -11,7 +11,7 @@ import { useCalculationCredits } from "@/context/CalculationCreditsContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useThrottledScroll } from "@/hooks/useThrottledScroll";
 
-export default function AuthenticatedNavbar() {
+export default function AuthenticatedNavbar({ hideCreditUi = false }: { hideCreditUi?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -153,31 +153,35 @@ export default function AuthenticatedNavbar() {
             {/* Desktop Right Side */}
             <div className="hidden md:flex items-center gap-3">
               {/* Credits badge */}
-              <div className="flex items-center gap-1.5 bg-black/[0.05] border border-black/[0.06] rounded-full px-3 py-1.5">
-                {isToolsPage ? (
-                  <>
-                    <Calculator className="w-3.5 h-3.5 text-[#31372B]" />
-                    <span className="font-inter text-[12px] font-medium text-[#31372B]">
-                      {creditStatus.unlimited ? "∞" : creditStatus.remaining}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <div className="w-2 h-2 rounded-full bg-[#C6FF55]" />
-                    <span className="font-inter text-[12px] font-medium text-[#31372B]">
-                      {credits} credits
-                    </span>
-                  </>
-                )}
-              </div>
+              {!(hideCreditUi && !isToolsPage) && (
+                <div className="flex items-center gap-1.5 bg-black/[0.05] border border-black/[0.06] rounded-full px-3 py-1.5">
+                  {isToolsPage ? (
+                    <>
+                      <Calculator className="w-3.5 h-3.5 text-[#31372B]" />
+                      <span className="font-inter text-[12px] font-medium text-[#31372B]">
+                        {creditStatus.unlimited ? "∞" : creditStatus.remaining}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-2 h-2 rounded-full bg-[#C6FF55]" />
+                      <span className="font-inter text-[12px] font-medium text-[#31372B]">
+                        {credits} credits
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
 
               {/* Get more credits button */}
-              <button
-                onClick={() => router.push("/pricing")}
-                className="px-4 py-2 text-sm font-inter font-semibold bg-[#1E1E1E] text-white rounded-full hover:bg-[#333] transition-all shadow-lg shadow-black/10 cursor-pointer"
-              >
-                Get Credits
-              </button>
+              {!hideCreditUi && (
+                <button
+                  onClick={() => router.push("/pricing")}
+                  className="px-4 py-2 text-sm font-inter font-semibold bg-[#1E1E1E] text-white rounded-full hover:bg-[#333] transition-all shadow-lg shadow-black/10 cursor-pointer"
+                >
+                  Get Credits
+                </button>
+              )}
 
               {/* Profile dropdown */}
               <div className="relative" ref={dropdownRef}>
@@ -231,23 +235,25 @@ export default function AuthenticatedNavbar() {
 
             {/* Mobile: Credits + Hamburger */}
             <div className="flex md:hidden items-center gap-2">
-              <div className="flex items-center gap-1.5 bg-black/[0.05] border border-black/[0.06] rounded-full px-3 py-1.5">
-                {isToolsPage ? (
-                  <>
-                    <Calculator className="w-3 h-3 text-[#31372B]" />
-                    <span className="font-inter text-[11px] font-medium text-[#31372B]">
-                      {creditStatus.unlimited ? "∞" : creditStatus.remaining}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#C6FF55]" />
-                    <span className="font-inter text-[11px] font-medium text-[#31372B]">
-                      {credits}
-                    </span>
-                  </>
-                )}
-              </div>
+              {!(hideCreditUi && !isToolsPage) && (
+                <div className="flex items-center gap-1.5 bg-black/[0.05] border border-black/[0.06] rounded-full px-3 py-1.5">
+                  {isToolsPage ? (
+                    <>
+                      <Calculator className="w-3 h-3 text-[#31372B]" />
+                      <span className="font-inter text-[11px] font-medium text-[#31372B]">
+                        {creditStatus.unlimited ? "∞" : creditStatus.remaining}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#C6FF55]" />
+                      <span className="font-inter text-[11px] font-medium text-[#31372B]">
+                        {credits}
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="flex justify-center items-center w-9 h-9 rounded-full bg-black/[0.05] hover:bg-black/[0.09] transition border border-black/[0.06]"
@@ -293,9 +299,11 @@ export default function AuthenticatedNavbar() {
               <button onClick={() => router.push("/tools-for-founders")} className={getMobileNavClasses("/tools-for-founders")}>
                 Tools for Founders
               </button>
-              <button onClick={() => router.push("/pricing")} className={getMobileNavClasses("/pricing")}>
-                Get More Credits
-              </button>
+              {!hideCreditUi && (
+                <button onClick={() => router.push("/pricing")} className={getMobileNavClasses("/pricing")}>
+                  Get More Credits
+                </button>
+              )}
               <button
                 onClick={() => { setMobileMenuOpen(false); router.push("/affiliate/dashboard"); }}
                 className="w-full text-left px-4 py-3 rounded-2xl bg-black/[0.04] text-[#31372B] font-inter font-medium text-sm hover:bg-black/[0.07] transition mb-1 cursor-pointer"

@@ -1,6 +1,8 @@
 import { createSupabaseAdminClient } from "@/lib/supabaseServer";
 import { requireAdmin } from "@/lib/requireAdmin";
 import { NextResponse } from "next/server";
+import { enqueueEmailEvent } from "@/lib/email/outbox";
+import { getAffiliateOwnerEmail } from "@/lib/email/affiliate-recipients";
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -14,7 +16,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     // Atomic RPC: locks the withdrawal row, validates the status transition,
     // and increments affiliates.total_paid in the same transaction when
     // paying out — prevents re-processing an already-paid/rejected request.
-    const { data: withdrawal, error } = await supabase
+    const { data: withdrawalData, error } = await supabase
       .rpc("set_withdrawal_status", { p_withdrawal_id: id, p_status: status })
       .single();
 
@@ -29,6 +31,25 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         { error: message },
         { status: isInvalidTransition ? 400 : 500 }
       );
+    }
+
+    const withdrawal = withdrawalData as { id: string; affiliate_id: string; amount: number; status: string } | null;
+
+    if (withdrawal) {
+      try {
+        const affiliateEmail = await getAffiliateOwnerEmail(supabase, withdrawal.affiliate_id);
+        if (affiliateEmail) {
+          await enqueueEmailEvent({
+            eventKey: `withdrawal_status:${withdrawal.id}:${withdrawal.status}`,
+            eventType: "withdrawal_status",
+            recipientEmail: affiliateEmail,
+            payload: { status: withdrawal.status, amountUsd: withdrawal.amount },
+          });
+        }
+      } catch (emailError) {
+        // Never block a durable status transition on email enqueue failure.
+        console.error("Failed to enqueue withdrawal_status email:", emailError);
+      }
     }
 
     return NextResponse.json({ success: true, withdrawal });

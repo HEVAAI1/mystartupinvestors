@@ -3,6 +3,7 @@
 import { useState } from "react";
 import CreditExhaustedModal from "@/components/CreditExhaustedModal";
 import { useCalculationCredits } from "@/hooks/useCalculationCredits";
+import { useCalculationSubmission } from "@/hooks/useCalculationSubmission";
 import DownloadPDFButton from "@/components/tools/DownloadPDFButton";
 
 export default function IRRCalculatorClient() {
@@ -61,7 +62,7 @@ export default function IRRCalculatorClient() {
         return guess;
     };
 
-    const handleCalculate = async () => {
+    const { isSubmitting, submit: handleCalculate } = useCalculationSubmission(async () => {
         if (!creditStatus.canCalculate) {
             setShowCreditModal(true);
             return;
@@ -116,7 +117,7 @@ export default function IRRCalculatorClient() {
         } else {
             setShowCreditModal(true);
         }
-    };
+    });
 
     return (
         <div className="space-y-12">
@@ -222,10 +223,11 @@ export default function IRRCalculatorClient() {
 
                         <button
                             onClick={handleCalculate}
-                            disabled={isLoading}
+                            disabled={isLoading || isSubmitting}
+                            aria-busy={isSubmitting}
                             className="w-full bg-[#31372B] text-[#FAF7EE] px-6 py-3 rounded-lg font-bold text-[16px] hover:opacity-90 transition disabled:opacity-50 mt-6"
                         >
-                            {isLoading ? "Loading..." : "Calculate Returns"}
+                            {isSubmitting ? "Calculating…" : isLoading ? "Loading..." : "Calculate Returns"}
                         </button>
                     </div>
 
