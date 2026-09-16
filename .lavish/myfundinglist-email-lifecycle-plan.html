@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MyFundingList transactional email plan</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5.5.19/daisyui.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5.5.19/themes.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.2.4/dist/index.global.js"></script>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      :where(.grid, .flex) > * { min-width: 0; }
+      :where(p, h1, h2, h3, td, th, .badge) { overflow-wrap: anywhere; }
+      :root { background: #FAF7EE; color: #31372B; }
+      .mfl-ink { color: #31372B; }
+      .mfl-paper { background: #FFFFFF; }
+      .mfl-cream { background: #FAF7EE; }
+      .mfl-line { border-color: rgba(49,55,43,.14); }
+      .mfl-accent { background: #52622A; color: #fff; }
+      .mfl-kicker { letter-spacing: .08em; font-size: .72rem; font-weight: 700; color: #66705F; }
+      .mfl-logo { font: 800 1.4rem/1 Arial, sans-serif; letter-spacing: -.08em; }
+      .mfl-logo small { display: block; margin-top: 2px; letter-spacing: .03em; font-size: .48rem; }
+      .mermaid { background: white; border: 1px solid rgba(49,55,43,.14); border-radius: 16px; padding: 16px; }
+    </style>
+  </head>
+  <body class="mfl-cream min-h-screen font-[Arial]">
+    <main class="mx-auto max-w-7xl px-5 py-8 lg:px-10 lg:py-12">
+      <header class="mb-10 flex flex-col gap-6 border-b mfl-line pb-8 md:flex-row md:items-end md:justify-between">
+        <div>
+          <div class="mfl-logo mfl-ink">MFL<small>MYFUNDINGLIST</small></div>
+          <p class="mfl-kicker mt-8">Transactional & product-triggered email system</p>
+          <h1 class="mt-2 max-w-3xl text-4xl font-bold tracking-tight mfl-ink md:text-5xl">Every important account moment, explained clearly.</h1>
+          <p class="mt-4 max-w-2xl text-lg leading-7 text-[#60685D]">A verified sender and shared template are ready. This plan adds reliable delivery for billing, credits, founder workflows, support, and affiliates—without marketing campaigns.</p>
+        </div>
+        <div class="rounded-xl border mfl-line mfl-paper px-5 py-4 text-sm">
+          <div class="font-bold mfl-ink">Recommended release</div>
+          <div class="mt-1 text-[#60685D]">15 customer emails · 2 internal notifications</div>
+        </div>
+      </header>
+
+      <section class="mb-10 grid gap-4 md:grid-cols-3">
+        <article class="rounded-2xl border mfl-line mfl-paper p-6"><p class="mfl-kicker">Principle 01</p><h2 class="mt-2 text-xl font-bold">Only after a durable event</h2><p class="mt-2 leading-6 text-[#60685D]">An email is queued only after the purchase, credit change, or status change is saved successfully.</p></article>
+        <article class="rounded-2xl border mfl-line mfl-paper p-6"><p class="mfl-kicker">Principle 02</p><h2 class="mt-2 text-xl font-bold">One message per moment</h2><p class="mt-2 leading-6 text-[#60685D]">Unique event keys prevent webhook retries, page refreshes, and repeat requests from creating duplicates.</p></article>
+        <article class="rounded-2xl border mfl-line mfl-paper p-6"><p class="mfl-kicker">Principle 03</p><h2 class="mt-2 text-xl font-bold">Useful, never promotional</h2><p class="mt-2 leading-6 text-[#60685D]">No newsletters, campaigns, or re-engagement mail. Every email maps to an account action or a material product state.</p></article>
+      </section>
+
+      <section class="mb-10">
+        <div class="mb-4"><p class="mfl-kicker">Delivery architecture</p><h2 class="mt-1 text-2xl font-bold">A durable queue between product events and Resend</h2></div>
+        <pre class="mermaid">
+flowchart LR
+  A[Verified product event] --> B[Database mutation + unique outbox event]
+  B --> C[Email dispatcher]
+  C --> D[Shared MyFundingList template]
+  D --> E[Resend]
+  E --> F[Delivery status + retry record]
+  C --> G{Transient failure?}
+  G -->|yes| H[Retry by scheduled job]
+  G -->|no| F
+        </pre>
+        <p class="mt-3 text-sm text-[#60685D]">The current Dodo webhook already prevents duplicate transactions. The outbox adds the same guarantee for receipts and all other emails.</p>
+      </section>
+
+      <section class="mb-10">
+        <div class="mb-4"><p class="mfl-kicker">Customer email matrix</p><h2 class="mt-1 text-2xl font-bold">The messages to ship</h2></div>
+        <div class="overflow-x-auto rounded-2xl border mfl-line mfl-paper">
+          <table class="table table-zebra table-sm lg:table-md">
+            <thead><tr class="text-[#31372B]"><th>Moment</th><th>Recipient & timing</th><th>Professional copy direction</th><th>Guardrail</th></tr></thead>
+            <tbody>
+              <tr><td><b>Welcome to MyFundingList</b><br><span class="text-xs text-[#60685D]">Account created</span></td><td>New user · once, after account creation</td><td><i>“Your account is ready.”</i> Explain the 5 free investor unlocks and one clear CTA: “Explore investors.”</td><td>Unique per user. Do not send again on OAuth sign-in.</td></tr>
+              <tr><td><b>Startup submission received</b></td><td>Founder · immediately after saved</td><td><i>“We received your startup profile.”</i> Confirm company name and explain they can return to update it.</td><td>Only after the startup record and submitted flag are saved.</td></tr>
+              <tr><td><b>Contact request received</b></td><td>Submitter · immediately after accepted</td><td><i>“We received your message.”</i> State the subject and that the team will reply by email.</td><td>One acknowledgement per accepted contact request; retain existing internal alert.</td></tr>
+              <tr><td><b>Payment complete · receipt</b></td><td>Buyer · after credits are granted</td><td><i>“Your Professional plan is active.”</i> Include amount, plan, credits added, payment ID, and “Go to dashboard.”</td><td>Unique per payment ID. Never send before credit grant succeeds.</td></tr>
+              <tr><td><b>Payment could not be completed</b></td><td>Buyer · after durable failed-payment record</td><td><i>“We could not complete your payment.”</i> Offer “Try again” and support; never expose bank/decline details.</td><td>Unique per payment ID; no email until email lookup is reliable.</td></tr>
+              <tr><td><b>Investor credits running low</b></td><td>User · when a first-time unlock leaves ≤10 paid credits; free users at ≤2</td><td><i>“You have 10 investor unlocks left.”</i> Explain what one credit unlocks and CTA “Get credits.”</td><td>Once per credit cycle; re-arm only after a new credit grant.</td></tr>
+              <tr><td><b>Investor credits used</b></td><td>User · when a first-time unlock reaches 0</td><td><i>“You’ve used your available investor credits.”</i> CTA “Get credits” plus dashboard link.</td><td>Once per cycle. Never send on a failed unlock attempt.</td></tr>
+              <tr><td><b>Calculator credits running low</b></td><td>Free authenticated user · 1 weekly use remains</td><td><i>“You have one calculator use left this week.”</i> Explain the weekly reset and paid-plan access.</td><td>Never send to anonymous or paid users; once per weekly reset cycle.</td></tr>
+              <tr><td><b>Calculator credits used</b></td><td>Free authenticated user · 0 uses remain</td><td><i>“Your calculator uses reset weekly.”</i> State the reset date and CTA “View plans.”</td><td>Once per weekly reset cycle.</td></tr>
+              <tr><td><b>Affiliate account ready</b></td><td>New affiliate · once after registration</td><td><i>“Your affiliate link is ready.”</i> Include the unique link and concise earnings explanation.</td><td>Unique per affiliate account.</td></tr>
+              <tr><td><b>A founder joined through your link</b></td><td>Referring affiliate · after attribution</td><td><i>“A founder joined through your referral link.”</i> Confirm referral recorded without sharing sensitive profile data.</td><td>Unique per referred user and affiliate.</td></tr>
+              <tr><td><b>Commission earned</b></td><td>Affiliate · after referred payment and commission save</td><td><i>“You earned $X.XX.”</i> Show updated available balance and the $76 withdrawal target.</td><td>Unique per commission/payment ID.</td></tr>
+              <tr><td><b>Withdrawal available</b></td><td>Affiliate · first time available balance reaches $76</td><td><i>“Your earnings are ready to withdraw.”</i> State available amount and CTA “Request withdrawal.”</td><td>Once until a withdrawal lowers available balance below threshold.</td></tr>
+              <tr><td><b>Withdrawal request received</b></td><td>Affiliate · immediately after request saved</td><td><i>“We received your withdrawal request.”</i> Include request amount and reference only—never bank details.</td><td>Unique per withdrawal ID.</td></tr>
+              <tr><td><b>Withdrawal status updated</b></td><td>Affiliate · after admin sets approved, rejected, or paid</td><td><i>“Your withdrawal is approved / needs attention / has been paid.”</i> Include amount and support CTA; paid mail may include payout reference if available.</td><td>One event per status transition; never include account or IFSC details.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="mb-10 grid gap-5 lg:grid-cols-2">
+        <article class="rounded-2xl border mfl-line mfl-paper p-6"><p class="mfl-kicker">Internal notifications</p><h2 class="mt-2 text-2xl font-bold">Two messages for the team</h2><ul class="mt-4 list-disc space-y-2 pl-5 leading-6 text-[#60685D]"><li>New contact request: keep the existing support alert, now in the shared template.</li><li>New startup submitted: notify the review team with a secure dashboard link, not sensitive profile data in the email.</li></ul></article>
+        <article class="rounded-2xl border mfl-line mfl-paper p-6"><p class="mfl-kicker">Explicitly excluded</p><h2 class="mt-2 text-2xl font-bold">What we will not send</h2><ul class="mt-4 list-disc space-y-2 pl-5 leading-6 text-[#60685D]"><li>No newsletter, product promotion, or inactivity/re-engagement sequence.</li><li>No mail for every investor unlock, calculator use, duplicate webhook, or failed form validation.</li><li>No refund email until the product gains a verified refund event or admin flow.</li></ul></article>
+      </section>
+
+      <section class="mb-10 rounded-2xl border mfl-line mfl-paper p-7">
+        <p class="mfl-kicker">Operations · Vercel-ready</p>
+        <h2 class="mt-2 text-2xl font-bold">No additional platform is required.</h2>
+        <div class="mt-4 grid gap-4 md:grid-cols-3">
+          <div><b class="mfl-ink">Vercel</b><p class="mt-1 text-sm leading-6 text-[#60685D]">Runs the app, protected email-dispatch endpoint, and a scheduled retry job for unsent outbox events.</p></div>
+          <div><b class="mfl-ink">Supabase</b><p class="mt-1 text-sm leading-6 text-[#60685D]">Stores each unique email event, delivery state, retry count, and the business records that trigger it.</p></div>
+          <div><b class="mfl-ink">Resend</b><p class="mt-1 text-sm leading-6 text-[#60685D]">Uses your verified sender to deliver the shared branded template and returns a delivery ID for auditability.</p></div>
+        </div>
+        <p class="mt-5 text-sm leading-6 text-[#60685D]"><b>One deployment prerequisite:</b> add the same Resend sender/API-key variables to Vercel, plus a protected cron secret. The app code, database migration, and schedule configuration ship together; there is no separate worker to run or maintain.</p>
+      </section>
+
+      <section class="rounded-2xl border border-[#52622A] bg-[#31372B] p-7 text-[#FAF7EE]">
+        <p class="mfl-kicker text-[#D8E2BA]">Decision required</p><h2 class="mt-2 text-3xl font-bold">Approve the transactional email set?</h2>
+        <p class="mt-3 max-w-3xl leading-7 text-[#E2E5DC]">Approval means we will build the durable outbox, dispatcher, templates, and the 15 customer emails above. Refund mail remains intentionally out of scope until there is a reliable refund event.</p>
+        <form class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center" data-lavish-question="email-lifecycle-approval" onsubmit="event.preventDefault(); const answer = new FormData(event.currentTarget).get('approval'); if (answer) window.lavish.queuePrompt('Lifecycle email plan decision: ' + answer, { tag: 'approval', text: 'Lifecycle email plan: ' + answer, data: { approval: answer } });">
+          <label class="flex items-center gap-2"><input class="radio radio-sm" type="radio" name="approval" value="Approve and implement the 15-email transactional plan" required /> Approve and implement</label>
+          <label class="flex items-center gap-2"><input class="radio radio-sm" type="radio" name="approval" value="Revise the lifecycle email plan" /> Revise the plan</label>
+          <button class="btn border-0 mfl-accent" type="submit">Queue decision</button>
+        </form>
+      </section>
+    </main>
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.15.0/dist/mermaid.esm.min.mjs";
+      mermaid.initialize({ startOnLoad: true, theme: "default", securityLevel: "strict" });
+    </script>
+  </body>
+</html>
